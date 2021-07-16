@@ -1,30 +1,12 @@
-﻿using UnityEngine;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System;
 using UnityEngine.UI;
 using HS2;
 using Manager;
-using SceneAssist;
-using Illusion.Game;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Actor;
-using ADV;
-using AIChara;
-using CameraEffector;
-using CharaCustom;
-using Illusion.Anime;
-using Illusion.Extensions;
-using GameLoadCharaFileSystem;
-using UIAnimatorCore;
-using UnityEngine.EventSystems;
 using System.ComponentModel;
-using UniRx;
-using UniRx.Triggers;
 
 
 namespace HS2_GirlsEntrance
@@ -34,7 +16,7 @@ namespace HS2_GirlsEntrance
     public class HS2_GirlsEntrance : BaseUnityPlugin
     {
         // Set version in BepInEx and in AssemblyInfo
-        public const string Version = "0.4";
+        public const string Version = "0.5";
 
         // User Configurations
         private static ConfigEntry<bool> Enabled;
@@ -88,18 +70,13 @@ namespace HS2_GirlsEntrance
         {
             ref bool isOn = ref __1;
 
-            if (isPlaying)
-            {
-                Console.WriteLine("****************************BREAK*************************");
-                isOn = false;
-            }
+            if (isPlaying) isOn = false;
         }
 
         // Avoid enter H-scene while animation is playing
         [HarmonyPostfix, HarmonyPatch(typeof(LobbyMapSelectInfoScrollController), "OnSnapTargetChanged")]
         public static void EnableStartH(Button ___btnStart)
         {
-            Console.WriteLine(originalText);
             var buttonStartText = ___btnStart.GetComponentsInChildren<Text>();
             if (originalText == null) originalText = buttonStartText[0].text;
 
@@ -107,7 +84,6 @@ namespace HS2_GirlsEntrance
             {
                 ___btnStart.interactable = false;
                 buttonStartText[0].text = "Wait the Girl Enter";
-                Console.WriteLine("================ButtonDisabled==========================");
             }
             else buttonStartText[0].text = originalText;
         }
@@ -117,10 +93,7 @@ namespace HS2_GirlsEntrance
         public static void SetupGirlsEntrance()
         {
             if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.GirlSelect)
-            {
-                Console.WriteLine("================GirlSelect==========================");
                 EnterAnimation();
-            }
         }
 
         // Play the animation on map select
@@ -128,10 +101,7 @@ namespace HS2_GirlsEntrance
         public static void LoadOnMapSelect()
         {
             if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.MapSelect)
-            {
-                Console.WriteLine("================MapSelect==========================");
                 EnterAnimation();
-            }
         }
 
         public static void EnterAnimation()
@@ -142,11 +112,9 @@ namespace HS2_GirlsEntrance
             // Exit if the girl is Fur
             string heroineID = scene.heroines[0].ChaName;
             if (heroineID == "c-1") return;
-            Console.WriteLine(heroineID);
 
             // Number of times the selected girl had sex
             int sexTimes = scene.heroines[0].gameinfo2.hCount;
-            Console.WriteLine(sexTimes);
 
             if (MakeEntrance.Value == EntranceOption.FirstTime && sexTimes == 0 ||
                 MakeEntrance.Value == EntranceOption.EveryTime)
@@ -164,7 +132,6 @@ namespace HS2_GirlsEntrance
                 // What to do after the animation stop playing
                 Action onEnd = null;
 
-                Console.WriteLine("=============OPENADV================================");
                 // Open the scene using game's OpenADV -> Plays on foreground
                 if (WherePlay.Value == WherePlayAnimation.MapSelect)
                     scene.OpenADV(bundle, asset, heroine, onEnd);

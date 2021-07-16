@@ -1,58 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-using HS2;
 using Manager;
-using SceneAssist;
-using Illusion.Game;
-using System.Collections;
-using System.IO;
 using Actor;
 using ADV;
 using AIChara;
-using CameraEffector;
-using CharaCustom;
 using Illusion.Anime;
-using Illusion.Extensions;
-using GameLoadCharaFileSystem;
-using UIAnimatorCore;
-using UnityEngine.EventSystems;
-using System.ComponentModel;
 using UniRx;
-using HS2_GirlsEntrance;
 
 namespace HS2_GirlsEntrance
 {
+    //Open an adv file in lobby
     class OpenADV
     {
-        public async void OpenADVScene(string _bundle, string _asset, Heroine _herone, LobbySceneManager scene, Action _onEnd = null)
+        public async void OpenADVScene(string _bundle, string _asset, Heroine _heroine, LobbySceneManager scene, Action _onEnd = null)
         {
             //Indicates that the animation is playing
             HS2_GirlsEntrance.isPlaying = true;
 
-            Console.WriteLine("Load Concierge=======================");
-            //new ChaFileControl();
             this.ConciergeChaCtrl = Singleton<Character>.Instance.GetChara(-1);
-            Console.WriteLine(ConciergeChaCtrl.chaFile.charaFileName);
-
             this.ConciergeHeroine = new Heroine(this.ConciergeChaCtrl.chaFile, false)
             {
                 fixCharaID = -1
             };
             this.ConciergeHeroine.SetRoot(this.ConciergeChaCtrl.gameObject);
 
-            Console.WriteLine("Setup LoadAsync==========================");
             //await Setup.LoadAsync(base.transform);
             await Setup.LoadAsync(scene.transform);
 
-            Console.WriteLine("this.isNowADV.Value==========================");
             this.isNowADV.Value = true;
             Game instance = Singleton<Game>.Instance;
             this.packData = new OpenADV.PackData();
@@ -63,9 +37,9 @@ namespace HS2_GirlsEntrance
             this.packData.SetParam(new IParams[]
             {
                 this.ConciergeHeroine,
-                _herone
+                _heroine
             });
-            this.packData.personal = _herone.personality;
+            this.packData.personal = _heroine.personality;
             this.packData.isParent = false;
             this.openData.bundle = _bundle;
             this.openData.asset = _asset;
@@ -85,10 +59,7 @@ namespace HS2_GirlsEntrance
                 HS2_GirlsEntrance.isPlaying = false;
             };
 
-            Console.WriteLine("Before Setup Open====================");
-            
             Setup.Open(this.openData, this.packData, true, true, true, false);
-            Console.WriteLine("After Setup Open====================");
         }
         
         private class PackData : CharaPackData
