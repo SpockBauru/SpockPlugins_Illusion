@@ -15,7 +15,7 @@ namespace HS2_GirlsEntrance
     public class HS2_GirlsEntrance : BaseUnityPlugin
     {
         // Set version in BepInEx and in AssemblyInfo
-        public const string Version = "0.5";
+        public const string Version = "1.0";
 
         // User Configurations
         private static ConfigEntry<bool> Enabled;
