@@ -25,6 +25,9 @@ namespace HS2_GirlsEntrance
         // See if animation is still playing
         public static bool isPlaying = false;
 
+        // See if tutorial is playing
+        private static bool isTutorial = false;
+
         // Custom verion of OpenAdv to call the animation in background
         private static OpenADVmod EntranceObj = new OpenADVmod();
 
@@ -66,16 +69,34 @@ namespace HS2_GirlsEntrance
         [HarmonyPostfix, HarmonyPatch(typeof(LobbyCharaSelectInfoScrollController), "OnValueChange")]
         private static void LoadOnSelect()
         {
-            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.GirlSelect)
+            if (!isPlaying &&
+                !isTutorial &&
+                Enabled.Value &&
+                WherePlay.Value == WherePlayAnimation.GirlSelect)
+            {
                 EnterAnimation();
+            }
         }
 
         // Play the animation on map select
         [HarmonyPrefix, HarmonyPatch(typeof(LobbyMapSelectUI), "InitList")]
         private static void LoadOnMapSelect()
         {
-            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.MapSelect)
+            if (!isPlaying &&
+                !isTutorial &&
+                Enabled.Value &&
+                WherePlay.Value == WherePlayAnimation.MapSelect)
+            {
                 EnterAnimation();
+            }
+        }
+
+        // Avoid enter H-Scene during Tutorial
+        [HarmonyPrefix, HarmonyPatch(typeof(LobbyScene), "Start")]
+        private static void DisableOnTutorial()
+        {
+            if (Singleton<Game>.Instance.saveData.TutorialNo > 0)
+                isTutorial = true;                
         }
 
         // Avoid change animation on girl's change
@@ -99,6 +120,7 @@ namespace HS2_GirlsEntrance
             if (originalText == null)
                 originalText = buttonStartText[0].text;
 
+            //Disable Start button and change the text
             if (isPlaying)
             {
                 ___btnStart.interactable = false;
