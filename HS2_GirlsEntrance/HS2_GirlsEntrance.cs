@@ -8,7 +8,6 @@ using Manager;
 using Actor;
 using System.ComponentModel;
 
-
 namespace HS2_GirlsEntrance
 {
     [BepInProcess("HoneySelect2")]
@@ -26,11 +25,11 @@ namespace HS2_GirlsEntrance
         // See if animation is still playing
         public static bool isPlaying = false;
 
-        // Custon verion of OpenAdv to call the animation in background
-        static OpenADV EntranceObj = new OpenADV();
+        // Custom verion of OpenAdv to call the animation in background
+        private static OpenADVmod EntranceObj = new OpenADVmod();
 
         //Store the orignal text for enter H
-        public static string originalText;
+        private static string originalText;
 
         public HS2_GirlsEntrance()
         {
@@ -43,7 +42,7 @@ namespace HS2_GirlsEntrance
             Harmony.CreateAndPatchAll(typeof(HS2_GirlsEntrance));
         }
 
-        //============================Configuration Manager=====================================
+        //=======================================Configuration Manager=======================================
         // User can define girl's state to play animation
         private enum EntranceOption
         {
@@ -62,23 +61,43 @@ namespace HS2_GirlsEntrance
             GirlSelect
         }
 
-        //=======================================Hooks=============================================
+        //===============================================Hooks===============================================
+        // Play the animation on girls's select
+        [HarmonyPostfix, HarmonyPatch(typeof(LobbyCharaSelectInfoScrollController), "OnValueChange")]
+        private static void LoadOnSelect()
+        {
+            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.GirlSelect)
+                EnterAnimation();
+        }
+
+        // Play the animation on map select
+        [HarmonyPrefix, HarmonyPatch(typeof(LobbyMapSelectUI), "InitList")]
+        private static void LoadOnMapSelect()
+        {
+            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.MapSelect)
+                EnterAnimation();
+        }
+
         // Avoid change animation on girl's change
         [HarmonyPatch(typeof(LobbyCharaSelectInfoScrollController), "OnValueChange")]
         [HarmonyPrefix]
-        public static void EnableGirlChange(ref bool __1)
+        private static void EnableGirlChange(ref bool __1)
         {
-            ref bool isOn = ref __1;
+            ref bool _isOn = ref __1;
 
-            if (isPlaying) isOn = false;
+            if (isPlaying)
+                _isOn = false;
         }
 
         // Avoid enter H-scene while animation is playing
         [HarmonyPostfix, HarmonyPatch(typeof(LobbyMapSelectInfoScrollController), "OnSnapTargetChanged")]
-        public static void EnableStartH(Button ___btnStart)
+        private static void EnableStartH(Button ___btnStart)
         {
-            var buttonStartText = ___btnStart.GetComponentsInChildren<Text>();
-            if (originalText == null) originalText = buttonStartText[0].text;
+            //text inside button to start h-scene in map select
+            Text[] buttonStartText = ___btnStart.GetComponentsInChildren<Text>();
+
+            if (originalText == null)
+                originalText = buttonStartText[0].text;
 
             if (isPlaying)
             {
@@ -88,57 +107,41 @@ namespace HS2_GirlsEntrance
             else buttonStartText[0].text = originalText;
         }
 
-        // Pay the animation on girls's select
-        [HarmonyPostfix, HarmonyPatch(typeof(LobbyCharaSelectInfoScrollController), "OnValueChange")]
-        public static void SetupGirlsEntrance()
-        {
-            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.GirlSelect)
-                EnterAnimation();
-        }
-
-        // Play the animation on map select
-        [HarmonyPrefix, HarmonyPatch(typeof(LobbyMapSelectUI), "InitList")]
-        public static void LoadOnMapSelect()
-        {
-            if (!isPlaying && Enabled.Value && WherePlay.Value == WherePlayAnimation.MapSelect)
-                EnterAnimation();
-        }
-
-        public static void EnterAnimation()
+        //=========================================Play the Animation========================================
+        private static void EnterAnimation()
         {
             // Instance of LobbySceneManager
-            LobbySceneManager scene = Singleton<LobbySceneManager>.Instance;
+            LobbySceneManager sceneLobby = Singleton<LobbySceneManager>.Instance;
 
             // Exit if the girl is Fur
-            string heroineID = scene.heroines[0].ChaName;
+            string heroineID = sceneLobby.heroines[0].ChaName;
             if (heroineID == "c-1") return;
 
             // Number of times the selected girl had sex
-            int sexTimes = scene.heroines[0].gameinfo2.hCount;
+            int sexTimes = sceneLobby.heroines[0].gameinfo2.hCount;
 
             if (MakeEntrance.Value == EntranceOption.FirstTime && sexTimes == 0 ||
                 MakeEntrance.Value == EntranceOption.EveryTime)
             {
                 // Set ADV file to load
                 string bundle = "adv/scenario/op/50/entrance.unity3d";
-                //string bundle = "adv/scenario/op/50/04.unity3d";
 
                 // Set Name/PathID inside the file
                 string asset = "0";
 
                 // Set first Girl
-                Heroine heroine = scene.heroines[0];
+                Heroine heroine = sceneLobby.heroines[0];
 
                 // What to do after the animation stop playing
                 Action onEnd = null;
 
                 // Open the scene using game's OpenADV -> Plays on foreground
                 if (WherePlay.Value == WherePlayAnimation.MapSelect)
-                    scene.OpenADV(bundle, asset, heroine, onEnd);
+                    sceneLobby.OpenADV(bundle, asset, heroine, onEnd);
 
                 // Open the scene using custon OpenADV -> Plays on background
                 if (WherePlay.Value == WherePlayAnimation.GirlSelect)
-                    EntranceObj.OpenADVScene(bundle, asset, heroine, scene, onEnd);
+                    EntranceObj.OpenADVScene(bundle, asset, heroine, sceneLobby, onEnd);
             }
         }
     }

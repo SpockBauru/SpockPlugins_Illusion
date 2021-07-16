@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HS2_GirlsEntrance.cs" />
-    <Compile Include="OpenADV.cs" />
+    <Compile Include="OpenADVmod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
