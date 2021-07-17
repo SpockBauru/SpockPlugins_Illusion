@@ -15,7 +15,7 @@ namespace HS2_GirlsEntrance
     public class HS2_GirlsEntrance : BaseUnityPlugin
     {
         // Set version in BepInEx and in AssemblyInfo
-        public const string Version = "1.0";
+        public const string Version = "1.1";
 
         // User Configurations
         private static ConfigEntry<bool> Enabled;
@@ -146,8 +146,12 @@ namespace HS2_GirlsEntrance
             if (MakeEntrance.Value == EntranceOption.FirstTime && sexTimes == 0 ||
                 MakeEntrance.Value == EntranceOption.EveryTime)
             {
-                // Set ADV file to load
-                string bundle = "adv/scenario/op/50/entrance.unity3d";
+                // Set ADV file to load. There are different files for base game and for expansion DX
+                string bundle;
+                if (GameSystem.isAdd50)
+                    bundle = "adv/scenario/op/50/entrance.unity3d";
+                else
+                    bundle = "adv/scenario/op/30/entrance_noDX.unity3d";
 
                 // Set Name/PathID inside the file
                 string asset = "0";
