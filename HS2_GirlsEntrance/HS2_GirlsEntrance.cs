@@ -95,6 +95,7 @@ namespace HS2_GirlsEntrance
         [HarmonyPrefix, HarmonyPatch(typeof(LobbyScene), "Start")]
         private static void DisableOnTutorial()
         {
+            isPlaying = false;
             if (Singleton<Game>.Instance.saveData.TutorialNo > 0)
                 isTutorial = true;                
         }
