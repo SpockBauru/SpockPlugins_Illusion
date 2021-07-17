@@ -2,7 +2,7 @@
 Plugins for Illusion games.
 
 # HS2 Girls Entrance
-Play the tutorial animation of girls entering the lobby in Honey Select 2.
+Play the tutorial animation of girls entering the lobby in Honey Select 2 **DX**.
 
 Behavior can be altered in Settings -> Plugin Settings -> HS2_GirlsEntrance.
 
