@@ -5,6 +5,7 @@
 
 # BepInEx
 [Ll]ibs/
+LibsIL2CPP/
 
 # User-specific files
 *.rsuser

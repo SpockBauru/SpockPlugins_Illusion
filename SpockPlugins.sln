@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_GirlsEntrance", "HS2_GirlsEntrance\HS2_GirlsEntrance.csproj", "{05B5D1EC-6616-4868-B62C-56CF29E50F0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnableResizeIL2CPP", "EnableResizeIL2CPP\EnableResizeIL2CPP.csproj", "{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{05B5D1EC-6616-4868-B62C-56CF29E50F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05B5D1EC-6616-4868-B62C-56CF29E50F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05B5D1EC-6616-4868-B62C-56CF29E50F0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

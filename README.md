@@ -16,3 +16,11 @@ Behavior can be altered in Settings -> Plugin Settings -> HS2_GirlsEntrance.
   Download `HS2_GirlsEntrance_v1.1.zip` and extract in the game folder.
   
   **v1.1 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r2)**
+  
+# Enable Resize IL2CPP
+IL2CPP version from DeathWeasel's [Enable Resize](https://github.com/IllusionMods/EnableResize). All rights to DeathWeasel.
+Enable window resizing on Unity games using IL2CPP scripting backend. Tested with Unity 2020.3.
+
+  ## Installation
+  Soon...
+
