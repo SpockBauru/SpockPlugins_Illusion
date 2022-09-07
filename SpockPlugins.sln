@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_GirlsEntrance", "HS2_Gi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnableResizeIL2CPP", "EnableResizeIL2CPP\EnableResizeIL2CPP.csproj", "{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonobehaviorInjection", "MonobehaviorInjection\MonobehaviorInjection.csproj", "{B5012247-5AC3-4ABA-857F-B04CB12D1D55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BB8219B-F170-4EB9-8CF0-1F6938E7A3D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5012247-5AC3-4ABA-857F-B04CB12D1D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5012247-5AC3-4ABA-857F-B04CB12D1D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5012247-5AC3-4ABA-857F-B04CB12D1D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5012247-5AC3-4ABA-857F-B04CB12D1D55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

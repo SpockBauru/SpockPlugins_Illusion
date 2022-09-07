@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static EnableResizeIL2CPP.BepInExLoader;
 
 // As informações gerais sobre um assembly são controladas por
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
 // associada a um assembly.
-[assembly: AssemblyTitle("EnableResizeIL2CPP")]
+[assembly: AssemblyTitle("MonobehaviorInjection")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("https://github.com/SpockBauru/SpockPlugins")]
-[assembly: AssemblyProduct("EnableResizeIL2CPP")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("MonobehaviorInjection")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +20,7 @@ using static EnableResizeIL2CPP.BepInExLoader;
 [assembly: ComVisible(false)]
 
 // O GUID a seguir será destinado à ID de typelib se este projeto for exposto para COM
-[assembly: Guid("9bb8219b-f170-4eb9-8cf0-1f6938e7a3d9")]
+[assembly: Guid("b5012247-5ac3-4aba-857f-b04cb12d1d55")]
 
 // As informações da versão de um assembly consistem nos quatro valores a seguir:
 //
@@ -33,5 +32,5 @@ using static EnableResizeIL2CPP.BepInExLoader;
 // É possível especificar todos os valores ou usar como padrão os Números de Build e da Revisão
 // usando o "*" como mostrado abaixo:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(Version)]
-[assembly: AssemblyFileVersion(Version)]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

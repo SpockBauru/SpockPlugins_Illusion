@@ -4,26 +4,34 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using UnhollowerRuntimeLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace EnableResizeIL2CPP
 {
-    [BepInPlugin(nameof(EnableResizeIL2CPP), nameof(EnableResizeIL2CPP), Version)]
-    public class EnableResizeIL2CPP : BasePlugin
+    [BepInPlugin(GUID, GUID, Version)]
+    public class BepInExLoader : BasePlugin
     {
+        public const string GUID = "EnableResizeIL2CPP";
+
         public const string Version = "0.5";
+
         public override void Load()
         {
             //IL2CPP don't automatically inherits Monobehavior, so needs to add separatelly
-            AddComponent<EnableResizeMonobehavior>();
+            ClassInjector.RegisterTypeInIl2Cpp<EnableResizeComponent>();
+            GameObject EnableResize = new GameObject("EnableResize_IL2CPP");
+            GameObject.DontDestroyOnLoad(EnableResize);
+            EnableResize.hideFlags = HideFlags.HideAndDontSave;
+            EnableResize.AddComponent<EnableResizeComponent>();
         }
     }
 
-    public class EnableResizeMonobehavior : MonoBehaviour
+    public class EnableResizeComponent : MonoBehaviour
     {
         //Got this from BepInEx Discord pinned messages
-        public EnableResizeMonobehavior(IntPtr handle) : base(handle) { }
+        public EnableResizeComponent(IntPtr handle) : base(handle) { }
 
 
         //Old code from mono version starts here
