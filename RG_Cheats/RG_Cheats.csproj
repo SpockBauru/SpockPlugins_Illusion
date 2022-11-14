@@ -32,38 +32,38 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\LibsIL2CPP\0Harmony.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\LibsIL2CPP\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Core">
-      <HintPath>..\LibsIL2CPP\BepInEx.Core.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\BepInEx.Core.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.IL2CPP">
-      <HintPath>..\LibsIL2CPP\BepInEx.IL2CPP.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\BepInEx.IL2CPP.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Preloader.Core">
-      <HintPath>..\LibsIL2CPP\BepInEx.Preloader.Core.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\BepInEx.Preloader.Core.dll</HintPath>
     </Reference>
     <Reference Include="IL">
-      <HintPath>..\LibsIL2CPP\IL.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\IL.dll</HintPath>
     </Reference>
     <Reference Include="Il2Cppmscorlib">
-      <HintPath>..\LibsIL2CPP\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\Il2Cppmscorlib.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\LibsIL2CPP\Mono.Cecil.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnhollowerBaseLib">
-      <HintPath>..\LibsIL2CPP\UnhollowerBaseLib.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\UnhollowerBaseLib.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\LibsIL2CPP\UnityEngine.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\LibsIL2CPP\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\RoomGirlLibs\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
