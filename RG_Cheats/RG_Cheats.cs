@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using BepInEx.IL2CPP;
-using BepInEx.IL2CPP.Utils.Collections;
-using Il2CppSystem.Collections.Generic;
 using UnhollowerRuntimeLib;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using RG.Scene;
 using RG.Scene.Action.Core;
 using RG.User;
-using Object = UnityEngine.Object;
 using System.IO;
-using System.Globalization;
 using HarmonyLib;
 using RG.Scene.Action.UI;
-using System.Runtime.CompilerServices;
-using Il2CppSystem.Globalization;
-using UnityEngine.Playables;
+using RG.Scene.Home.UI;
+
+using Object = UnityEngine.Object;
 using CultureInfo = System.Globalization.CultureInfo;
 
 namespace RG_Cheats
@@ -33,11 +23,12 @@ namespace RG_Cheats
     {
         public const string PluginName = "RG_Cheats";
         public const string GUID = "SpockBauru.RG.Cheats";
-        public const string Version = "0.1";
+        public const string Version = "0.2";
 
         static internal ConfigEntry<bool> Enable;
 
         public static Actor charaStatus;
+        public static UserFile userFile;
 
         private static AssetBundle bundle;
         private static Canvas cheatCanvas;
@@ -45,6 +36,7 @@ namespace RG_Cheats
 
         public static InputField stamina;
         public static InputField money;
+        public static InputField roomPoints;
 
         public static Button apply;
 
@@ -64,18 +56,18 @@ namespace RG_Cheats
         {
             static string activeCharacter = null;
 
+            // Loading Cheats Menu
             [HarmonyPostfix]
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.Start))]
             private static void StartUI()
             {
-                Debug.Log("===================START=====================");
                 if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
                 cheatCanvas = RG_Cheats.InstantiateFromBundle(bundle, "CheatCanvas").GetComponent<Canvas>();
                 cheatCanvas.gameObject.SetActive(false);
 
                 title = cheatCanvas.transform.FindChild("Title").GetComponent<Text>();
                 title.text = "Room Girl Cheats v" + Version.ToString();
-                CircleText(title, 3, new Color(0, 0.5412f, 0.6549f, 0.5f), new Vector2(3.1f, - 3.2f));
+                CircleText(title, 3, new Color(0, 0.5412f, 0.6549f, 0.5f), new Vector2(3.1f, -3.2f));
 
                 stamina = cheatCanvas.transform.FindChild("Stamina").GetComponent<InputField>();
                 stamina.contentType = InputField.ContentType.IntegerNumber;
@@ -83,13 +75,17 @@ namespace RG_Cheats
 
                 money = cheatCanvas.transform.FindChild("Money").GetComponent<InputField>();
                 money.contentType = InputField.ContentType.IntegerNumber;
-                money.characterLimit = 4;
+                money.characterLimit = 6;
+
+                roomPoints = cheatCanvas.transform.FindChild("RoomPoints").GetComponent<InputField>();
+                roomPoints.contentType = InputField.ContentType.IntegerNumber;
+                roomPoints.characterLimit = 6;
 
                 apply = cheatCanvas.transform.FindChild("Apply").GetComponent<Button>();
                 apply.onClick.AddListener((UnityAction)UpdateCharaStatus);
             }
 
-            // Select Character in the Menu
+            // Show/Hide Cheats Menu. Also get the instance from the selected character
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CharaSelectOption), nameof(CharaSelectOption.ChangeButtonState))]
             private static void ButtonStateUI(CharaSelectOption __instance, CharaSelectOption.ButtonState btnState)
@@ -113,6 +109,7 @@ namespace RG_Cheats
                 }
             }
 
+            // Update Cheats Menu when canvas is updated
             [HarmonyPostfix]
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.UpdateUI))]
             private static void UpdateStatus(Actor actor)
@@ -122,30 +119,54 @@ namespace RG_Cheats
                     UpdateCanvasValues(actor);
                 }
             }
+
+            // Getting Current User File, RoomPoints are inside
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(Manager.Game), nameof(Manager.Game.Initialize))]
+            private static void GetUserFile()
+            {
+                userFile = Manager.Game.UserFile;
+            }
         }
 
+        // The character status are inside a huge enum of Parameters
         public static void UpdateCharaStatus()
         {
-            float staminaFloat = float.Parse(stamina.text, CultureInfo.InvariantCulture.NumberFormat);
             //Stamina is Parameter 0
+            float staminaFloat = float.Parse(stamina.text, CultureInfo.InvariantCulture.NumberFormat);
             charaStatus._status.Parameters[0] = Mathf.Clamp(staminaFloat, 0, 100);
-
 
             // Money is Parameter 1
             float moneyFloat = float.Parse(money.text, CultureInfo.InvariantCulture.NumberFormat);
-            charaStatus._status.Parameters[1] = Mathf.Clamp(moneyFloat, 0, 1000000);
+            charaStatus._status.Parameters[1] = Mathf.Clamp(moneyFloat, 0, 999999);
+
+            // Room Points are inside userFile
+            int oldRoomPoints = userFile.RoomPoint;
+            int newRoomPoints = int.Parse(roomPoints.text, CultureInfo.InvariantCulture.NumberFormat);
+            userFile.RoomPoint = Mathf.Clamp(newRoomPoints, 0, 999999);
 
             //Update UI with current status
             StatusUI statusUI = StatusUI.FindObjectOfType<StatusUI>();
             statusUI.UpdateUI(charaStatus);
+
+            // Update Room Point UI
+            if (oldRoomPoints != newRoomPoints)
+            {
+                bool isPositive = oldRoomPoints <= newRoomPoints;
+                GeneralUI generalUI = GeneralUI.FindObjectOfType<GeneralUI>();
+                generalUI.ApplyRoomPointUI(isPositive);
+            }
         }
 
+        // Updating Cheats Menu
         public static void UpdateCanvasValues(Actor status)
         {
             stamina.text = status._status.Parameters[0].ToString("0");
             money.text = status._status.Parameters[1].ToString();
+            roomPoints.text = userFile.RoomPoint.ToString();
         }
 
+        // Because everything is harder with IL2CPP :(
         public static GameObject InstantiateFromBundle(AssetBundle bundle, string assetName)
         {
             var asset = bundle.LoadAsset(assetName, Il2CppType.From(typeof(GameObject)));
@@ -163,6 +184,7 @@ namespace RG_Cheats
             throw new FileLoadException("Could not instantiate asset " + assetName);
         }
 
+        // Fancy text contour from Illusion code
         public static void CircleText(Text text, int circlecount, Color color, Vector2 distance)
         {
             _ = text.gameObject.AddComponent<CircleOutline>();
@@ -172,75 +194,4 @@ namespace RG_Cheats
             outline.effectDistance = distance;
         }
     }
-
-    //public class MonoBehaviourCheats : MonoBehaviour
-    //{
-    //    public MonoBehaviourCheats(IntPtr handle) : base(handle) { }
-
-    //    private WaitForSeconds oneSecond = new WaitForSeconds(1f);
-
-    //    GameObject actionSceneObject;
-    //    ActionScene actionSceneScript;
-
-    //    List<Actor> womenList;
-    //    List<Actor> menList;
-
-    //    Actor character;
-    //    int charaCount;
-    //    Status charaStatus;
-
-    //    //public static Canvas cheatCanvas;
-    //    //AssetBundle bundle;
-
-    //    private void Start()
-    //    {
-    //        SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>(OnSceneLoaded));
-    //    }
-
-    //    private void OnSceneLoaded(Scene scene, LoadSceneMode lsm)
-    //    {
-    //        if (!RG_Cheats.Enable.Value) return;
-    //        if (scene.name != "Action") return;
-
-    //        actionSceneObject = GameObject.Find("ActionScene");
-    //        actionSceneScript = actionSceneObject.GetComponent<ActionScene>();
-    //        StartCoroutine(ActionScene(actionSceneScript).WrapToIl2Cpp());
-
-    //        //if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
-    //        //cheatCanvas = RG_Cheats.InstantiateFromBundle(bundle, "CheatCanvas").GetComponent<Canvas>();
-    //        //cheatCanvas.gameObject.SetActive(false);
-    //    }
-
-    //    private IEnumerator ActionScene(ActionScene actionScene)
-    //    {
-    //        while (RG_Cheats.Enable.Value)
-    //        {
-    //            yield return oneSecond;
-    //            if (actionScene == null) yield break;
-
-    //            womenList = actionScene._femaleActors;
-    //            if (womenList.Count > 0) ApplyCheats(womenList) ;
-
-    //            menList = actionScene._maleActors;
-    //            if (menList.Count > 0) ApplyCheats(menList);
-    //        }
-    //    }
-
-    //    private void ApplyCheats(List<Actor> charaList)
-    //    {
-    //        charaCount = charaList.Count;
-    //        for (int i = 0; i < charaCount; i++)
-    //        {
-    //            character = charaList[i];
-    //            charaStatus = character._status;
-
-    //            // Parameter 0 is Stamina
-    //            if (RG_Cheats.InfiniteStamina.Value) charaStatus.Parameters[0] = 100;
-
-    //            // Parameter 1 is Money
-    //            if (RG_Cheats.InfiniteMoney.Value) charaStatus.Parameters[1] = 9999;
-    //        }
-    //    }
-
-    //}
 }
