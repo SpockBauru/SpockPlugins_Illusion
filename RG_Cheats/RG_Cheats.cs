@@ -23,15 +23,17 @@ namespace RG_Cheats
     {
         public const string PluginName = "RG_Cheats";
         public const string GUID = "SpockBauru.RG.Cheats";
-        public const string Version = "0.2";
+        public const string Version = "0.2.1";
 
         static internal ConfigEntry<bool> Enable;
 
         public static Actor charaStatus;
         public static UserFile userFile;
+        public static StatusUI statusUI;
 
         private static AssetBundle bundle;
-        private static Canvas cheatCanvas;
+        private static GameObject cheatUI;
+        private static Canvas canvas01;
         public static Text title;
 
         public static InputField stamina;
@@ -39,6 +41,7 @@ namespace RG_Cheats
         public static InputField roomPoints;
 
         public static Button apply;
+        public static Button close;
 
         public override void Load()
         {
@@ -50,73 +53,84 @@ namespace RG_Cheats
             {
                 Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
             }
+
+            // IL2CPP don't automatically inherits MonoBehaviour, so needs to add a component separatelly
+            ClassInjector.RegisterTypeInIl2Cpp<CheatComponent>();
+
         }
 
-        private static class Hooks
+        public static class Hooks
         {
-            static string activeCharacter = null;
+            public static string currentCharacter = null;
+            public static string oldCharacter = null;
 
             // Loading Cheats Menu
             [HarmonyPostfix]
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.Start))]
-            private static void StartUI()
+            private static void StartUI(StatusUI __instance)
             {
-                if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
-                cheatCanvas = RG_Cheats.InstantiateFromBundle(bundle, "CheatCanvas").GetComponent<Canvas>();
-                cheatCanvas.gameObject.SetActive(false);
+                statusUI = __instance;
+                Canvas canvasStatusUI = statusUI.transform.FindChild("MoveArea").GetComponent<Canvas>();
 
-                title = cheatCanvas.transform.FindChild("Title").GetComponent<Text>();
+                if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
+                cheatUI = RG_Cheats.InstantiateFromBundle(bundle, "CheatCanvas");
+
+                canvas01 = cheatUI.transform.FindChild("SubCanvas1").GetComponent<Canvas>();
+                canvas01.transform.SetParent(canvasStatusUI.transform, false);
+                canvas01.gameObject.AddComponent<CheatComponent>();
+
+                title = canvas01.transform.FindChild("Title").GetComponent<Text>();
                 title.text = "Room Girl Cheats v" + Version.ToString();
                 CircleText(title, 3, new Color(0, 0.5412f, 0.6549f, 0.5f), new Vector2(3.1f, -3.2f));
 
-                stamina = cheatCanvas.transform.FindChild("Stamina").GetComponent<InputField>();
+                stamina = canvas01.transform.FindChild("Stamina").GetComponent<InputField>();
                 stamina.contentType = InputField.ContentType.IntegerNumber;
                 stamina.characterLimit = 3;
 
-                money = cheatCanvas.transform.FindChild("Money").GetComponent<InputField>();
+                money = canvas01.transform.FindChild("Money").GetComponent<InputField>();
                 money.contentType = InputField.ContentType.IntegerNumber;
                 money.characterLimit = 6;
 
-                roomPoints = cheatCanvas.transform.FindChild("RoomPoints").GetComponent<InputField>();
+                roomPoints = canvas01.transform.FindChild("RoomPoints").GetComponent<InputField>();
                 roomPoints.contentType = InputField.ContentType.IntegerNumber;
                 roomPoints.characterLimit = 6;
 
-                apply = cheatCanvas.transform.FindChild("Apply").GetComponent<Button>();
+                apply = canvas01.transform.FindChild("Apply").GetComponent<Button>();
                 apply.onClick.AddListener((UnityAction)UpdateCharaStatus);
+
+                close = canvas01.transform.FindChild("Close").GetComponent<Button>();
+                close.onClick.AddListener((UnityAction)delegate { canvas01.gameObject.SetActive(false); });
+
+                Debug.Log("==================Start==================");
             }
 
-            // Show/Hide Cheats Menu. Also get the instance from the selected character
+            // Get the selected character
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CharaSelectOption), nameof(CharaSelectOption.ChangeButtonState))]
-            private static void ButtonStateUI(CharaSelectOption __instance, CharaSelectOption.ButtonState btnState)
+            private static void ButtonStateUI(CharaSelectOption __instance,CharaSelectOption.ButtonState btnState)
             {
-                string thisCharacter = __instance.Owner.name;
-
                 if (btnState == CharaSelectOption.ButtonState.Select)
                 {
-                    activeCharacter = thisCharacter;
-                    cheatCanvas.gameObject.SetActive(true);
-
+                    //charaStatus = statusUI.Target;
                     charaStatus = __instance.Owner;
-                    UpdateCanvasValues(charaStatus);
-                }
+                    currentCharacter = charaStatus.name;
 
-                if (btnState == CharaSelectOption.ButtonState.Deselect &&
-                    thisCharacter.Equals(activeCharacter))
-                {
-                    activeCharacter = null;
-                    cheatCanvas.gameObject.SetActive(false);
+                    if (currentCharacter != oldCharacter)
+                    {
+                        oldCharacter = currentCharacter;
+                        UpdateCheatCanvas(charaStatus);
+                    }
                 }
             }
 
-            // Update Cheats Menu when canvas is updated
+            // Update Cheats Menu when Status canvas is updated
             [HarmonyPostfix]
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.UpdateUI))]
             private static void UpdateStatus(Actor actor)
             {
-                if (activeCharacter.Equals(actor.name))
+                if (currentCharacter.Equals(actor.name))
                 {
-                    UpdateCanvasValues(actor);
+                    UpdateCheatCanvas(actor);
                 }
             }
 
@@ -159,7 +173,7 @@ namespace RG_Cheats
         }
 
         // Updating Cheats Menu
-        public static void UpdateCanvasValues(Actor status)
+        public static void UpdateCheatCanvas(Actor status)
         {
             stamina.text = status._status.Parameters[0].ToString("0");
             money.text = status._status.Parameters[1].ToString();
