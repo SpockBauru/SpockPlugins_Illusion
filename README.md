@@ -1,7 +1,7 @@
 # SpockPlugins
 Plugins for Illusion games.
 
-#Room Girl Cheats
+# Room Girl Cheats
 Simple cheater for Room Girl. Also known as trainer.
 
   ## Installation
