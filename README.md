@@ -1,6 +1,15 @@
 # SpockPlugins
 Plugins for Illusion games.
 
+#Room Girl Cheats
+Simple cheater for Room Girl. Also known as trainer.
+
+  ## Installation
+  Download `RG_Cheats_v0.3.zip` and extract in the game folder.
+  
+  **v0.3 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r4)**
+
+
 # HS2 Girls Entrance
 Play the tutorial animation of girls entering the lobby in Honey Select 2 and also for the expansion **DX**.
 
