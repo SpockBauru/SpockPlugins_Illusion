@@ -81,6 +81,9 @@ namespace RG_Cheats
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.Start))]
             private static void StartUI(StatusUI __instance)
             {
+                oldCharacter = null;
+                currentCharacter = null;
+
                 generalUI = GeneralUI.FindObjectOfType<GeneralUI>();
                 statusUI = __instance;
                 Canvas canvasStatusUI = statusUI.transform.FindChild("MoveArea").GetComponent<Canvas>();
@@ -116,7 +119,7 @@ namespace RG_Cheats
                 apply.onClick.AddListener((UnityAction)UpdateCharaStatus);
 
 
-                //=========================== Cheat Canvas 2 (menu) ================================
+                //=========================== Cheat Canvas 2 (Satus Menu) ================================
                 Canvas otherInfo = canvasStatusUI.transform.FindChild("OtherInfo/MoveContent").GetComponent<Canvas>();
 
                 canvas02 = cheatUI.transform.FindChild("CheatCanvas2").GetComponent<Canvas>();
