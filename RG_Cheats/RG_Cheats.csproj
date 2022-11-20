@@ -96,7 +96,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CheatsResources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RG_Cheats.cs" />
+    <Compile Include="RG_CheatsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
