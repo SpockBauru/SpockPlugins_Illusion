@@ -11,12 +11,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
+using RG;
 using RG.Scene.Action.Core;
 using RG.Scene.Action.UI;
 using RG.Scene.Home.UI;
 using RG.User;
 
 using Object = UnityEngine.Object;
+
 
 namespace RG_Cheats
 {
@@ -53,7 +55,7 @@ namespace RG_Cheats
         private static InputField socialInput;
         private static InputField romanceInput;
         private static InputField appealInput;
-        private static InputField hExpInput;
+        private static InputField sexperienceInput;
 
         private static InputField satisfactionInput;
         private static InputField dissatisfactionInput;
@@ -67,6 +69,13 @@ namespace RG_Cheats
         private static InputField romanceInput2;
         private static InputField brokenInput;
         private static InputField libidoInput;
+        private static InputField homeInput;
+        private static InputField casinoInput;
+        private static InputField cafeInput;
+        private static InputField parkInput;
+        private static InputField restaurantInput;
+        private static InputField hotelInput;
+        private static InputField eventInput;
 
         private static Button openButton;
         private static Button closeButton;
@@ -154,7 +163,6 @@ namespace RG_Cheats
                 socialInput = canvas02.transform.FindChild("Social").GetComponent<InputField>();
                 romanceInput = canvas02.transform.FindChild("Romance").GetComponent<InputField>();
                 appealInput = canvas02.transform.FindChild("Appeal").GetComponent<InputField>();
-                hExpInput = canvas02.transform.FindChild("HExperience").GetComponent<InputField>();
 
                 apply2Button = canvas02.transform.FindChild("Apply2").GetComponent<Button>();
                 apply2Button.onClick.AddListener((UnityAction)UpdateCharaStatus);
@@ -168,6 +176,7 @@ namespace RG_Cheats
 
                 advancedMenu = canvas02.transform.FindChild("Advanced").gameObject;
 
+                sexperienceInput = advancedMenu.transform.FindChild("HExperience").GetComponent<InputField>();
                 satisfactionInput = advancedMenu.transform.FindChild("Satisfaction").GetComponent<InputField>();
                 dissatisfactionInput = advancedMenu.transform.FindChild("Dissatisfaction").GetComponent<InputField>();
                 seriousInput = advancedMenu.transform.FindChild("Serious").GetComponent<InputField>();
@@ -180,6 +189,13 @@ namespace RG_Cheats
                 romanceInput2 = advancedMenu.transform.FindChild("Romance").GetComponent<InputField>();
                 brokenInput = advancedMenu.transform.FindChild("Broken").GetComponent<InputField>();
                 libidoInput = advancedMenu.transform.FindChild("Libido").GetComponent<InputField>();
+                homeInput = advancedMenu.transform.FindChild("Home").GetComponent<InputField>();
+                casinoInput = advancedMenu.transform.FindChild("Cassino").GetComponent<InputField>();
+                cafeInput = advancedMenu.transform.FindChild("Cafe").GetComponent<InputField>();
+                parkInput = advancedMenu.transform.FindChild("Park").GetComponent<InputField>();
+                restaurantInput = advancedMenu.transform.FindChild("Restaurant").GetComponent<InputField>();
+                hotelInput = advancedMenu.transform.FindChild("Hotel").GetComponent<InputField>();
+                eventInput = advancedMenu.transform.FindChild("Event").GetComponent<InputField>();
 
             }
 
@@ -224,109 +240,170 @@ namespace RG_Cheats
             }
         }
 
-
         // The character status are inside a huge enum of Parameters
         private static void UpdateCharaStatus()
         {
-            float tempFloat;
+            int parameter;
+            float value;
 
-            // Stamina is Parameter 0
-            float.TryParse(staminaInput.text, out tempFloat);
-            character._status.Parameters[0] = Mathf.Clamp(tempFloat, 0, 100);
+            if (canvas01.gameObject.active)
+            {
+                Debug.Log("Update canvas01 status");
+                // Stamina
+                parameter = (int)Define.Action.StatusCategory.Health;
+                float.TryParse(staminaInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Money is Parameter 1
-            float.TryParse(moneyInput.text, out tempFloat);
-            character._status.Parameters[1] = Mathf.Clamp(tempFloat, 0, 999999);
+                // Money
+                parameter = (int)Define.Action.StatusCategory.Money;
+                float.TryParse(moneyInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 999999);
 
-            // Room Points are inside userFile
-            int oldRoomPoints = userFile.RoomPoint;
-            int newRoomPoints;
-            int.TryParse(roomPointsInput.text, out newRoomPoints);
-            userFile.RoomPoint = Mathf.Clamp(newRoomPoints, 0, 999999);
+                // Room Points are inside userFile
+                int oldRoomPoints = userFile.RoomPoint;
+                int newRoomPoints;
+                int.TryParse(roomPointsInput.text, out newRoomPoints);
+                userFile.RoomPoint = Mathf.Clamp(newRoomPoints, 0, 999999);
 
-            // Expertise is Parameter 22
-            float.TryParse(expertiseInput.text, out tempFloat);
-            character._status.Parameters[22] = Mathf.Clamp(tempFloat, 0, 900);
+                // Update Room Point UI
+                if (oldRoomPoints != newRoomPoints)
+                {
+                    bool isPositive = oldRoomPoints <= newRoomPoints;
+                    generalUI.ApplyRoomPointUI(isPositive);
+                }
+            }
 
-            // Hobby is Parameter 23
-            float.TryParse(hobbyInput.text, out tempFloat);
-            character._status.Parameters[23] = Mathf.Clamp(tempFloat, 0, 900);
+            // Expertise
+            parameter = (int)Define.Action.StatusCategory.Performance;
+            float.TryParse(expertiseInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
-            // Social is Parameter 24
-            float.TryParse(socialInput.text, out tempFloat);
-            character._status.Parameters[24] = Mathf.Clamp(tempFloat, 0, 900);
+            // Hobby
+            parameter = (int)Define.Action.StatusCategory.Hobby;
+            float.TryParse(hobbyInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
-            // Romance is Parameter 25
-            float.TryParse(romanceInput.text, out tempFloat);
-            character._status.Parameters[25] = Mathf.Clamp(tempFloat, 0, 900);
+            // Social
+            parameter = (int)Define.Action.StatusCategory.Sociable;
+            float.TryParse(socialInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
-            // Appeal is Parameter 26
-            float.TryParse(appealInput.text, out tempFloat);
-            character._status.Parameters[26] = Mathf.Clamp(tempFloat, 0, 900);
+            // Romance (Love status)
+            parameter = (int)Define.Action.StatusCategory.Love;
+            float.TryParse(romanceInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
-            // H-Experience is Parameter 4
-            float.TryParse(hExpInput.text, out tempFloat);
-            character._status.Parameters[4] = Mathf.Clamp(tempFloat, 0, 100);
+            // Appeal
+            parameter = (int)Define.Action.StatusCategory.Sexy;
+            float.TryParse(appealInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
-            // Satisfaction is Parameter 2
-            float.TryParse(satisfactionInput.text, out tempFloat);
-            character._status.Parameters[2] = Mathf.Clamp(tempFloat, 0, 100);
+            if (advancedToggle.isOn)
+            {
+                Debug.Log("Update advanced status");
+                // H-Experience
+                parameter = (int)Define.Action.StatusCategory.Sexperience;
+                float.TryParse(sexperienceInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Dissatisfaction is Parameter 3
-            float.TryParse(dissatisfactionInput.text, out tempFloat);
-            character._status.Parameters[3] = Mathf.Clamp(tempFloat, 0, 100);
+                // Satisfaction
+                parameter = (int)Define.Action.StatusCategory.Satisfaction;
+                float.TryParse(satisfactionInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Serious is Parameter 5
-            float.TryParse(seriousInput.text, out tempFloat);
-            character._status.Parameters[5] = Mathf.Clamp(tempFloat, 0, 100);
+                // Dissatisfaction
+                parameter = (int)Define.Action.StatusCategory.Dissatisfaction;
+                float.TryParse(dissatisfactionInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Playful is Parameter 6
-            float.TryParse(playfulInput.text, out tempFloat);
-            character._status.Parameters[6] = Mathf.Clamp(tempFloat, 0, 100);
+                // Serious
+                parameter = (int)Define.Action.StatusCategory.Honesty;
+                float.TryParse(seriousInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Eccentric is Parameter 7
-            float.TryParse(eccentricInput.text, out tempFloat);
-            character._status.Parameters[7] = Mathf.Clamp(tempFloat, 0, 100);
+                // Playful
+                parameter = (int)Define.Action.StatusCategory.Naughty;
+                float.TryParse(playfulInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Sleepiness is Parameter 8
-            float.TryParse(sleepinessInput.text, out tempFloat);
-            character._status.Parameters[8] = Mathf.Clamp(tempFloat, 0, 100);
+                // Eccentric
+                parameter = (int)Define.Action.StatusCategory.Unique;
+                float.TryParse(eccentricInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Fatigue is Parameter 9
-            float.TryParse(fatigueInput.text, out tempFloat);
-            character._status.Parameters[9] = Mathf.Clamp(tempFloat, 0, 100);
+                // Sleepiness
+                parameter = (int)Define.Action.StatusCategory.Sleepiness;
+                float.TryParse(sleepinessInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Bladder is Parameter 10
-            float.TryParse(bladderInput.text, out tempFloat);
-            character._status.Parameters[10] = Mathf.Clamp(tempFloat, 0, 99);
+                // Fatigue
+                parameter = (int)Define.Action.StatusCategory.Fatigue;
+                float.TryParse(fatigueInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Talk is Parameter 11
-            float.TryParse(talkInput.text, out tempFloat);
-            character._status.Parameters[11] = Mathf.Clamp(tempFloat, 0, 100);
+                // Bladder
+                float.TryParse(bladderInput.text, out value);
+                parameter = (int)Define.Action.StatusCategory.Bladder;
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Romance2 is Parameter 12
-            float.TryParse(romanceInput2.text, out tempFloat);
-            character._status.Parameters[12] = Mathf.Clamp(tempFloat, 0, 100);
+                // Talk
+                parameter = (int)Define.Action.StatusCategory.Talk;
+                float.TryParse(talkInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Broken is Parameter 13
-            float.TryParse(brokenInput.text, out tempFloat);
-            character._status.Parameters[13] = Mathf.Clamp(tempFloat, 0, 100);
+                // Romance2 (Romance urge)
+                parameter = (int)Define.Action.StatusCategory.Romance;
+                float.TryParse(romanceInput2.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
-            // Libido is Parameter 14
-            float.TryParse(libidoInput.text, out tempFloat);
-            character._status.Parameters[14] = Mathf.Clamp(tempFloat, 0, 100);
+                // Broken
+                parameter = (int)Define.Action.StatusCategory.Broken;
+                float.TryParse(brokenInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
+                // Libido
+                parameter = (int)Define.Action.StatusCategory.Libido;
+                float.TryParse(libidoInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
 
+                // Home
+                parameter = (int)Define.Action.StatusCategory.Home;
+                float.TryParse(homeInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Casino
+                parameter = (int)Define.Action.StatusCategory.Casino;
+                float.TryParse(casinoInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Cafe
+                parameter = (int)Define.Action.StatusCategory.Cafe;
+                float.TryParse(cafeInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Park
+                parameter = (int)Define.Action.StatusCategory.Park;
+                float.TryParse(parkInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Restaurant
+                parameter = (int)Define.Action.StatusCategory.Restaurant;
+                float.TryParse(restaurantInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Hotel
+                parameter = (int)Define.Action.StatusCategory.LoveHotel;
+                float.TryParse(hotelInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // Event
+                parameter = (int)Define.Action.StatusCategory.Event;
+                float.TryParse(eventInput.text, out value);
+                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+            }
 
             // Update UI with current status
             statusUI.UpdateUI(character);
-
-            // Update Room Point UI
-            if (oldRoomPoints != newRoomPoints)
-            {
-                bool isPositive = oldRoomPoints <= newRoomPoints;
-                generalUI.ApplyRoomPointUI(isPositive);
-            }
         }
 
         // Updating Cheats Menu
@@ -334,27 +411,98 @@ namespace RG_Cheats
         {
             if (character._status == null) return;
 
-            staminaInput.text = character._status.Parameters[0].ToString("0");
-            moneyInput.text = character._status.Parameters[1].ToString();
-            roomPointsInput.text = userFile.RoomPoint.ToString();
-            expertiseInput.text = character._status.Parameters[22].ToString("0");
-            hobbyInput.text = character._status.Parameters[23].ToString("0");
-            socialInput.text = character._status.Parameters[24].ToString("0");
-            romanceInput.text = character._status.Parameters[25].ToString("0");
-            appealInput.text = character._status.Parameters[26].ToString("0");
-            satisfactionInput.text = character._status.Parameters[2].ToString("0");
-            dissatisfactionInput.text = character._status.Parameters[3].ToString("0");
-            hExpInput.text = character._status.Parameters[4].ToString("0");
-            seriousInput.text = character._status.Parameters[5].ToString("0");
-            playfulInput.text = character._status.Parameters[6].ToString("0");
-            eccentricInput.text = character._status.Parameters[7].ToString("0");
-            sleepinessInput.text = character._status.Parameters[8].ToString("0");
-            fatigueInput.text = character._status.Parameters[9].ToString("0");
-            bladderInput.text = character._status.Parameters[10].ToString("0");
-            talkInput.text = character._status.Parameters[11].ToString("0");
-            romanceInput2.text = character._status.Parameters[12].ToString("0");
-            brokenInput.text = character._status.Parameters[13].ToString("0");
-            libidoInput.text = character._status.Parameters[14].ToString("0");
+            int parameter;
+
+            if (canvas01.gameObject.active)
+            {
+                Debug.Log("Update canvas01 canvas");
+                parameter = (int)Define.Action.StatusCategory.Health;
+                staminaInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Money;
+                moneyInput.text = character._status.Parameters[parameter].ToString();
+
+                roomPointsInput.text = userFile.RoomPoint.ToString();
+            }
+
+            parameter = (int)Define.Action.StatusCategory.Performance;
+            expertiseInput.text = character._status.Parameters[parameter].ToString("0");
+
+            parameter = (int)Define.Action.StatusCategory.Hobby;
+            hobbyInput.text = character._status.Parameters[parameter].ToString("0");
+
+            parameter = (int)Define.Action.StatusCategory.Sociable;
+            socialInput.text = character._status.Parameters[parameter].ToString("0");
+
+            parameter = (int)Define.Action.StatusCategory.Love;
+            romanceInput.text = character._status.Parameters[parameter].ToString("0");
+
+            parameter = (int)Define.Action.StatusCategory.Sexy;
+            appealInput.text = character._status.Parameters[parameter].ToString("0");
+
+            if (advancedToggle.isOn)
+            {
+                Debug.Log("Update advanced canvas");
+                parameter = (int)Define.Action.StatusCategory.Satisfaction;
+                satisfactionInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Dissatisfaction;
+                dissatisfactionInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Sexperience;
+                sexperienceInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Honesty;
+                seriousInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Naughty;
+                playfulInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Unique;
+                eccentricInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Sleepiness;
+                sleepinessInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Fatigue;
+                fatigueInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Bladder;
+                bladderInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Talk;
+                talkInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Romance;
+                romanceInput2.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Broken;
+                brokenInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Libido;
+                libidoInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Home;
+                homeInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Casino;
+                casinoInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Cafe;
+                cafeInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Park;
+                parkInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Restaurant;
+                restaurantInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.LoveHotel;
+                hotelInput.text = character._status.Parameters[parameter].ToString("0");
+
+                parameter = (int)Define.Action.StatusCategory.Event;
+                eventInput.text = character._status.Parameters[parameter].ToString("0");
+            }
         }
 
         private static void OpenClose()
@@ -368,6 +516,7 @@ namespace RG_Cheats
             {
                 canvas01.gameObject.SetActive(true);
                 openButton.gameObject.SetActive(false);
+                statusUI.UpdateUI(character);
             }
         }
 
@@ -381,13 +530,14 @@ namespace RG_Cheats
         {
             if (state)
             {
-                canvas02Background.rectTransform.sizeDelta = new Vector2(640f, 890f);
-                canvas02Tiled.rectTransform.sizeDelta = new Vector2(610f, 659f);
+                canvas02Background.rectTransform.sizeDelta = new Vector2(1030f, 775f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(1000f, 553f);
+                statusUI.UpdateUI(character);
             }
             else
             {
-                canvas02Background.rectTransform.sizeDelta = new Vector2(250f, 890f);
-                canvas02Tiled.rectTransform.sizeDelta = new Vector2(225f, 659f);
+                canvas02Background.rectTransform.sizeDelta = new Vector2(250f, 775f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(225f, 553f);
             }
             advancedMenu.SetActive(state);
         }
