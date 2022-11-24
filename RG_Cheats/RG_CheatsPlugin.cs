@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -14,6 +15,8 @@ using RG.Scene.Action.Core;
 using RG.Scene.Action.UI;
 using RG.Scene.Home.UI;
 using RG.User;
+
+using Object = UnityEngine.Object;
 
 namespace RG_Cheats
 {
@@ -39,6 +42,7 @@ namespace RG_Cheats
         private static GameObject cheatUI;
         private static Canvas canvas01;
         private static Canvas canvas02;
+        private static GameObject advancedMenu;
         private static Text title;
 
         private static InputField staminaInput;
@@ -49,12 +53,29 @@ namespace RG_Cheats
         private static InputField socialInput;
         private static InputField romanceInput;
         private static InputField appealInput;
+        private static InputField hExpInput;
+
+        private static InputField satisfactionInput;
+        private static InputField dissatisfactionInput;
+        private static InputField seriousInput;
+        private static InputField playfulInput;
+        private static InputField eccentricInput;
+        private static InputField sleepinessInput;
+        private static InputField fatigueInput;
+        private static InputField bladderInput;
+        private static InputField talkInput;
+        private static InputField romanceInput2;
+        private static InputField brokenInput;
+        private static InputField libidoInput;
 
         private static Button openButton;
         private static Button closeButton;
         private static Button applyButton;
         private static Toggle refillStaminaToggle;
+        private static Toggle advancedToggle;
         private static Button apply2Button;
+        private static Image canvas02Background;
+        private static Image canvas02Tiled;
 
         public override void Load()
         {
@@ -133,9 +154,33 @@ namespace RG_Cheats
                 socialInput = canvas02.transform.FindChild("Social").GetComponent<InputField>();
                 romanceInput = canvas02.transform.FindChild("Romance").GetComponent<InputField>();
                 appealInput = canvas02.transform.FindChild("Appeal").GetComponent<InputField>();
+                hExpInput = canvas02.transform.FindChild("HExperience").GetComponent<InputField>();
 
                 apply2Button = canvas02.transform.FindChild("Apply2").GetComponent<Button>();
                 apply2Button.onClick.AddListener((UnityAction)UpdateCharaStatus);
+
+                //=========================== Cheat Canvas 2 - Advanced Mode ================================
+                canvas02Background = canvas02.transform.FindChild("BackGround").GetComponent<Image>();
+                canvas02Tiled = canvas02.transform.FindChild("BkgTextTiled").GetComponent<Image>();
+
+                advancedToggle = canvas02.transform.FindChild("AdvancedToggle").GetComponent<Toggle>();
+                advancedToggle.onValueChanged.AddListener((UnityAction<bool>)ToggleAdvancedChanged);
+
+                advancedMenu = canvas02.transform.FindChild("Advanced").gameObject;
+
+                satisfactionInput = advancedMenu.transform.FindChild("Satisfaction").GetComponent<InputField>();
+                dissatisfactionInput = advancedMenu.transform.FindChild("Dissatisfaction").GetComponent<InputField>();
+                seriousInput = advancedMenu.transform.FindChild("Serious").GetComponent<InputField>();
+                playfulInput = advancedMenu.transform.FindChild("Playful").GetComponent<InputField>();
+                eccentricInput = advancedMenu.transform.FindChild("Eccentric").GetComponent<InputField>();
+                sleepinessInput = advancedMenu.transform.FindChild("Sleepiness").GetComponent<InputField>();
+                fatigueInput = advancedMenu.transform.FindChild("Fatigue").GetComponent<InputField>();
+                bladderInput = advancedMenu.transform.FindChild("Bladder").GetComponent<InputField>();
+                talkInput = advancedMenu.transform.FindChild("Talk").GetComponent<InputField>();
+                romanceInput2 = advancedMenu.transform.FindChild("Romance").GetComponent<InputField>();
+                brokenInput = advancedMenu.transform.FindChild("Broken").GetComponent<InputField>();
+                libidoInput = advancedMenu.transform.FindChild("Libido").GetComponent<InputField>();
+
             }
 
             // Get the selected character
@@ -163,7 +208,7 @@ namespace RG_Cheats
             {
                 if (character._status == null) return;
 
-                if (currentCharacter.Equals(character.name))
+                if (currentCharacter.Equals(character.name, StringComparison.Ordinal))
                 {
                     if (refillStaminaToggle.isOn) character._status.Parameters[0] = 100;
                     UpdateCheatCanvas(character);
@@ -219,6 +264,60 @@ namespace RG_Cheats
             float.TryParse(appealInput.text, out tempFloat);
             character._status.Parameters[26] = Mathf.Clamp(tempFloat, 0, 900);
 
+            // H-Experience is Parameter 4
+            float.TryParse(hExpInput.text, out tempFloat);
+            character._status.Parameters[4] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Satisfaction is Parameter 2
+            float.TryParse(satisfactionInput.text, out tempFloat);
+            character._status.Parameters[2] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Dissatisfaction is Parameter 3
+            float.TryParse(dissatisfactionInput.text, out tempFloat);
+            character._status.Parameters[3] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Serious is Parameter 5
+            float.TryParse(seriousInput.text, out tempFloat);
+            character._status.Parameters[5] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Playful is Parameter 6
+            float.TryParse(playfulInput.text, out tempFloat);
+            character._status.Parameters[6] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Eccentric is Parameter 7
+            float.TryParse(eccentricInput.text, out tempFloat);
+            character._status.Parameters[7] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Sleepiness is Parameter 8
+            float.TryParse(sleepinessInput.text, out tempFloat);
+            character._status.Parameters[8] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Fatigue is Parameter 9
+            float.TryParse(fatigueInput.text, out tempFloat);
+            character._status.Parameters[9] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Bladder is Parameter 10
+            float.TryParse(bladderInput.text, out tempFloat);
+            character._status.Parameters[10] = Mathf.Clamp(tempFloat, 0, 99);
+
+            // Talk is Parameter 11
+            float.TryParse(talkInput.text, out tempFloat);
+            character._status.Parameters[11] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Romance2 is Parameter 12
+            float.TryParse(romanceInput2.text, out tempFloat);
+            character._status.Parameters[12] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Broken is Parameter 13
+            float.TryParse(brokenInput.text, out tempFloat);
+            character._status.Parameters[13] = Mathf.Clamp(tempFloat, 0, 100);
+
+            // Libido is Parameter 14
+            float.TryParse(libidoInput.text, out tempFloat);
+            character._status.Parameters[14] = Mathf.Clamp(tempFloat, 0, 100);
+
+
+
             // Update UI with current status
             statusUI.UpdateUI(character);
 
@@ -243,6 +342,19 @@ namespace RG_Cheats
             socialInput.text = character._status.Parameters[24].ToString("0");
             romanceInput.text = character._status.Parameters[25].ToString("0");
             appealInput.text = character._status.Parameters[26].ToString("0");
+            satisfactionInput.text = character._status.Parameters[2].ToString("0");
+            dissatisfactionInput.text = character._status.Parameters[3].ToString("0");
+            hExpInput.text = character._status.Parameters[4].ToString("0");
+            seriousInput.text = character._status.Parameters[5].ToString("0");
+            playfulInput.text = character._status.Parameters[6].ToString("0");
+            eccentricInput.text = character._status.Parameters[7].ToString("0");
+            sleepinessInput.text = character._status.Parameters[8].ToString("0");
+            fatigueInput.text = character._status.Parameters[9].ToString("0");
+            bladderInput.text = character._status.Parameters[10].ToString("0");
+            talkInput.text = character._status.Parameters[11].ToString("0");
+            romanceInput2.text = character._status.Parameters[12].ToString("0");
+            brokenInput.text = character._status.Parameters[13].ToString("0");
+            libidoInput.text = character._status.Parameters[14].ToString("0");
         }
 
         private static void OpenClose()
@@ -263,6 +375,21 @@ namespace RG_Cheats
         {
             RefillStanimaConfig.Value = state;
             if (state) statusUI.UpdateUI(character);
+        }
+
+        private static void ToggleAdvancedChanged(bool state)
+        {
+            if (state)
+            {
+                canvas02Background.rectTransform.sizeDelta = new Vector2(640f, 890f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(610f, 659f);
+            }
+            else
+            {
+                canvas02Background.rectTransform.sizeDelta = new Vector2(250f, 890f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(225f, 659f);
+            }
+            advancedMenu.SetActive(state);
         }
 
         // Because everything is harder with IL2CPP :(

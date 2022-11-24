@@ -1,159 +1,159 @@
-Health
-Money
-Satisfaction
-Dissatisfaction
-Sexperience
-Honesty
-Naughty
-Unique
-Sleepiness
-Fatigue
-Bladder
-Talk
-Romance
-Broken
-Libido
-Home
-Casino
-Cafe
-Park
-Restaurant
-LoveHotel
-Event
-Performance
-Hobby
-Sociable
-Love
-Sexy
-MAX
-Probability = 37
-WorkProbability
-BreakProbability
-UniqueProbability
-CommunityProbability
-HProbability
-BorrowingProbability
-EnticementProbability
-IsDaytime
-IsNighttime
-Likability = 127
-RP = 1027
-IsHonesty
-IsBohemian
-IsUnique
-IsStranger
-IsPartner
-IsLover
-IsFWB
-IsFriend
-IsCloserRelationship
-HasPartner
-HasLover
-HasFWB
-HasFriend
-CanPay
-IsInPrivate
-IsInWorkplace
-IsInCafe
-IsInRestaurant
-IsInPark
-IsInLoveHotel
-CompleteWork
-CompleteMove
-CompleteMove2Talk
-CompleteTalk
-HasEverSex
-OccupiedPointID
-IsPointOccupied
-IsFreePoint
-ExistsPoint
-IsFreeDestPoint
-IsFreePairPoint
-HasPostedPoint
-IsFreeDestPairPoint
-IsInPostedPointNow
-IsPair
-NotPairPerfectly
-JobID
-KeyID
-IsMyJobCustomer
-NumOfIdol
-IsDealer
-Sex
-SexOnPairPoint
-GroupSex
-EqualsGroupSex
-BothSex
-EqualsPartner
-IsJobPlace
-IsPairPointActorJobPlace
-CanToilet
-CanBathe
-CanGoBed
-CanGoDressing
-IsFreeCustomer
-CanSummonCustomer
-CanTalkTo
-CanInviteH
-CanInviteFFM
-CanInviteMMF
-CanSummon
-CanInviteToilet
-CanGoClinic
-CanGoCasino
-IsOnlyInSpace
-EqualsGrain
-EqualsKeyInJob
-EqualsKeyMaleInJob
-ExistsSameJobKeyMale
-Job
-ExistsBothBadfriend
-PostedPointType
-BorrowedToday
-ProstitutedToday
-CanPayTip
-CanPayTipDancer
-CanPlaySlot
-CanStealSales
-IsNEETAll
-IsAvailableMMFInClinicEvent
-IsAvailableMMFInClinicEventOnPair
-IsAvailableMMFInSeminarEvent
-IsAvailableMMFInSeminarEventOnPair
-CanHPoledancer
-IsAvailableFFMEvent
-IsAvailableMMFInCasinoEvent
-IsAvailableMMFInCasinoEventOnPair
-DateProbability
-CanGoCafe
-CanGoRestaurant
-CanGoPark
-CanGoHotel
-IsAvailableTalk
-IsAvailableInteract
-CheckedAlreadyInTimeZone
-IsRegularOutpatient
-DestinationActorSex
-CanPayCafe
-CanPayRestaurant
-CanDrink
-CanEat
-CanDrinkService
-CanFoodService
-CanPlayGame
-CanExamination
-CanWatchPorn
-CanReadComic
-CanCallNEETCustomer
-CanReadMagazine
-CanShakeHand
-CanCheer
-CanBuyGoods
-CanGiveSnack
-CanInviteDate
-IsVisitor
-CanGiveTreat
-CanReceiveSupply
-CalledCustomer
-IsOnDate
-MapID
+0	Health
+1	Money
+2	Satisfaction
+3	Dissatisfaction
+4	Sexperience
+5	Honesty
+6	Naughty
+7	Unique
+8	Sleepiness
+9	Fatigue
+10	Bladder
+11	Talk
+12	Romance
+13	Broken
+14	Libido
+15	Home
+16	Casino
+17	Cafe
+18	Park
+19	Restaurant
+20	LoveHotel
+21	Event
+22	Performance
+23	Hobby
+24	Sociable
+25	Love
+26	Sexy
+27	MAX
+28	Probability = 37
+29	WorkProbability
+30	BreakProbability
+31	UniqueProbability
+32	CommunityProbability
+33	HProbability
+34	BorrowingProbability
+35	EnticementProbability
+36	IsDaytime
+37	IsNighttime
+38	Likability = 127
+39	RP = 1027
+40	IsHonesty
+41	IsBohemian
+42	IsUnique
+43	IsStranger
+44	IsPartner
+45	IsLover
+46	IsFWB
+47	IsFriend
+48	IsCloserRelationship
+49	HasPartner
+50	HasLover
+51	HasFWB
+52	HasFriend
+53	CanPay
+54	IsInPrivate
+55	IsInWorkplace
+56	IsInCafe
+57	IsInRestaurant
+58	IsInPark
+59	IsInLoveHotel
+60	CompleteWork
+61	CompleteMove
+62	CompleteMove2Talk
+63	CompleteTalk
+64	HasEverSex
+65	OccupiedPointID
+66	IsPointOccupied
+67	IsFreePoint
+68	ExistsPoint
+69	IsFreeDestPoint
+70	IsFreePairPoint
+71	HasPostedPoint
+72	IsFreeDestPairPoint
+73	IsInPostedPointNow
+74	IsPair
+75	NotPairPerfectly
+76	JobID
+77	KeyID
+78	IsMyJobCustomer
+79	NumOfIdol
+80	IsDealer
+81	Sex
+82	SexOnPairPoint
+83	GroupSex
+84	EqualsGroupSex
+85	BothSex
+86	EqualsPartner
+87	IsJobPlace
+88	IsPairPointActorJobPlace
+89	CanToilet
+90	CanBathe
+91	CanGoBed
+92	CanGoDressing
+93	IsFreeCustomer
+94	CanSummonCustomer
+95	CanTalkTo
+96	CanInviteH
+97	CanInviteFFM
+98	CanInviteMMF
+99	CanSummon
+100	CanInviteToilet
+101	CanGoClinic
+102	CanGoCasino
+103	IsOnlyInSpace
+104	EqualsGrain
+105	EqualsKeyInJob
+106	EqualsKeyMaleInJob
+107	ExistsSameJobKeyMale
+108	Job
+109	ExistsBothBadfriend
+110	PostedPointType
+111	BorrowedToday
+112	ProstitutedToday
+113	CanPayTip
+114	CanPayTipDancer
+115	CanPlaySlot
+116	CanStealSales
+117	IsNEETAll
+118	IsAvailableMMFInClinicEvent
+119	IsAvailableMMFInClinicEventOnPair
+120	IsAvailableMMFInSeminarEvent
+121	IsAvailableMMFInSeminarEventOnPair
+122	CanHPoledancer
+123	IsAvailableFFMEvent
+124	IsAvailableMMFInCasinoEvent
+125	IsAvailableMMFInCasinoEventOnPair
+126	DateProbability
+127	CanGoCafe
+128	CanGoRestaurant
+129	CanGoPark
+130	CanGoHotel
+131	IsAvailableTalk
+132	IsAvailableInteract
+133	CheckedAlreadyInTimeZone
+134	IsRegularOutpatient
+135	DestinationActorSex
+136	CanPayCafe
+137	CanPayRestaurant
+138	CanDrink
+139	CanEat
+140	CanDrinkService
+141	CanFoodService
+142	CanPlayGame
+143	CanExamination
+144	CanWatchPorn
+145	CanReadComic
+146	CanCallNEETCustomer
+147	CanReadMagazine
+148	CanShakeHand
+149	CanCheer
+150	CanBuyGoods
+151	CanGiveSnack
+152	CanInviteDate
+153	IsVisitor
+154	CanGiveTreat
+155	CanReceiveSupply
+156	CalledCustomer
+157	IsOnDate
+158	MapID
