@@ -55,8 +55,8 @@ namespace RG_Cheats
         private static InputField socialInput;
         private static InputField romanceInput;
         private static InputField appealInput;
-        private static InputField sexperienceInput;
 
+        private static InputField sexperienceInput;
         private static InputField satisfactionInput;
         private static InputField dissatisfactionInput;
         private static InputField seriousInput;
@@ -122,7 +122,7 @@ namespace RG_Cheats
                 cheatUI = RG_CheatsPlugin.InstantiateFromBundle(bundle, "CheatCanvas");
 
 
-                //=========================== Cheat Canvas 1 (top) =================================
+                //=========================== Cheat Canvas 1 - Top =================================
                 canvas01 = cheatUI.transform.FindChild("CheatCanvas1").GetComponent<Canvas>();
                 canvas01.transform.SetParent(canvasStatusUI.transform, false);
 
@@ -149,7 +149,7 @@ namespace RG_Cheats
                 applyButton.onClick.AddListener((UnityAction)UpdateCharaStatus);
 
 
-                //=========================== Cheat Canvas 2 (Satus Menu) ================================
+                //=========================== Cheat Canvas 2 - Satus Menu ================================
                 Canvas otherInfo = canvasStatusUI.transform.FindChild("OtherInfo/MoveContent").GetComponent<Canvas>();
 
                 canvas02 = cheatUI.transform.FindChild("CheatCanvas2").GetComponent<Canvas>();
@@ -246,9 +246,9 @@ namespace RG_Cheats
             int parameter;
             float value;
 
+            // ================= Canvas 01 Values - Top ================= 
             if (canvas01.gameObject.active)
             {
-                Debug.Log("Update canvas01 status");
                 // Stamina
                 parameter = (int)Define.Action.StatusCategory.Health;
                 float.TryParse(staminaInput.text, out value);
@@ -273,6 +273,7 @@ namespace RG_Cheats
                 }
             }
 
+            // ================= Canvas 02 Values - Status Menu ================= 
             // Expertise
             parameter = (int)Define.Action.StatusCategory.Performance;
             float.TryParse(expertiseInput.text, out value);
@@ -298,9 +299,9 @@ namespace RG_Cheats
             float.TryParse(appealInput.text, out value);
             character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
+            // ================= Canvas 02 Advanced Values ================= 
             if (advancedToggle.isOn)
             {
-                Debug.Log("Update advanced status");
                 // H-Experience
                 parameter = (int)Define.Action.StatusCategory.Sexperience;
                 float.TryParse(sexperienceInput.text, out value);
@@ -413,9 +414,9 @@ namespace RG_Cheats
 
             int parameter;
 
+            // ================= Canvas 01 UI - Top ================= 
             if (canvas01.gameObject.active)
             {
-                Debug.Log("Update canvas01 canvas");
                 parameter = (int)Define.Action.StatusCategory.Health;
                 staminaInput.text = character._status.Parameters[parameter].ToString("0");
 
@@ -425,6 +426,7 @@ namespace RG_Cheats
                 roomPointsInput.text = userFile.RoomPoint.ToString();
             }
 
+            // ================= Canvas 02 UI - Status Menu ================= 
             parameter = (int)Define.Action.StatusCategory.Performance;
             expertiseInput.text = character._status.Parameters[parameter].ToString("0");
 
@@ -440,9 +442,9 @@ namespace RG_Cheats
             parameter = (int)Define.Action.StatusCategory.Sexy;
             appealInput.text = character._status.Parameters[parameter].ToString("0");
 
+            // ================= Canvas 02 Advanced UI ================= 
             if (advancedToggle.isOn)
             {
-                Debug.Log("Update advanced canvas");
                 parameter = (int)Define.Action.StatusCategory.Satisfaction;
                 satisfactionInput.text = character._status.Parameters[parameter].ToString("0");
 
