@@ -28,7 +28,7 @@ namespace RG_Cheats
     {
         public const string PluginName = "RG Cheats";
         public const string GUID = "SpockBauru.RG.Cheats";
-        public const string Version = "0.3";
+        public const string Version = "0.4";
 
         internal static ConfigEntry<bool> EnableConfig;
         internal static ConfigEntry<bool> RefillStanimaConfig;
@@ -239,6 +239,7 @@ namespace RG_Cheats
                 userFile = Manager.Game.UserFile;
             }
         }
+
 
         // The character status are inside a huge enum of Parameters
         private static void UpdateCharaStatus()

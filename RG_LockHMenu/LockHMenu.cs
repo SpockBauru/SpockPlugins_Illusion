@@ -238,7 +238,11 @@ namespace RG_LockHMenu
 
                 for (int i = 0; i < raycastResults.Count; i++)
                 {
-                    if (raycastResults[i].gameObject.name.Equals("lockBackground", StringComparison.Ordinal)) isHit = true;
+                    if (raycastResults[i].gameObject.name.Equals("lockBackground", StringComparison.Ordinal))
+                    {
+                        isHit = true;
+                        break;
+                    }
                 }
 
                 return isHit;
