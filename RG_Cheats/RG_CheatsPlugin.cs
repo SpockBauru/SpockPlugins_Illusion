@@ -19,6 +19,8 @@ using RG.User;
 
 using Object = UnityEngine.Object;
 
+using System.Diagnostics;
+using Il2CppSystem.Collections.Generic;
 
 namespace RG_Cheats
 {
@@ -116,87 +118,86 @@ namespace RG_Cheats
 
                 generalUI = GeneralUI.FindObjectOfType<GeneralUI>();
                 statusUI = __instance;
-                Canvas canvasStatusUI = statusUI.transform.FindChild("MoveArea").GetComponent<Canvas>();
+                Canvas canvasStatusUI = statusUI.transform.Find("MoveArea").GetComponent<Canvas>();
 
                 if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
                 cheatUI = RG_CheatsPlugin.InstantiateFromBundle(bundle, "CheatCanvas");
 
-
                 //=========================== Cheat Canvas 1 - Top =================================
-                canvas01 = cheatUI.transform.FindChild("CheatCanvas1").GetComponent<Canvas>();
+                canvas01 = cheatUI.transform.Find("CheatCanvas1").GetComponent<Canvas>();
                 canvas01.transform.SetParent(canvasStatusUI.transform, false);
+                Transform canvas01Transform = canvas01.transform;
 
-                title = canvas01.transform.FindChild("Title").GetComponent<Text>();
+                title = canvas01.transform.Find("Title").GetComponent<Text>();
                 title.text = "Room Girl Cheats v" + Version.ToString();
                 CircleText(title, 3, new Color(0, 0.5412f, 0.6549f, 0.5f), new Vector2(3.1f, -3.2f));
 
-                staminaInput = canvas01.transform.FindChild("Stamina").GetComponent<InputField>();
-                moneyInput = canvas01.transform.FindChild("Money").GetComponent<InputField>();
-                roomPointsInput = canvas01.transform.FindChild("RoomPoints").GetComponent<InputField>();
+                staminaInput = canvas01.transform.Find("Stamina").GetComponent<InputField>();
+                moneyInput = canvas01.transform.Find("Money").GetComponent<InputField>();
+                roomPointsInput = canvas01.transform.Find("RoomPoints").GetComponent<InputField>();
 
-                openButton = cheatUI.transform.FindChild("Open").GetComponent<Button>();
+                openButton = cheatUI.transform.Find("Open").GetComponent<Button>();
                 openButton.transform.SetParent(canvasStatusUI.transform.parent, false);
                 openButton.onClick.AddListener((UnityAction)OpenClose);
 
-                closeButton = canvas01.transform.FindChild("Close").GetComponent<Button>();
+                closeButton = canvas01.transform.Find("Close").GetComponent<Button>();
                 closeButton.onClick.AddListener((UnityAction)OpenClose);
 
-                refillStaminaToggle = canvas01.transform.FindChild("RefillStamina").GetComponent<Toggle>();
+                refillStaminaToggle = canvas01.transform.Find("RefillStamina").GetComponent<Toggle>();
                 if (RefillStanimaConfig.Value) refillStaminaToggle.isOn = true;
                 refillStaminaToggle.onValueChanged.AddListener((UnityAction<bool>)ToggleRefillStaminaChanged);
 
-                applyButton = canvas01.transform.FindChild("Apply").GetComponent<Button>();
+                applyButton = canvas01.transform.Find("Apply").GetComponent<Button>();
                 applyButton.onClick.AddListener((UnityAction)UpdateCharaStatus);
 
 
                 //=========================== Cheat Canvas 2 - Satus Menu ================================
-                Canvas otherInfo = canvasStatusUI.transform.FindChild("OtherInfo/MoveContent").GetComponent<Canvas>();
+                Canvas otherInfo = canvasStatusUI.transform.Find("OtherInfo/MoveContent").GetComponent<Canvas>();
 
-                canvas02 = cheatUI.transform.FindChild("CheatCanvas2").GetComponent<Canvas>();
+                canvas02 = cheatUI.transform.Find("CheatCanvas2").GetComponent<Canvas>();
                 canvas02.transform.SetParent(otherInfo.transform, false);
 
-                title = canvas02.transform.FindChild("Title").GetComponent<Text>();
+                title = canvas02.transform.Find("Title").GetComponent<Text>();
                 CircleText(title, 3, new Color(0, 0.5412f, 0.6549f, 0.5f), new Vector2(3.1f, -3.2f));
 
-                expertiseInput = canvas02.transform.FindChild("Expertise").GetComponent<InputField>();
-                hobbyInput = canvas02.transform.FindChild("Hobby").GetComponent<InputField>();
-                socialInput = canvas02.transform.FindChild("Social").GetComponent<InputField>();
-                romanceInput = canvas02.transform.FindChild("Romance").GetComponent<InputField>();
-                appealInput = canvas02.transform.FindChild("Appeal").GetComponent<InputField>();
+                expertiseInput = canvas02.transform.Find("Expertise").GetComponent<InputField>();
+                hobbyInput = canvas02.transform.Find("Hobby").GetComponent<InputField>();
+                socialInput = canvas02.transform.Find("Social").GetComponent<InputField>();
+                romanceInput = canvas02.transform.Find("Romance").GetComponent<InputField>();
+                appealInput = canvas02.transform.Find("Appeal").GetComponent<InputField>();
 
-                apply2Button = canvas02.transform.FindChild("Apply2").GetComponent<Button>();
+                apply2Button = canvas02.transform.Find("Apply2").GetComponent<Button>();
                 apply2Button.onClick.AddListener((UnityAction)UpdateCharaStatus);
 
                 //=========================== Cheat Canvas 2 - Advanced Mode ================================
-                canvas02Background = canvas02.transform.FindChild("BackGround").GetComponent<Image>();
-                canvas02Tiled = canvas02.transform.FindChild("BkgTextTiled").GetComponent<Image>();
+                canvas02Background = canvas02.transform.Find("BackGround").GetComponent<Image>();
+                canvas02Tiled = canvas02.transform.Find("BkgTextTiled").GetComponent<Image>();
 
-                advancedToggle = canvas02.transform.FindChild("AdvancedToggle").GetComponent<Toggle>();
+                advancedToggle = canvas02.transform.Find("AdvancedToggle").GetComponent<Toggle>();
                 advancedToggle.onValueChanged.AddListener((UnityAction<bool>)ToggleAdvancedChanged);
 
-                advancedMenu = canvas02.transform.FindChild("Advanced").gameObject;
+                advancedMenu = canvas02.transform.Find("Advanced").gameObject;
 
-                sexperienceInput = advancedMenu.transform.FindChild("HExperience").GetComponent<InputField>();
-                satisfactionInput = advancedMenu.transform.FindChild("Satisfaction").GetComponent<InputField>();
-                dissatisfactionInput = advancedMenu.transform.FindChild("Dissatisfaction").GetComponent<InputField>();
-                seriousInput = advancedMenu.transform.FindChild("Serious").GetComponent<InputField>();
-                playfulInput = advancedMenu.transform.FindChild("Playful").GetComponent<InputField>();
-                eccentricInput = advancedMenu.transform.FindChild("Eccentric").GetComponent<InputField>();
-                sleepinessInput = advancedMenu.transform.FindChild("Sleepiness").GetComponent<InputField>();
-                fatigueInput = advancedMenu.transform.FindChild("Fatigue").GetComponent<InputField>();
-                bladderInput = advancedMenu.transform.FindChild("Bladder").GetComponent<InputField>();
-                talkInput = advancedMenu.transform.FindChild("Talk").GetComponent<InputField>();
-                romanceInput2 = advancedMenu.transform.FindChild("Romance").GetComponent<InputField>();
-                brokenInput = advancedMenu.transform.FindChild("Broken").GetComponent<InputField>();
-                libidoInput = advancedMenu.transform.FindChild("Libido").GetComponent<InputField>();
-                homeInput = advancedMenu.transform.FindChild("Home").GetComponent<InputField>();
-                casinoInput = advancedMenu.transform.FindChild("Cassino").GetComponent<InputField>();
-                cafeInput = advancedMenu.transform.FindChild("Cafe").GetComponent<InputField>();
-                parkInput = advancedMenu.transform.FindChild("Park").GetComponent<InputField>();
-                restaurantInput = advancedMenu.transform.FindChild("Restaurant").GetComponent<InputField>();
-                hotelInput = advancedMenu.transform.FindChild("Hotel").GetComponent<InputField>();
-                eventInput = advancedMenu.transform.FindChild("Event").GetComponent<InputField>();
-
+                sexperienceInput = advancedMenu.transform.Find("HExperience").GetComponent<InputField>();
+                satisfactionInput = advancedMenu.transform.Find("Satisfaction").GetComponent<InputField>();
+                dissatisfactionInput = advancedMenu.transform.Find("Dissatisfaction").GetComponent<InputField>();
+                seriousInput = advancedMenu.transform.Find("Serious").GetComponent<InputField>();
+                playfulInput = advancedMenu.transform.Find("Playful").GetComponent<InputField>();
+                eccentricInput = advancedMenu.transform.Find("Eccentric").GetComponent<InputField>();
+                sleepinessInput = advancedMenu.transform.Find("Sleepiness").GetComponent<InputField>();
+                fatigueInput = advancedMenu.transform.Find("Fatigue").GetComponent<InputField>();
+                bladderInput = advancedMenu.transform.Find("Bladder").GetComponent<InputField>();
+                talkInput = advancedMenu.transform.Find("Talk").GetComponent<InputField>();
+                romanceInput2 = advancedMenu.transform.Find("Romance").GetComponent<InputField>();
+                brokenInput = advancedMenu.transform.Find("Broken").GetComponent<InputField>();
+                libidoInput = advancedMenu.transform.Find("Libido").GetComponent<InputField>();
+                homeInput = advancedMenu.transform.Find("Home").GetComponent<InputField>();
+                casinoInput = advancedMenu.transform.Find("Cassino").GetComponent<InputField>();
+                cafeInput = advancedMenu.transform.Find("Cafe").GetComponent<InputField>();
+                parkInput = advancedMenu.transform.Find("Park").GetComponent<InputField>();
+                restaurantInput = advancedMenu.transform.Find("Restaurant").GetComponent<InputField>();
+                hotelInput = advancedMenu.transform.Find("Hotel").GetComponent<InputField>();
+                eventInput = advancedMenu.transform.Find("Event").GetComponent<InputField>();
             }
 
             // Get the selected character
