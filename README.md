@@ -8,7 +8,14 @@ Simple cheater for Room Girl. Also known as trainer.
   Download `RG_Cheats_v0.3.zip` and extract in the game folder.
   
   **v0.3 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r4)**
+  
+# Room Girl Lock H-Menu
+Adds an icon to make the right menu of sex scenes stop hiding automatically
 
+  ## Installation
+  Download `RG_LockHMenu_v0.2.zip` and extract in the game folder.
+  
+  **v0.2 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r5)**
 
 # HS2 Girls Entrance
 Play the tutorial animation of girls entering the lobby in Honey Select 2 and also for the expansion **DX**.
