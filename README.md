@@ -10,7 +10,7 @@ Simple cheater for Room Girl. Also known as trainer.
   **v0.3 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r4)**
   
 # Room Girl Lock H-Menu
-Adds an icon to make the right menu of sex scenes stop hiding automatically
+Adds an icon to make the left menu of sex scenes stop hiding automatically
 
   ## Installation
   Download `RG_LockHMenu_v0.2.zip` and extract in the game folder.
