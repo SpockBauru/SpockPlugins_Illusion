@@ -5,9 +5,9 @@ Plugins for Illusion games.
 Simple cheater for Room Girl. Also known as trainer.
 
   ## Installation
-  Download `RG_Cheats_v0.3.zip` and extract in the game folder.
+  Download `RG_Cheats_v1.0.zip` and extract in the game folder.
   
-  **v0.3 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r4)**
+  **v1.0 - [Download](https://github.com/SpockBauru/SpockPlugins/releases/tag/r6)**
   
 # Room Girl Lock H-Menu
 Adds an icon to make the left menu of sex scenes stop hiding automatically

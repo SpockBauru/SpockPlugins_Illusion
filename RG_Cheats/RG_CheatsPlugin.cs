@@ -30,7 +30,7 @@ namespace RG_Cheats
     {
         public const string PluginName = "RG Cheats";
         public const string GUID = "SpockBauru.RG.Cheats";
-        public const string Version = "0.4";
+        public const string Version = "1.0";
 
         internal static ConfigEntry<bool> EnableConfig;
         internal static ConfigEntry<bool> RefillStanimaConfig;
