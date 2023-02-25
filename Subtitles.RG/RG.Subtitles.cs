@@ -5,12 +5,12 @@ using Il2CppSystem.Collections.Generic;
 
 // Unity things
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Game specific
 using static HVoiceCtrl;
 
-
-// This file is game specific. It must take the text from the game and send to Core.Subtitles
+// This file is game specific. It must provide the scene, voice file and text to Core.Subtitles
 namespace IllusionPlugins
 {
     public partial class Subtitles
@@ -30,6 +30,8 @@ namespace IllusionPlugins
             {
                 weirdDictionary = __instance.CtrlVoice._voiceList.DicDicDicDicVoice;
                 hentaiScene = __instance;
+                // Making the Subtitle Canvas
+                MakeCanvas(SceneManager.GetActiveScene());
             }
 
             // Play all voices
@@ -41,9 +43,9 @@ namespace IllusionPlugins
 
                 string audioFile = loader.Asset;
 
-                Debug.Log(" audioFile: " + audioFile);
+                //Debug.Log(" audioFile: " + audioFile);
 
-                //// THIS WAY WOULD BE MORE OPTIMIZED, BUT IL2CPP IS NOT COOPERATING...
+                //// THIS WAY WOULD BE MORE OPTIMIZED, BUT IL2CPP CANNOT GET THE INDEXES...
                 //for (int femaleIndex = 0; femaleIndex < weirdDictionary.Count; femaleIndex++)
                 //{
                 //    var female = weirdDictionary[femaleIndex];
@@ -77,7 +79,8 @@ namespace IllusionPlugins
                                     if (currentFile == audioFile)
                                     {
                                         currentText = voiceID.Word;
-                                        SubtitlesCanvas.DisplaySubtitle(audioSource.gameObject, currentText);
+                                        // Send the text to be displayed
+                                        SubtitlesCanvas.DisplaySubtitle(audioSource, currentText);
                                         break;
                                     }
                                 }
@@ -85,7 +88,7 @@ namespace IllusionPlugins
             }
 
 
-            //// Voice in the beginning - ILCCPP CANT HANDLE THIS! MANY SUBTITLES MISSING BECAUSE OF IT!!!!!!
+            //// Voice in the beginning - ILCCPP CANT HANDLE THIS METHOD! MANY SUBTITLES MISSING BECAUSE OF IT!!!!!!
             //[HarmonyPostfix]
             //[HarmonyPatch(typeof(HVoiceCtrl), nameof(HVoiceCtrl.GetPlayListNum))]
             //private static void GetDicIncexesBegining(ref List<PlayVoiceinfo> __result)
