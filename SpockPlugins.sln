@@ -9,6 +9,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG_Cheats", "RG_Cheats\RG_C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG_LockHMenu", "RG_LockHMenu\RG_LockHMenu.csproj", "{7DF86181-78B7-41CD-9B9B-22E4BBAB4407}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Subtitles", "Subtitles", "{B82E3253-140D-4D6E-A7B9-5DFC949FB08B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG.Subtitles", "Subtitles.RG\RG.Subtitles.csproj", "{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Subtitles", "Subtitles.Core\Core.Subtitles.shproj", "{8BEED964-DE81-41D3-A294-0677F14DAEA5}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{2DE27BE2-E734-4C64-A310-7BB06DC0FE4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,11 +35,25 @@ Global
 		{7DF86181-78B7-41CD-9B9B-22E4BBAB4407}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DF86181-78B7-41CD-9B9B-22E4BBAB4407}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DF86181-78B7-41CD-9B9B-22E4BBAB4407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0} = {B82E3253-140D-4D6E-A7B9-5DFC949FB08B}
+		{8BEED964-DE81-41D3-A294-0677F14DAEA5} = {B82E3253-140D-4D6E-A7B9-5DFC949FB08B}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1119A3B2-251E-4892-A95E-06F5BDDF8435}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{2de27be2-e734-4c64-a310-7bb06dc0fe4f}*SharedItemsImports = 13
+		Shared\Shared.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
+		Subtitles.Core\Core.Subtitles.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
+		Subtitles.Core\Core.Subtitles.projitems*{8beed964-de81-41d3-a294-0677f14daea5}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
