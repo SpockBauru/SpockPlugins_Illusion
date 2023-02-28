@@ -17,8 +17,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Subtitles", "Subtitles
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{2DE27BE2-E734-4C64-A310-7BB06DC0FE4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG_TextDump", "RG_TextDump\RG_TextDump.csproj", "{9C492327-7059-4142-B1BF-036F9C1DD18A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E14E44C-1BB5-4BCC-871A-6235D0D21CE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C492327-7059-4142-B1BF-036F9C1DD18A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C492327-7059-4142-B1BF-036F9C1DD18A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C492327-7059-4142-B1BF-036F9C1DD18A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C492327-7059-4142-B1BF-036F9C1DD18A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +55,5 @@ Global
 		Shared\Shared.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
 		Subtitles.Core\Core.Subtitles.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
 		Subtitles.Core\Core.Subtitles.projitems*{8beed964-de81-41d3-a294-0677f14daea5}*SharedItemsImports = 13
-		Shared\Shared.projitems*{9c492327-7059-4142-b1bf-036f9c1dd18a}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
