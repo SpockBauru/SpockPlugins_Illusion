@@ -17,7 +17,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Subtitles", "Subtitles
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{2DE27BE2-E734-4C64-A310-7BB06DC0FE4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG_DumpSub", "RG_DumpSub\RG_DumpSub.csproj", "{9C492327-7059-4142-B1BF-036F9C1DD18A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RG_TextDump", "RG_TextDump\RG_TextDump.csproj", "{9C492327-7059-4142-B1BF-036F9C1DD18A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,5 +61,6 @@ Global
 		Shared\Shared.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
 		Subtitles.Core\Core.Subtitles.projitems*{3e14e44c-1bb5-4bcc-871a-6235d0d21ce0}*SharedItemsImports = 4
 		Subtitles.Core\Core.Subtitles.projitems*{8beed964-de81-41d3-a294-0677f14daea5}*SharedItemsImports = 13
+		Shared\Shared.projitems*{9c492327-7059-4142-b1bf-036f9c1dd18a}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
