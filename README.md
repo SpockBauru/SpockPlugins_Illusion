@@ -1,6 +1,15 @@
 # SpockPlugins
 Plugins for Illusion games.
 
+# Room Girl Subtitles
+Show subtitles for girl's voice in Room Girl H-Scenes.
+
+  ## Installation
+  Download `RG_Subtitles_v0.1_Alpha.zip` and extract in the game folder.
+  
+  **V0.1 - [Download](https://github.com/SpockBauru/SpockPlugins_Illusion/releases/tag/r7)**
+
+
 # Room Girl Cheats
 Simple cheater for Room Girl. Also known as trainer.
 
