@@ -16,7 +16,7 @@ using UnityEngine.SceneManagement;
 // This file is not game specific. Its responsible to manage the Subtitle Canvas and text.
 namespace IllusionPlugins
 {
-    [BepInProcess("RoomGirl")]
+    [BepInProcess(Constants.MainGameProcessName)]
     [BepInPlugin(GUID, PluginName, Version)]
     public partial class Subtitles : BasePlugin
     {
