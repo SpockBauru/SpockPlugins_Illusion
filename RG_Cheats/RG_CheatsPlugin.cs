@@ -178,26 +178,26 @@ namespace RG_Cheats
 
                 advancedMenu = canvas02.transform.Find("Advanced").gameObject;
 
-                sexperienceInput = advancedMenu.transform.Find("HExperience").GetComponent<InputField>();
+                sexperienceInput =  advancedMenu.transform.Find("HExperience").GetComponent<InputField>();
                 satisfactionInput = advancedMenu.transform.Find("Satisfaction").GetComponent<InputField>();
                 dissatisfactionInput = advancedMenu.transform.Find("Dissatisfaction").GetComponent<InputField>();
-                seriousInput = advancedMenu.transform.Find("Serious").GetComponent<InputField>();
-                playfulInput = advancedMenu.transform.Find("Playful").GetComponent<InputField>();
-                eccentricInput = advancedMenu.transform.Find("Eccentric").GetComponent<InputField>();
-                sleepinessInput = advancedMenu.transform.Find("Sleepiness").GetComponent<InputField>();
-                fatigueInput = advancedMenu.transform.Find("Fatigue").GetComponent<InputField>();
-                bladderInput = advancedMenu.transform.Find("Bladder").GetComponent<InputField>();
-                talkInput = advancedMenu.transform.Find("Talk").GetComponent<InputField>();
-                romanceInput2 = advancedMenu.transform.Find("Romance").GetComponent<InputField>();
-                brokenInput = advancedMenu.transform.Find("Broken").GetComponent<InputField>();
-                libidoInput = advancedMenu.transform.Find("Libido").GetComponent<InputField>();
-                homeInput = advancedMenu.transform.Find("Home").GetComponent<InputField>();
-                casinoInput = advancedMenu.transform.Find("Cassino").GetComponent<InputField>();
-                cafeInput = advancedMenu.transform.Find("Cafe").GetComponent<InputField>();
-                parkInput = advancedMenu.transform.Find("Park").GetComponent<InputField>();
-                restaurantInput = advancedMenu.transform.Find("Restaurant").GetComponent<InputField>();
-                hotelInput = advancedMenu.transform.Find("Hotel").GetComponent<InputField>();
-                eventInput = advancedMenu.transform.Find("Event").GetComponent<InputField>();
+                seriousInput =      advancedMenu.transform.Find("Serious").GetComponent<InputField>();
+                playfulInput =      advancedMenu.transform.Find("Playful").GetComponent<InputField>();
+                eccentricInput =    advancedMenu.transform.Find("Eccentric").GetComponent<InputField>();
+                sleepinessInput =   advancedMenu.transform.Find("Sleepiness").GetComponent<InputField>();
+                fatigueInput =      advancedMenu.transform.Find("Fatigue").GetComponent<InputField>();
+                bladderInput =      advancedMenu.transform.Find("Bladder").GetComponent<InputField>();
+                talkInput =         advancedMenu.transform.Find("Talk").GetComponent<InputField>();
+                romanceInput2 =     advancedMenu.transform.Find("Romance").GetComponent<InputField>();
+                brokenInput =       advancedMenu.transform.Find("Broken").GetComponent<InputField>();
+                libidoInput =       advancedMenu.transform.Find("Libido").GetComponent<InputField>();
+                homeInput =         advancedMenu.transform.Find("Home").GetComponent<InputField>();
+                casinoInput =       advancedMenu.transform.Find("Cassino").GetComponent<InputField>();
+                cafeInput =         advancedMenu.transform.Find("Cafe").GetComponent<InputField>();
+                parkInput =         advancedMenu.transform.Find("Park").GetComponent<InputField>();
+                restaurantInput =   advancedMenu.transform.Find("Restaurant").GetComponent<InputField>();
+                hotelInput =        advancedMenu.transform.Find("Hotel").GetComponent<InputField>();
+                eventInput =        advancedMenu.transform.Find("Event").GetComponent<InputField>();
             }
 
             // Get the selected character
@@ -534,14 +534,14 @@ namespace RG_Cheats
         {
             if (state)
             {
-                canvas02Background.rectTransform.sizeDelta = new Vector2(1030f, 775f);
-                canvas02Tiled.rectTransform.sizeDelta = new Vector2(1000f, 553f);
+                canvas02Background.rectTransform.sizeDelta = new Vector2(1030f, 890f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(1000f, 660f);
                 statusUI.UpdateUI(character);
             }
             else
             {
-                canvas02Background.rectTransform.sizeDelta = new Vector2(250f, 775f);
-                canvas02Tiled.rectTransform.sizeDelta = new Vector2(225f, 553f);
+                canvas02Background.rectTransform.sizeDelta = new Vector2(250f, 890f);
+                canvas02Tiled.rectTransform.sizeDelta = new Vector2(225f, 660f);
             }
             advancedMenu.SetActive(state);
         }
