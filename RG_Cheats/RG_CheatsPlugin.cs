@@ -19,8 +19,6 @@ using RG.User;
 
 using Object = UnityEngine.Object;
 
-using System.Diagnostics;
-using Il2CppSystem.Collections.Generic;
 
 namespace RG_Cheats
 {
@@ -30,7 +28,7 @@ namespace RG_Cheats
     {
         public const string PluginName = "RG Cheats";
         public const string GUID = "SpockBauru.RG.Cheats";
-        public const string Version = "1.0";
+        public const string Version = "1.1";
 
         internal static ConfigEntry<bool> EnableConfig;
         internal static ConfigEntry<bool> RefillStanimaConfig;
@@ -57,8 +55,8 @@ namespace RG_Cheats
         private static InputField socialInput;
         private static InputField romanceInput;
         private static InputField appealInput;
-
         private static InputField sexperienceInput;
+
         private static InputField satisfactionInput;
         private static InputField dissatisfactionInput;
         private static InputField seriousInput;
@@ -165,6 +163,7 @@ namespace RG_Cheats
                 socialInput = canvas02.transform.Find("Social").GetComponent<InputField>();
                 romanceInput = canvas02.transform.Find("Romance").GetComponent<InputField>();
                 appealInput = canvas02.transform.Find("Appeal").GetComponent<InputField>();
+                sexperienceInput = canvas02.transform.Find("HExperience").GetComponent<InputField>();
 
                 apply2Button = canvas02.transform.Find("Apply2").GetComponent<Button>();
                 apply2Button.onClick.AddListener((UnityAction)UpdateCharaStatus);
@@ -178,7 +177,6 @@ namespace RG_Cheats
 
                 advancedMenu = canvas02.transform.Find("Advanced").gameObject;
 
-                sexperienceInput =  advancedMenu.transform.Find("HExperience").GetComponent<InputField>();
                 satisfactionInput = advancedMenu.transform.Find("Satisfaction").GetComponent<InputField>();
                 dissatisfactionInput = advancedMenu.transform.Find("Dissatisfaction").GetComponent<InputField>();
                 seriousInput =      advancedMenu.transform.Find("Serious").GetComponent<InputField>();
@@ -301,14 +299,14 @@ namespace RG_Cheats
             float.TryParse(appealInput.text, out value);
             character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 900);
 
+            // H-Experience
+            parameter = (int)Define.Action.StatusCategory.Sexperience;
+            float.TryParse(sexperienceInput.text, out value);
+            character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
             // ================= Canvas 02 Advanced Values ================= 
             if (advancedToggle.isOn)
             {
-                // H-Experience
-                parameter = (int)Define.Action.StatusCategory.Sexperience;
-                float.TryParse(sexperienceInput.text, out value);
-                character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
-
                 // Satisfaction
                 parameter = (int)Define.Action.StatusCategory.Satisfaction;
                 float.TryParse(satisfactionInput.text, out value);
@@ -444,6 +442,9 @@ namespace RG_Cheats
             parameter = (int)Define.Action.StatusCategory.Sexy;
             appealInput.text = character._status.Parameters[parameter].ToString("0");
 
+            parameter = (int)Define.Action.StatusCategory.Sexperience;
+            sexperienceInput.text = character._status.Parameters[parameter].ToString("0");
+
             // ================= Canvas 02 Advanced UI ================= 
             if (advancedToggle.isOn)
             {
@@ -452,9 +453,6 @@ namespace RG_Cheats
 
                 parameter = (int)Define.Action.StatusCategory.Dissatisfaction;
                 dissatisfactionInput.text = character._status.Parameters[parameter].ToString("0");
-
-                parameter = (int)Define.Action.StatusCategory.Sexperience;
-                sexperienceInput.text = character._status.Parameters[parameter].ToString("0");
 
                 parameter = (int)Define.Action.StatusCategory.Honesty;
                 seriousInput.text = character._status.Parameters[parameter].ToString("0");
