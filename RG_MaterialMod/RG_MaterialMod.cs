@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Diagnostics;
 
 // BepInEx
@@ -16,6 +17,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
 // Game Specific
@@ -41,7 +43,8 @@ namespace IllusionPlugins
         static List<Texture2D> GarbageTextures = new List<Texture2D>();
         static List<Image> GarbageImages = new List<Image>();
 
-        // Miniature cache
+        // Miniatures
+        static int miniatureSize = 200;
         static List<Texture2D> miniatureTextures = new List<Texture2D>();
         static List<Image> miniatureImages = new List<Image>();
 
@@ -54,17 +57,17 @@ namespace IllusionPlugins
         public class CharacterContent
         {
             /// <summary>
-            /// <br>Key: Texture kind from rom enum ChaFileDefine.ClothesKind</br>
+            /// <br>Key: Texture material number</br>
             /// <br>Value: TextureContent</br>
             /// </summary>
-            public Dictionary<int, List<TextureContent>> clothesTextures = new Dictionary<int, List<TextureContent>>();
+            public Dictionary<int, List<TextureContent>> clothesTop = new Dictionary<int, List<TextureContent>>();
         }
 
         public class TextureContent
         {
-            public int textureType; // Get from the enum TextureType
-            public int kind;        //Texture kind (clothing piece) from enum ChaFileDefine.ClothesKind
-            public Texture2D texture;
+            public string textureName;
+            public Texture2D currentTexture;
+            public Texture2D originalTexture;
         }
 
         public enum TextureType
@@ -82,10 +85,11 @@ namespace IllusionPlugins
         public static void RefreshClothesMaterial(string characterName, int kind)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
-            var dicTexture = characterContent.clothesTextures;
+            Dictionary<int, List<TextureContent>> dicTexture;
+            if (kind == 0) dicTexture = characterContent.clothesTop;
+            else return;
+
             if (dicTexture == null) return;
-            if (!dicTexture.ContainsKey(kind)) return;
-            var textureList = dicTexture[kind];
 
             ChaControl charaControl = GameObject.Find(characterName).GetComponent<ChaControl>();
             GameObject clothesPiece = GetClothes(charaControl, kind);
@@ -96,11 +100,15 @@ namespace IllusionPlugins
                 Material material = rendererList[i].material;
 
                 // in the future will loop with the textures inside material
-                var textureContent = textureList[i];
+                if (!dicTexture.ContainsKey(i)) continue;
+                List<TextureContent> textureList = dicTexture[i];
 
-                Texture2D texture = textureContent.texture;
-                if (texture == null) continue;
-                SetTexture(material, texture);
+                for (int j = 0; j < textureList.Count; j++) 
+                {
+                    TextureContent texture = textureList[i];
+                    if (texture == null) continue;
+                    SetModTexture(material, texture);
+                }
             }
         }
 
@@ -109,9 +117,14 @@ namespace IllusionPlugins
             return chaControl.ObjClothes[kind];
         }
 
-        public static void SetTexture(Material material, Texture2D texture)
+        public static void SetModTexture(Material material, TextureContent textureContent)
         {
-            material.mainTexture = texture;
+            material.SetTexture(textureContent.textureName, textureContent.currentTexture);
+        }
+
+        public static void SetOriginalTexture(Material material, TextureContent textureContent)
+        {
+            material.SetTexture(textureContent.textureName, textureContent.originalTexture);
         }
 
         // ================================================== Construct Section ==================================================
@@ -140,112 +153,138 @@ namespace IllusionPlugins
 
             // List of stored textures for this kind (piece) of clothing
             CharacterContent characterContent = CharactersLoaded[characterName];
-            var dicKindTextures = characterContent.clothesTextures;
-            if (!dicKindTextures.ContainsKey(kind)) dicKindTextures.Add(kind, new List<TextureContent>());
-            var textureList = dicKindTextures[kind];
-            for (int i = 0; i <= 8; i++) textureList.Add(new TextureContent());
+            Dictionary<int, List<TextureContent>> dicMaterialsTextures;
+            if (kind == 0) dicMaterialsTextures = characterContent.clothesTop;
+            else return;
 
             // Create one button for each material
             Renderer[] renderList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
             for (int i = 0; i < renderList.Length; i++)
             {
+                // Getting Texture list from material
                 Material material = renderList[i].material;
+                Debug.Log("\r\n===== Material number: " + i.ToString());
+                List<TextureContent> materialTextures = GetMaterialTextures(material);
 
-                CreateClothesBlock(material, characterName, kind, i);
+                // Getting stored texture list
+                List<TextureContent> storedTextures;
+                if (!dicMaterialsTextures.ContainsKey(i))
+                {
+                    dicMaterialsTextures.Add(i, new List<TextureContent>());
+                    storedTextures = dicMaterialsTextures[i];
+                    for (int j = 0; j < materialTextures.Count; j++)
+                        storedTextures.Add(new TextureContent());
+                }
+                else
+                {
+                    storedTextures = dicMaterialsTextures[i];
+                }
+
+                // Creating one texture block for each texture
+                for (int j = 0; j < materialTextures.Count; j++)
+                    CreateTexturesBlock(material, materialTextures[j], storedTextures[j]);
             }
         }
 
-        public static void CreateClothesBlock(Material material, string characterName, int kind, int textureNumber)
+
+        public static void CreateTexturesBlock(Material material, TextureContent materialTexture, TextureContent storedTexture)
         {
             // UI group
-            GameObject textureGroup = new GameObject("TextureGroup " + textureNumber);
-            textureGroup.transform.SetParent(RG_MaterialModUI.clothesTabContent.transform);
-            textureGroup.transform.localScale = Vector3.one;
+            GameObject textureGroup = new GameObject("TextureGroup " + materialTexture.textureName);
+            textureGroup.transform.SetParent(RG_MaterialModUI.clothesTabContent.transform, false);
             VerticalLayoutGroup verticalLayoutGroup = textureGroup.AddComponent<VerticalLayoutGroup>();
             verticalLayoutGroup.childForceExpandHeight = false;
+            verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
 
             // Clothes Image
-            int size = 200;
-            Texture2D mainTexture2D = ToTexture2D(material.mainTexture);
-            Texture2D scaledTexture = Resize(mainTexture2D, size, size);
-            Image textureImage = RG_MaterialModUI.CreateTextureImage(scaledTexture, size);
+            int width, height;
+            width = height = miniatureSize;
+            if (height > width) width = height * materialTexture.currentTexture.width / materialTexture.currentTexture.height;
+            else height = width * materialTexture.currentTexture.height / materialTexture.currentTexture.width;
+            Image miniature = RG_MaterialModUI.CreateTextureImage(width, height);
+            miniature.transform.SetParent(textureGroup.transform, false);
+            UpdateMiniature(miniature, materialTexture);
 
-            GarbageTextures.Add(mainTexture2D);
-            miniatureTextures.Add(scaledTexture);
-            miniatureImages.Add(textureImage);
-
-            textureImage.transform.SetParent(textureGroup.transform);
-            textureImage.transform.localScale = Vector3.one;
+            // Text with size
+            string textContent = "Size: " + materialTexture.currentTexture.width.ToString() + "x" + materialTexture.currentTexture.height.ToString();
+            Text text = RG_MaterialModUI.CreateText(textContent, 17);
+            text.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Set Button
-            Button buttonSet = RG_MaterialModUI.CreateClothesButton("Set Green Texture " + textureNumber.ToString());
-            buttonSet.onClick.AddListener((UnityAction)delegate { SetClothesTexture(characterName, kind, textureNumber); });
-            buttonSet.transform.SetParent(textureGroup.transform);
-            buttonSet.transform.localScale = Vector3.one;
+            Button buttonSet = RG_MaterialModUI.CreateClothesButton("Green  " + materialTexture.textureName);
+            buttonSet.onClick.AddListener((UnityAction)delegate { SetButtonTexture(material, materialTexture, storedTexture, miniature); });
+            buttonSet.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Reset Button
-            Button buttonReset = RG_MaterialModUI.CreateClothesButton("Reset Texture " + textureNumber.ToString());
-            buttonReset.onClick.AddListener((UnityAction)delegate { RemoveKindTexture(characterName, kind, textureNumber); });
-            buttonReset.transform.SetParent(textureGroup.transform);
-            buttonReset.transform.localScale = Vector3.one;
+            Button buttonReset = RG_MaterialModUI.CreateClothesButton("Reset " + materialTexture.textureName);
+            buttonReset.onClick.AddListener((UnityAction)delegate { ResetButtonTexture(material, materialTexture, storedTexture, miniature); });
+            buttonReset.transform.SetParent(textureGroup.transform, false);
         }
 
-        public static void SetClothesTexture(string characterName, int kind, int textureNumber)
+        public static void UpdateMiniature(Image miniature, TextureContent textureContent)
+        {
+            Texture2D texture2D = textureContent.currentTexture;
+
+            // maitaining proportions
+            int width, height;
+            width = height = miniatureSize;
+            if (height > width) width = height * texture2D.width / texture2D.height;
+            else height = width * texture2D.height / texture2D.width;
+
+            Texture2D scaledTexture = Resize(texture2D, width, height);
+
+            // Trom pink maps to regular normal maps
+            if (textureContent.textureName.Contains("Bump"))
+            {
+                scaledTexture = DXT2nmToNormal(scaledTexture);
+                _ = DXT2nmToNormal(textureContent.currentTexture);
+            }
+
+            miniature.sprite = Sprite.Create(scaledTexture, new Rect(0, 0, width, height), new Vector2());
+            GarbageTextures.Add(texture2D);
+            miniatureTextures.Add(scaledTexture);
+            miniatureImages.Add(miniature);
+        }
+
+        public static void SetButtonTexture(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
         {
             // In the future the load texture will be here
             Texture2D texture = new Texture2D(512, 512);
             texture = GreenTexture(512, 512);
 
-            CharacterContent characterContent = CharactersLoaded[characterName];
-            var textureList = characterContent.clothesTextures[kind];
-            TextureContent textureContent = textureList[textureNumber];
+            // Storing original texture
+            if (storedTexture.originalTexture == null) storedTexture.originalTexture = materialTexture.currentTexture;
 
-            // set old texture to destroy
-            if (textureContent.texture != null) GarbageTextures.Add(textureContent.texture);
+            // Reset old texture
+            if (!(storedTexture.currentTexture == null)) GarbageTextures.Add(storedTexture.currentTexture);
 
-            // Updated the texture data
-            textureContent.texture = texture;
-            textureContent.kind = kind;
-            textureContent.textureType = (int)TextureType.generic;
+            // Update Texture
+            storedTexture.currentTexture = texture;
+            storedTexture.textureName = materialTexture.textureName;
+            SetModTexture(material, storedTexture);
 
-            RefreshClothesMaterial(characterName, kind);
+            // Update miniature
+            UpdateMiniature(miniature, storedTexture);
         }
 
         // ================================================== Cleaning Section ==================================================
-        public static void CreateClothesResetButton(string characterName, int kind, int textureNumber)
+        public static void ResetButtonTexture(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
         {
-            // Creating Button
-            Button button = RG_MaterialModUI.CreateClothesButton("Reset Texture " + textureNumber.ToString());
-            button.onClick.AddListener((UnityAction)delegate { RemoveKindTexture(characterName, kind, textureNumber); });
-        }
-
-        public static void RemoveKindTexture(string characterName, int kind, int textureNumber)
-        {
-            CharacterContent characterContent = CharactersLoaded[characterName];
-            var dicTexture = characterContent.clothesTextures;
-
-            if (dicTexture == null) return;
-            if (!dicTexture.ContainsKey(kind)) return;
-
-            var textureList = dicTexture[kind];
-            TextureContent textureContent = textureList[textureNumber];
+            SetOriginalTexture(material, storedTexture);
 
             // cleaning texture and entrances
-            if (textureContent.texture != null) GarbageTextures.Add(textureContent.texture);
-            textureContent.texture = null;
-            textureContent.textureType = -1;
+            if (storedTexture.currentTexture != null) GarbageTextures.Add(storedTexture.currentTexture);
+            storedTexture.currentTexture = null;
 
-            ChaControl charaControl = GameObject.Find(characterName).GetComponent<ChaControl>();
-            charaControl.ChangeCustomClothes(kind, true, false, false, false);
-
-            DestroyGarbage();
+            // Updating miniature
+            UpdateMiniature(miniature, materialTexture);
         }
 
         public static void ResetKind(string characterName, int Kind)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
-            var dicTexture = characterContent.clothesTextures;
+            var dicTexture = characterContent.clothesTop;
 
             if (dicTexture == null) return;
             if (!dicTexture.ContainsKey(Kind)) return;
@@ -256,10 +295,9 @@ namespace IllusionPlugins
             {
                 var textureContent = textureList[i];
 
-                GarbageTextures.Add(textureContent.texture);
+                GarbageTextures.Add(textureContent.currentTexture);
 
-                textureContent.texture = null;
-                textureContent.textureType = -1;
+                textureContent.currentTexture = null;
             }
 
             DestroyGarbage();
@@ -284,6 +322,108 @@ namespace IllusionPlugins
         }
 
         // ================================================== Texture Tools ==================================================
+
+        public static Texture2D DXT2nmToNormal(Texture2D texture)
+        {
+            byte[] bytes = texture.EncodeToPNG();
+            File.WriteAllBytes("D:\\Andre\\Downloads\\AAAAAAAAAA" + texture + ".png", bytes);
+
+            Color[] colorArray = texture.GetPixels(0);
+            float x, y, z, polyfit;
+
+            for (int i = 0; i < colorArray.Length; i++)
+            {
+                // DXT5nm channel swap
+                colorArray[i].r = colorArray[i].a;
+                colorArray[i].a = 1;
+
+                // Taking off Illusion processing
+                y = colorArray[i].g;
+                polyfit = (-0.142436f * y * y) + 0.146477f * y - 0.001472f;  // Got this from polynomial fit (Excel File in project root)
+                colorArray[i].g = (y - polyfit) * (y - polyfit);
+
+                // Recovering z axis
+                x = colorArray[i].r * 2 - 1;
+                y = colorArray[i].g * 2 - 1;
+                z = Mathf.Sqrt(1 - (x * x) - (y * y));
+                colorArray[i].b = z * 0.5f + 0.5f;
+            }
+
+            texture.SetPixels(colorArray, 0);
+            texture.Apply(true);
+
+            bytes = texture.EncodeToPNG();
+            File.WriteAllBytes("D:\\Andre\\Downloads\\BBBBBBBBBB" + texture + ".png", bytes);
+            NormalToDXT2nm(texture);
+            return texture;
+        }
+
+        public static Texture2D NormalToDXT2nm(Texture2D texture)
+        {
+            Color[] colorArray = texture.GetPixels(0);
+            float x, y, z, polyfit;
+
+            for (int i = 0; i < colorArray.Length; i++)
+            {
+                // Applying Illusion processing
+                y = colorArray[i].g;
+                polyfit = (-0.142436f * y * y) + 0.146477f * y - 0.001472f;
+                colorArray[i].g = Mathf.Sqrt(y) + polyfit;
+
+                // DXT5nm channel swap
+                colorArray[i].a = colorArray[i].r;
+                colorArray[i].b = colorArray[i].g;
+                colorArray[i].r = 1;
+            }
+
+            texture.SetPixels(colorArray, 0);
+            texture.Apply(true);
+
+            byte[] bytes = texture.EncodeToPNG();
+            File.WriteAllBytes("D:\\Andre\\Downloads\\CCCCCCCCCCCCCC" + texture + ".png", bytes);
+            return texture;
+        }
+
+        /// <summary>
+        /// Get all textures from material and turns into a list of TextureContents
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
+        public static List<TextureContent> GetMaterialTextures(Material material)
+        {
+            List<TextureContent> textureContentList = new List<TextureContent>();
+
+            Shader shader = material.shader;
+
+            for (int i = 0; i < shader.GetPropertyCount(); i++)
+            {
+                string propertyName = shader.GetPropertyName(i);
+                var propertyType = shader.GetPropertyType(i);
+
+                //if (propertyType == UnityEngine.Rendering.ShaderPropertyType.Range)
+                //{
+                //    var shaderFloat = material.GetFloat(propertyName);
+                //    Debug.Log("propertyType:" + propertyType + " propertyName: " + propertyName + " Value: " + shaderFloat);
+                //}
+
+                if (propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
+                {
+                    Texture texture = material.GetTexture(propertyName);
+                    if (texture == null) continue;
+
+                    TextureContent textureContent = new TextureContent();
+                    textureContent.textureName = propertyName;
+                    Texture2D texture2D = ToTexture2D(texture);
+                    textureContent.currentTexture = texture2D;
+                    textureContentList.Add(textureContent);
+
+                    GarbageTextures.Add(texture2D);
+
+                    
+                }
+            }
+            return textureContentList;
+        }
 
         /// <summary>
         /// Converts Texture into Texture2D. Texture2D can be applyed directly to the material later
@@ -321,7 +461,6 @@ namespace IllusionPlugins
             result.Apply(true);
             return result;
         }
-
 
         /// <summary>
         /// Generate a square texture with the desired size

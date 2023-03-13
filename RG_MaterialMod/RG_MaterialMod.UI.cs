@@ -111,24 +111,18 @@ namespace IllusionPlugins
             });
         }
 
-        public static Image CreateTextureImage(Texture2D texture, int size)
+        public static Image CreateTextureImage(int width, int height)
         {
             GameObject imageObject = new GameObject("TextureImage");
-            //imageObject.transform.SetParent(clothesTabContent.transform);
-            //imageObject.transform.localScale = Vector3.one;
-
             RectTransform rect = imageObject.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(size, size);
+            rect.sizeDelta = new Vector2(width, height);
 
             CanvasRenderer canvasRenderer = imageObject.AddComponent<CanvasRenderer>();
-            //VerticalLayoutGroup verticalLayoutGroup = imageObject.AddComponent<VerticalLayoutGroup>();
-            //verticalLayoutGroup.childForceExpandHeight = false;
-
             LayoutElement layout = imageObject.AddComponent<LayoutElement>();
-            layout.minHeight = size;
+            layout.minWidth = width;
+            layout.minHeight = height;
 
             Image image = imageObject.AddComponent<Image>();
-            image.sprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2());
             image.preserveAspect = true;
 
             // Mark to rebuild in the next frame
@@ -146,8 +140,6 @@ namespace IllusionPlugins
         {
             // Creating button object
             GameObject buttonObject = new GameObject("Button");
-            //buttonObject.transform.SetParent(clothesTabContent.transform);
-            //buttonObject.transform.localScale = Vector3.one;
 
             buttonObject.AddComponent<RectTransform>();
             buttonObject.AddComponent<CanvasRenderer>();
@@ -159,8 +151,6 @@ namespace IllusionPlugins
             GameObject originalToggle = selectMenu.transform.GetChild(0).gameObject;
             GameObject buttonImageObject = UnityEngine.Object.Instantiate(originalToggle, buttonObject.transform);
             buttonImageObject.name = "Images";
-            //originalToggle.GetComponent<UI_ToggleEx>().isOn = true;
-
 
             // Cleaning what is not an image
             UnityEngine.Object.Destroy(buttonImageObject.GetComponent<UI_ToggleEx>());
@@ -177,7 +167,9 @@ namespace IllusionPlugins
             button.image = mainImage.GetComponentInChildren<Image>();
 
             // Button Text
-            buttonObject.GetComponentInChildren<Text>().text = text;
+            Text buttonText = buttonObject.GetComponentInChildren<Text>();
+            buttonText.text = text;
+            buttonText.fontSize = 16;
 
             // Colors
             ColorBlock colorblock = new ColorBlock();
@@ -196,7 +188,31 @@ namespace IllusionPlugins
             return button;
         }
 
+        public static Text CreateText(string textContent, int fontSize)
+        {
+            GameObject textObject = new GameObject("Text");
+            RectTransform rect = textObject.AddComponent<RectTransform>();
+            //rect.sizeDelta = new Vector2(size, size);
 
+            CanvasRenderer canvasRenderer = textObject.AddComponent<CanvasRenderer>();
+            LayoutElement layout = textObject.AddComponent<LayoutElement>();
+            //layout.minHeight = size;
+
+            Text text = textObject.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.fontSize = fontSize;
+            text.fontStyle = FontStyle.Bold;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.color = new Color(0, 0.3686f, 0.6549f, 1);
+            text.text = textContent;
+
+            // Mark to rebuild in the next frame
+            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
+
+            return text;
+        }
 
         static void OnClothesToggleEnabled(Toggle toggle, CanvasGroup canvas)
         {

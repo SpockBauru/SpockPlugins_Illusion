@@ -89,15 +89,15 @@ namespace IllusionPlugins
                 subtitleObject = new GameObject("SubtitleText");
                 subtitleObject.transform.SetParent(canvasObject.transform);
 
-                int fontSsize = (int)(Screen.height / 25.0f);
+                int fontSize = (int)(Screen.height / 25.0f);
 
                 RectTransform subtitleRect = subtitleObject.AddComponent<RectTransform>();
                 subtitleRect.pivot = new Vector2(0, -1);
-                subtitleRect.sizeDelta = new Vector2(Screen.width * 0.990f, fontSsize + (fontSsize * 0.05f));
+                subtitleRect.sizeDelta = new Vector2(Screen.width * 0.990f, fontSize + (fontSize * 0.05f));
 
                 subtitle = subtitleObject.AddComponent<Text>();
                 subtitle.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                subtitle.fontSize = fontSsize;
+                subtitle.fontSize = fontSize;
                 subtitle.fontStyle = FontStyle.Bold;
                 subtitle.alignment = TextAnchor.LowerCenter;
                 subtitle.horizontalOverflow = HorizontalWrapMode.Wrap;

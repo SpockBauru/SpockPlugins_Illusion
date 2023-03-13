@@ -39,7 +39,6 @@ namespace IllusionPlugins
             private static void ChaControlDestroy(ChaControl cha)
             {
                 bool wasRemoved = CharactersLoaded.Remove(cha.name);
-                Debug.Log("Character: " + cha.name + " wasRemoved " + wasRemoved.ToString());
             }
 
             // Get when clothes are updated
