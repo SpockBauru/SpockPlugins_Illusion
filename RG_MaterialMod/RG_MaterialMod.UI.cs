@@ -18,6 +18,8 @@ using UnityEngine.Events;
 // Room Girl
 using RG;
 using CharaCustom;
+using System.IO;
+using UnityEngine.EventSystems;
 
 namespace IllusionPlugins
 {
@@ -29,12 +31,126 @@ namespace IllusionPlugins
         // Content of the MaterialMod in clothes sub menu
         public static GameObject clothesTabContent;
 
+
+        /// <summary>
+        /// Create text object
+        /// </summary>
+        /// <param name="textContent"></param>
+        /// <param name="fontSize"></param>
+        /// <returns></returns>
+        public static Text CreateText(string textContent, int fontSize)
+        {
+            GameObject textObject = new GameObject("Text");
+            textObject.AddComponent<RectTransform>();
+            textObject.AddComponent<CanvasRenderer>();
+            textObject.AddComponent<LayoutElement>();
+
+            Text text = textObject.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.fontStyle = FontStyle.Bold;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.color = new Color(0, 0.3686f, 0.6549f, 1);
+            text.raycastTarget = false;
+
+            text.text = textContent;
+            text.fontSize = fontSize;
+
+            return text;
+        }
+
+        /// <summary>
+        /// Create an empty image object
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public static Image CreateImage(int width, int height)
+        {
+            GameObject imageObject = new GameObject("Image");
+            RectTransform rect = imageObject.AddComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(width, height);
+
+            CanvasRenderer canvasRenderer = imageObject.AddComponent<CanvasRenderer>();
+            LayoutElement layout = imageObject.AddComponent<LayoutElement>();
+            layout.minWidth = width;
+            layout.minHeight = height;
+
+            Image image = imageObject.AddComponent<Image>();
+            image.preserveAspect = true;
+
+            return image;
+        }
+
+        /// <summary>
+        /// Create button object with text and image as separate child objects
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public static Button CreateButton(string text, int fontSize, int width, int height)
+        {
+            GameObject buttonObject = new GameObject("Button");
+            LayoutElement layout = buttonObject.AddComponent<LayoutElement>();
+            layout.minHeight = height;
+
+            // Creating image and resizing, resize image will also resize the button
+            Image image = CreateImage(width, height);
+            image.transform.SetParent(buttonObject.transform, false);
+            image.preserveAspect = false;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = 2f;
+
+            // Image content
+            Texture2D texture = new Texture2D(0, 0);
+            texture.LoadImage(MaterialModResources.btnNormal_png);
+            Rect rect = new Rect(0, 0, texture.width, texture.height);
+            Vector2 pivot = Vector2.zero;
+            Vector4 borders = new Vector4(35, 35, 35, 35);
+            Sprite sprite = Sprite.Create(texture, rect, pivot, 100f, 1, SpriteMeshType.FullRect, borders);
+
+            image.sprite = sprite;
+
+            // Button Text object
+            Text buttonText = CreateText(text, fontSize);
+            buttonText.transform.SetParent(buttonObject.transform, false);
+
+            // Creating the button itself
+            Button button = buttonObject.AddComponent<Button>();
+            button.image = image;
+
+            // Colors
+            ColorBlock colorblock = new ColorBlock();
+            colorblock.normalColor = new Color(1, 1f, 1f, 1);
+            colorblock.highlightedColor = new Color(0.8f, 0.8f, 0.8f, 1);
+            colorblock.pressedColor = new Color(0.5f, 0.5f, 0.5f, 1);
+            colorblock.selectedColor = new Color(1f, 1f, 1f, 1);
+            colorblock.disabledColor = new Color(0.3f, 0.3f, 0.3f, 1);
+            colorblock.colorMultiplier = 1;
+            colorblock.fadeDuration = 0.1f;
+            button.colors = colorblock;
+
+            // Unselect after click
+            button.onClick.AddListener((UnityAction)DeselectButton);
+
+            return button;
+        }
+
+        private static void DeselectButton()
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+
+
         /// <summary>
         /// Create a new tab on Chara Maker Clothing window
         /// </summary>
         public static void MakeClothesTab()
         {
-            SettingWindowSize(502f);
+            MakerSettingWindowSize(502f);
             string tabName = "Green";
 
             GameObject selectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
@@ -111,110 +227,7 @@ namespace IllusionPlugins
             });
         }
 
-        public static Image CreateTextureImage(int width, int height)
-        {
-            GameObject imageObject = new GameObject("TextureImage");
-            RectTransform rect = imageObject.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(width, height);
-
-            CanvasRenderer canvasRenderer = imageObject.AddComponent<CanvasRenderer>();
-            LayoutElement layout = imageObject.AddComponent<LayoutElement>();
-            layout.minWidth = width;
-            layout.minHeight = height;
-
-            Image image = imageObject.AddComponent<Image>();
-            image.preserveAspect = true;
-
-            // Mark to rebuild in the next frame
-            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
-
-            return image;
-        }
-
-        /// <summary>
-        /// Create a button on places there are managed with VerticalLayoutGroup 
-        /// </summary>
-        /// <param name="text">Button text</param>
-        /// <returns></returns>
-        public static Button CreateClothesButton(string text)
-        {
-            // Creating button object
-            GameObject buttonObject = new GameObject("Button");
-
-            buttonObject.AddComponent<RectTransform>();
-            buttonObject.AddComponent<CanvasRenderer>();
-            LayoutElement layout = buttonObject.AddComponent<LayoutElement>();
-            layout.minHeight = 35;
-
-            // Getting button images from the toggle
-            GameObject selectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
-            GameObject originalToggle = selectMenu.transform.GetChild(0).gameObject;
-            GameObject buttonImageObject = UnityEngine.Object.Instantiate(originalToggle, buttonObject.transform);
-            buttonImageObject.name = "Images";
-
-            // Cleaning what is not an image
-            UnityEngine.Object.Destroy(buttonImageObject.GetComponent<UI_ToggleEx>());
-            UnityEngine.Object.Destroy(buttonImageObject.GetComponent<LayoutElement>());
-            UnityEngine.Object.Destroy(buttonImageObject.GetComponent<UniRx.Triggers.ObservableDestroyTrigger>());
-
-            // Getting image and resizing, resize image will also resize the button
-            Image mainImage = buttonImageObject.GetComponent<Image>();
-            RectTransform rect = buttonImageObject.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(200, 35);
-
-            // Finally, creating the button itself
-            Button button = buttonObject.AddComponent<Button>();
-            button.image = mainImage.GetComponentInChildren<Image>();
-
-            // Button Text
-            Text buttonText = buttonObject.GetComponentInChildren<Text>();
-            buttonText.text = text;
-            buttonText.fontSize = 16;
-
-            // Colors
-            ColorBlock colorblock = new ColorBlock();
-            colorblock.normalColor =      new Color(1, 1f, 1f, 1);
-            colorblock.highlightedColor = new Color(0.8f, 0.8f, 0.8f, 1);
-            colorblock.pressedColor =     new Color(0.5f, 0.5f, 0.5f, 1);
-            colorblock.selectedColor =    new Color(1f, 1f, 1f, 1);
-            colorblock.disabledColor =    new Color(0.3f, 0.3f, 0.3f, 1);
-            colorblock.colorMultiplier = 1;
-            colorblock.fadeDuration = 0.1f;
-            button.colors = colorblock;
-
-            // Mark to rebuild in the next frame
-            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
-
-            return button;
-        }
-
-        public static Text CreateText(string textContent, int fontSize)
-        {
-            GameObject textObject = new GameObject("Text");
-            RectTransform rect = textObject.AddComponent<RectTransform>();
-            //rect.sizeDelta = new Vector2(size, size);
-
-            CanvasRenderer canvasRenderer = textObject.AddComponent<CanvasRenderer>();
-            LayoutElement layout = textObject.AddComponent<LayoutElement>();
-            //layout.minHeight = size;
-
-            Text text = textObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.fontSize = fontSize;
-            text.fontStyle = FontStyle.Bold;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            text.color = new Color(0, 0.3686f, 0.6549f, 1);
-            text.text = textContent;
-
-            // Mark to rebuild in the next frame
-            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
-
-            return text;
-        }
-
-        static void OnClothesToggleEnabled(Toggle toggle, CanvasGroup canvas)
+        private static void OnClothesToggleEnabled(Toggle toggle, CanvasGroup canvas)
         {
             if (toggle.isOn)
             {
@@ -239,7 +252,7 @@ namespace IllusionPlugins
             }
         }
 
-        public static void SettingWindowSize(float xSize)
+        public static void MakerSettingWindowSize(float xSize)
         {
             GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
             RectTransform settingRect = settingWindow.GetComponent<RectTransform>();

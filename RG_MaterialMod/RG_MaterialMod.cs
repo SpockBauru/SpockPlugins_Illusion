@@ -202,7 +202,8 @@ namespace IllusionPlugins
             width = height = miniatureSize;
             if (height > width) width = height * materialTexture.currentTexture.width / materialTexture.currentTexture.height;
             else height = width * materialTexture.currentTexture.height / materialTexture.currentTexture.width;
-            Image miniature = RG_MaterialModUI.CreateTextureImage(width, height);
+
+            Image miniature = RG_MaterialModUI.CreateImage(width, height);
             miniature.transform.SetParent(textureGroup.transform, false);
             UpdateMiniature(miniature, materialTexture);
 
@@ -212,14 +213,16 @@ namespace IllusionPlugins
             text.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Set Button
-            Button buttonSet = RG_MaterialModUI.CreateClothesButton("Green  " + materialTexture.textureName);
-            buttonSet.onClick.AddListener((UnityAction)delegate { SetButtonTexture(material, materialTexture, storedTexture, miniature); });
+            Button buttonSet = RG_MaterialModUI.CreateButton("Green  " + materialTexture.textureName, 16, 200, 35);
+            buttonSet.onClick.AddListener((UnityAction)delegate { SetTextureButton(material, materialTexture, storedTexture, miniature); });
             buttonSet.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Reset Button
-            Button buttonReset = RG_MaterialModUI.CreateClothesButton("Reset " + materialTexture.textureName);
-            buttonReset.onClick.AddListener((UnityAction)delegate { ResetButtonTexture(material, materialTexture, storedTexture, miniature); });
+            Button buttonReset = RG_MaterialModUI.CreateButton("Reset " + materialTexture.textureName, 16, 200, 35);
+            buttonReset.onClick.AddListener((UnityAction)delegate { ResetTextureButton(material, materialTexture, storedTexture, miniature); });
             buttonReset.transform.SetParent(textureGroup.transform, false);
+
+            LayoutRebuilder.MarkLayoutForRebuild(RG_MaterialModUI.clothesTabContent.GetComponent<RectTransform>());
         }
 
         public static void UpdateMiniature(Image miniature, TextureContent textureContent)
@@ -238,16 +241,16 @@ namespace IllusionPlugins
             if (textureContent.textureName.Contains("Bump"))
             {
                 scaledTexture = DXT2nmToNormal(scaledTexture);
-                _ = DXT2nmToNormal(textureContent.currentTexture);
             }
 
             miniature.sprite = Sprite.Create(scaledTexture, new Rect(0, 0, width, height), new Vector2());
             GarbageTextures.Add(texture2D);
             miniatureTextures.Add(scaledTexture);
             miniatureImages.Add(miniature);
+            LayoutRebuilder.MarkLayoutForRebuild(RG_MaterialModUI.clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void SetButtonTexture(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
+        public static void SetTextureButton(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
         {
             // In the future the load texture will be here
             Texture2D texture = new Texture2D(512, 512);
@@ -269,7 +272,7 @@ namespace IllusionPlugins
         }
 
         // ================================================== Cleaning Section ==================================================
-        public static void ResetButtonTexture(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
+        public static void ResetTextureButton(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)
         {
             SetOriginalTexture(material, storedTexture);
 
@@ -294,9 +297,7 @@ namespace IllusionPlugins
             for (int i = textureList.Count - 1; i >= 0; i--)
             {
                 var textureContent = textureList[i];
-
                 GarbageTextures.Add(textureContent.currentTexture);
-
                 textureContent.currentTexture = null;
             }
 
@@ -322,12 +323,8 @@ namespace IllusionPlugins
         }
 
         // ================================================== Texture Tools ==================================================
-
         public static Texture2D DXT2nmToNormal(Texture2D texture)
         {
-            byte[] bytes = texture.EncodeToPNG();
-            File.WriteAllBytes("D:\\Andre\\Downloads\\AAAAAAAAAA" + texture + ".png", bytes);
-
             Color[] colorArray = texture.GetPixels(0);
             float x, y, z, polyfit;
 
@@ -352,22 +349,19 @@ namespace IllusionPlugins
             texture.SetPixels(colorArray, 0);
             texture.Apply(true);
 
-            bytes = texture.EncodeToPNG();
-            File.WriteAllBytes("D:\\Andre\\Downloads\\BBBBBBBBBB" + texture + ".png", bytes);
-            NormalToDXT2nm(texture);
             return texture;
         }
 
         public static Texture2D NormalToDXT2nm(Texture2D texture)
         {
             Color[] colorArray = texture.GetPixels(0);
-            float x, y, z, polyfit;
+            float y, polyfit;
 
             for (int i = 0; i < colorArray.Length; i++)
             {
                 // Applying Illusion processing
                 y = colorArray[i].g;
-                polyfit = (-0.142436f * y * y) + 0.146477f * y - 0.001472f;
+                polyfit = (-0.142436f * y * y) + 0.146477f * y - 0.001472f;  // Got this from polynomial fit (Excel File in project root)
                 colorArray[i].g = Mathf.Sqrt(y) + polyfit;
 
                 // DXT5nm channel swap
@@ -379,8 +373,6 @@ namespace IllusionPlugins
             texture.SetPixels(colorArray, 0);
             texture.Apply(true);
 
-            byte[] bytes = texture.EncodeToPNG();
-            File.WriteAllBytes("D:\\Andre\\Downloads\\CCCCCCCCCCCCCC" + texture + ".png", bytes);
             return texture;
         }
 
@@ -418,8 +410,6 @@ namespace IllusionPlugins
                     textureContentList.Add(textureContent);
 
                     GarbageTextures.Add(texture2D);
-
-                    
                 }
             }
             return textureContentList;

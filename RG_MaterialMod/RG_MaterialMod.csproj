@@ -7,7 +7,7 @@
     <ProjectGuid>{D7B27052-28F5-481B-B972-8A05293F79CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RG_MaterialMod</RootNamespace>
+    <RootNamespace>IllusionPlugins</RootNamespace>
     <AssemblyName>RG_MaterialMod</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,6 +54,7 @@
       <HintPath>..\RoomGirlLibs\Il2CppSystem.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="UnhollowerBaseLib">
       <HintPath>..\RoomGirlLibs\UnhollowerBaseLib.dll</HintPath>
     </Reference>
@@ -90,6 +91,11 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MaterialModResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MaterialModResources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RG_MaterialMod_Hooks.cs" />
     <Compile Include="RG_MaterialMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +103,15 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MaterialModResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MaterialModResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\btnNormal_png" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

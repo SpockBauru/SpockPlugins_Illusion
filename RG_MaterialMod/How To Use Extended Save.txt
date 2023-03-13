@@ -1,0 +1,5 @@
+Saving and loading the data seems to be the same as in the HS2 etc. versions, using the PluginData class
+ PluginData pluginData = new PluginData();
+ pluginData.data["example_key"] = "example value"
+ ExtendedSave.SetExtendedDataById(chaControl.ChaFile,YourPlugin.GUID,pluginData);
+but without the OnReload() method in KKAPI.CharaCustomFunctionController, we have to figure out ourselves when we need read the extended data to refresh the character
