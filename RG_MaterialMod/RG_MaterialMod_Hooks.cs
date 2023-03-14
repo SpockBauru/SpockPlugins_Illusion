@@ -53,7 +53,7 @@ namespace IllusionPlugins
             private static void ClothesChanged(ChaControl __instance, int kind)
             {
                 ResetKind(__instance.gameObject.name, kind);
-                RefreshClothesMaterial(__instance.gameObject.name, kind);
+                SetClothesTextures(__instance.gameObject.name, kind);
             }
 
             // Get when material is updated
@@ -62,7 +62,7 @@ namespace IllusionPlugins
             private static void MaterialChanged(ChaControl __instance, int kind)
             {
                 // Update textures of piece "kind"
-                RefreshClothesMaterial(__instance.gameObject.name, kind);
+                SetClothesTextures(__instance.gameObject.name, kind);
             }
 
             // ================================================== Clothes Section ==================================================
@@ -71,7 +71,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.ChangeMenuFunc))]
             private static void PieceUpdated(CvsC_Clothes __instance)
             {
-                RefreshClothesMaterial(__instance.chaCtrl.gameObject.name, __instance.SNo);
+                SetClothesTextures(__instance.chaCtrl.gameObject.name, __instance.SNo);
                 if (clothesTab.isOn) MakeClothesContent(__instance);
                 DestroyGarbage();
             }

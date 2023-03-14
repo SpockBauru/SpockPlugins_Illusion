@@ -217,7 +217,7 @@ namespace IllusionPlugins
             // Making the grid layout group
             UnityEngine.Object.DestroyImmediate(tabContent.GetComponent<VerticalLayoutGroup>());
             GridLayoutGroup grid = tabContent.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(230, 295);
+            grid.cellSize = new Vector2(230, 300);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 2;
             grid.spacing = new Vector2(5, 5);
