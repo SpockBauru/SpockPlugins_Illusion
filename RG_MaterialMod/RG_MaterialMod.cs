@@ -131,9 +131,9 @@ namespace IllusionPlugins
         public static void MakeClothesContent(CvsC_Clothes clothesControl)
         {
             // Cleaning UI content
-            for (int i = RG_MaterialModUI.clothesTabContent.transform.childCount - 1; i >= 0; i--)
+            for (int i = clothesTabContent.transform.childCount - 1; i >= 0; i--)
             {
-                GameObject.Destroy(RG_MaterialModUI.clothesTabContent.transform.GetChild(i).gameObject);
+                GameObject.Destroy(clothesTabContent.transform.GetChild(i).gameObject);
             }
 
             // Cleaning old miniatures
@@ -183,16 +183,16 @@ namespace IllusionPlugins
 
                 // Creating one texture block for each texture
                 for (int j = 0; j < materialTextures.Count; j++)
-                    CreateTexturesBlock(material, materialTextures[j], storedTextures[j]);
+                    CreateTexturesBlock(material, materialTextures[j], storedTextures[j], clothesTabContent);
             }
         }
 
 
-        public static void CreateTexturesBlock(Material material, TextureContent materialTexture, TextureContent storedTexture)
+        public static void CreateTexturesBlock(Material material, TextureContent materialTexture, TextureContent storedTexture, GameObject parent)
         {
             // UI group
             GameObject textureGroup = new GameObject("TextureGroup " + materialTexture.textureName);
-            textureGroup.transform.SetParent(RG_MaterialModUI.clothesTabContent.transform, false);
+            textureGroup.transform.SetParent(parent.transform, false);
             VerticalLayoutGroup verticalLayoutGroup = textureGroup.AddComponent<VerticalLayoutGroup>();
             verticalLayoutGroup.childForceExpandHeight = false;
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
@@ -209,7 +209,7 @@ namespace IllusionPlugins
 
             // Text with size
             string textContent = "Size: " + materialTexture.currentTexture.width.ToString() + "x" + materialTexture.currentTexture.height.ToString();
-            Text text = RG_MaterialModUI.CreateText(textContent, 17);
+            Text text = RG_MaterialModUI.CreateText(textContent, 17, 200, 35);
             text.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Set Button
@@ -222,7 +222,7 @@ namespace IllusionPlugins
             buttonReset.onClick.AddListener((UnityAction)delegate { ResetTextureButton(material, materialTexture, storedTexture, miniature); });
             buttonReset.transform.SetParent(textureGroup.transform, false);
 
-            LayoutRebuilder.MarkLayoutForRebuild(RG_MaterialModUI.clothesTabContent.GetComponent<RectTransform>());
+            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
         public static void UpdateMiniature(Image miniature, TextureContent textureContent)
@@ -247,7 +247,7 @@ namespace IllusionPlugins
             GarbageTextures.Add(texture2D);
             miniatureTextures.Add(scaledTexture);
             miniatureImages.Add(miniature);
-            LayoutRebuilder.MarkLayoutForRebuild(RG_MaterialModUI.clothesTabContent.GetComponent<RectTransform>());
+            LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
         public static void SetTextureButton(Material material, TextureContent materialTexture, TextureContent storedTexture, Image miniature)

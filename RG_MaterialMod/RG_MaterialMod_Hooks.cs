@@ -13,6 +13,12 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
+        // Tab of the MaterialMod in clothes sub menu
+        public static UI_ToggleEx clothesTab;
+
+        // Content of the MaterialMod in clothes sub menu
+        public static GameObject clothesTabContent;
+
         internal class Hooks
         {
             // ================================================== CharaControl Section ==================================================
@@ -66,22 +72,29 @@ namespace IllusionPlugins
             private static void PieceUpdated(CvsC_Clothes __instance)
             {
                 RefreshClothesMaterial(__instance.chaCtrl.gameObject.name, __instance.SNo);
-                if (RG_MaterialModUI.clothesToggle.isOn) MakeClothesContent(__instance);
+                if (clothesTab.isOn) MakeClothesContent(__instance);
                 DestroyGarbage();
             }
 
-            // Initializing clothes tab
+            // Initializing clothes tab in Chara Maker
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.Initialize))]
             private static void StartClothesMenu(CvsC_Clothes __instance)
             {
+                // Add character
                 if (!CharactersLoaded.ContainsKey(__instance.chaCtrl.gameObject.name))
-                {
                     CharactersLoaded.Add(__instance.chaCtrl.gameObject.name, new CharacterContent());
-                }
 
-                RG_MaterialModUI.MakeClothesTab();
-                RG_MaterialModUI.clothesToggle.onValueChanged.AddListener((UnityAction<bool>)Make);
+                // Resize Setting Window
+                GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
+                RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
+
+                // Create clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
+                GameObject clothesSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
+                GameObject clothesSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/Setting");
+                (clothesTab, clothesTabContent) = RG_MaterialModUI.CreateMakerTab(clothesSelectMenu, clothesSettingsGroup);
+
+                clothesTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
                 {
                     if (isOn) MakeClothesContent(__instance);
