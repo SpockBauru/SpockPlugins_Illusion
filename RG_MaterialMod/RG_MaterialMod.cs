@@ -69,11 +69,9 @@ namespace IllusionPlugins
         public class CharacterContent
         {
             /// <summary>
-            /// <br>Key: Texture material number</br>
-            /// <br>Value: MaterialTextures class</br>
+            /// <br> MaterialContent = clothes[kind][renderIndex]</br>
             /// </summary>
-            public Dictionary<int, MaterialContent> clothesTop = new Dictionary<int, MaterialContent>();
-            public Dictionary<int, MaterialContent> clothesBottom = new Dictionary<int, MaterialContent>();
+            public Dictionary<int, Dictionary<int, MaterialContent>> clothes = new Dictionary<int, Dictionary<int, MaterialContent>>();
         }
 
         /// <summary>
@@ -111,11 +109,8 @@ namespace IllusionPlugins
             Renderer[] rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
             CharacterContent characterContent = CharactersLoaded[characterName];
-            Dictionary<int, MaterialContent> dicMaterials;
-
-            if (kind == 0) dicMaterials = characterContent.clothesTop;
-            else if (kind == 1) dicMaterials = characterContent.clothesBottom;
-            else dicMaterials = null;
+            if (!characterContent.clothes.ContainsKey(kind)) return;
+            Dictionary<int, MaterialContent> dicMaterials = characterContent.clothes[kind];
 
             if (dicMaterials == null) return;
 
@@ -146,13 +141,11 @@ namespace IllusionPlugins
 
 
 
-        public static void ResetKind(string characterName, int Kind)
+        public static void ResetKind(string characterName, int kind)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
-            Dictionary<int, MaterialContent> dicMaterials;
-            if (Kind == 0) dicMaterials = characterContent.clothesTop;
-            else if (Kind == 1) dicMaterials = characterContent.clothesBottom;
-            else return;
+            if (!characterContent.clothes.ContainsKey(kind)) return;
+            Dictionary<int, MaterialContent> dicMaterials = characterContent.clothes[kind];
 
             if (dicMaterials.Count <= 0) return;
 
