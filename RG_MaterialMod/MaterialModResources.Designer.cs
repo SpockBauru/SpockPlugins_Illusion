@@ -69,5 +69,35 @@ namespace IllusionPlugins {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Byte[].
+        /// </summary>
+        internal static byte[] checkMark_png {
+            get {
+                object obj = ResourceManager.GetObject("checkMark_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Byte[].
+        /// </summary>
+        internal static byte[] dropdownArrow_png {
+            get {
+                object obj = ResourceManager.GetObject("dropdownArrow_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Byte[].
+        /// </summary>
+        internal static byte[] dropdownStandard_png {
+            get {
+                object obj = ResourceManager.GetObject("dropdownStandard_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

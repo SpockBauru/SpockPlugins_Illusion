@@ -28,6 +28,12 @@ namespace IllusionPlugins
     /// </summary>
     internal class RG_MaterialModUI
     {
+        static Sprite buttonSprite;
+        static Sprite standardSprite;
+        static Sprite arrowSprite;
+        static Sprite checkSprite;
+
+
 
         /// <summary>
         /// Create text object
@@ -59,6 +65,18 @@ namespace IllusionPlugins
 
 
             return text;
+        }
+
+        public static Sprite CreateSprite(byte[] bytes, int border)
+        {
+            Texture2D texture = new Texture2D(0, 0);
+            texture.LoadImage(bytes);
+            Rect rect = new Rect(0, 0, texture.width, texture.height);
+            Vector2 pivot = Vector2.zero;
+            Vector4 borders = new Vector4(border, border, border, border);
+            Sprite sprite = Sprite.Create(texture, rect, pivot, 100f, 1, SpriteMeshType.FullRect, borders);
+
+            return sprite;
         }
 
         /// <summary>
@@ -106,14 +124,9 @@ namespace IllusionPlugins
             image.pixelsPerUnitMultiplier = 2f;
 
             // Image content
-            Texture2D texture = new Texture2D(0, 0);
-            texture.LoadImage(MaterialModResources.btnNormal_png);
-            Rect rect = new Rect(0, 0, texture.width, texture.height);
-            Vector2 pivot = Vector2.zero;
-            Vector4 borders = new Vector4(25, 25, 25, 25);
-            Sprite sprite = Sprite.Create(texture, rect, pivot, 100f, 1, SpriteMeshType.FullRect, borders);
+            buttonSprite = CreateSprite(MaterialModResources.btnNormal_png, 25);
 
-            image.sprite = sprite;
+            image.sprite = buttonSprite;
 
             // Button Text object
             Text buttonText = CreateText(text, fontSize, 500, 50);
@@ -144,6 +157,50 @@ namespace IllusionPlugins
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
+
+        public static Dropdown CreateDropdown(int width, int height, int fontSize)
+        {
+            // Standard Sprite
+            standardSprite = CreateSprite(MaterialModResources.dropdownStandard_png, 5);
+
+            // Arrow Sprite
+            arrowSprite = CreateSprite(MaterialModResources.dropdownArrow_png, 0);
+
+            // Checkmark
+            checkSprite = CreateSprite(MaterialModResources.checkMark_png, 0);
+
+
+            DefaultControls.Resources uiResources = new DefaultControls.Resources();
+            //Set the Dropdown Background and Handle Image someBgSprite;
+            uiResources.standard = standardSprite;
+            //Set the Dropdown Scrollbar Background Image someScrollbarSprite;
+            uiResources.background = standardSprite;
+            //Set the Dropdown Image someDropDownSprite;
+            uiResources.dropdown = arrowSprite;
+            //Set the Dropdown Image someCheckmarkSprite;
+            uiResources.checkmark = checkSprite;
+            //Set the Dropdown Viewport sprite Image someMaskSprite;
+            uiResources.mask = standardSprite;
+
+            // Createing dropdown
+            GameObject dropdownObject = DefaultControls.CreateDropdown(uiResources);
+            Dropdown dropdown = dropdownObject.GetComponent<Dropdown>();
+            RectTransform dropdownRect = dropdownObject.GetComponent<RectTransform>();
+            dropdownRect.sizeDelta = new Vector2(width, height);
+            dropdownRect.anchorMin = new Vector2(0.5f, 1);
+            dropdownRect.anchorMax = new Vector2(0.5f, 1);
+            dropdown.captionText.fontSize = fontSize;
+
+            // Items
+            dropdown.itemText.fontSize = fontSize;
+            GameObject item = dropdownObject.GetComponentInChildren<Toggle>(true).gameObject;
+            RectTransform itemRect = item.GetComponent<RectTransform>();
+            itemRect.sizeDelta = new Vector2(0, height);
+            dropdown.template.anchoredPosition = new Vector2(0, 0);
+
+            return dropdown;
+        }
+
 
         public static void ChangeWindowSize(float xSize, GameObject window)
         {
@@ -200,13 +257,15 @@ namespace IllusionPlugins
                 GameObject.Destroy(tabContent.transform.GetChild(i).gameObject);
             }
 
-            // Dropdown will go here
-            Text TESTE = CreateText("TESTE TESTE", 20, 0, 0);
-            TESTE.transform.SetParent(newSetting.transform, false);
-            TESTE.alignment = TextAnchor.UpperCenter;
-            RectTransform testeRect = TESTE.GetComponent<RectTransform>();
-            testeRect.anchorMax = new Vector2(1, 1);
-            testeRect.anchorMin = new Vector2(0, 1);
+            // Dropdown for materials
+            Dropdown dropdown = CreateDropdown(470, 35, 18);
+            dropdown.transform.SetParent(newSetting.transform, false);
+            dropdown.ClearOptions();
+            RectTransform dropdownRect = dropdown.gameObject.GetComponent<RectTransform>();
+            dropdownRect.anchoredPosition = new Vector2(0, -10);
+            GameObject dropContentObj = dropdown.gameObject.GetComponentInChildren<ScrollRect>(true).gameObject;
+            RectTransform dropContentRect = dropContentObj.GetComponent<RectTransform>();
+            dropContentRect.sizeDelta = new Vector2(0, 500);
 
             // spacing scroll view
             GameObject scrollview = newSetting.GetComponentInChildren<ScrollRect>().gameObject;
@@ -222,21 +281,20 @@ namespace IllusionPlugins
             grid.constraintCount = 2;
             grid.spacing = new Vector2(5, 5);
 
-
             // ====== Enable/disable when set ======
             ui_toggleEx.onValueChanged.AddListener((UnityAction<bool>)delegate
             {
-                OnClothesToggleEnabled(ui_toggleEx, newSetting.GetComponent<CanvasGroup>());
+                OnMakerTabeEnabled(ui_toggleEx, newSetting.GetComponent<CanvasGroup>());
             });
 
-            // ======  Finalizing =========
+            // ======  Making the first item active on start =========
             UI_ToggleEx originalUI = originalToggle.GetComponent<UI_ToggleEx>();
             originalUI.isOn = true;
 
             return (ui_toggleEx, tabContent);
         }
 
-        private static void OnClothesToggleEnabled(Toggle toggle, CanvasGroup canvas)
+        private static void OnMakerTabeEnabled(Toggle toggle, CanvasGroup canvas)
         {
             if (toggle.isOn)
             {
@@ -260,6 +318,8 @@ namespace IllusionPlugins
                 canvas.interactable = false;
             }
         }
+
+
 
 
     }

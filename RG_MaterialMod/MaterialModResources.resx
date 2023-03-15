@@ -121,4 +121,13 @@
   <data name="btnNormal_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\btnNormal_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="checkMark_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\checkMark_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dropdownArrow_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\dropdownArrow_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dropdownStandard_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\dropdownStandard_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

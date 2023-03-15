@@ -13,12 +13,6 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
-        // Tab of the MaterialMod in clothes sub menu
-        public static UI_ToggleEx clothesTab;
-
-        // Content of the MaterialMod in clothes sub menu
-        public static GameObject clothesTabContent;
-
         internal class Hooks
         {
             // ================================================== CharaControl Section ==================================================
@@ -72,7 +66,7 @@ namespace IllusionPlugins
             private static void PieceUpdated(CvsC_Clothes __instance)
             {
                 SetClothesTextures(__instance.chaCtrl.gameObject.name, __instance.SNo);
-                if (clothesTab.isOn) MakeClothesContent(__instance);
+                if (clothesTab.isOn) MakeClothesDropdown(__instance);
                 DestroyGarbage();
             }
 
@@ -90,17 +84,17 @@ namespace IllusionPlugins
                 RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
 
                 // Create clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
-                GameObject clothesSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
-                GameObject clothesSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/Setting");
+                clothesSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
+                clothesSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/Setting");
                 (clothesTab, clothesTabContent) = RG_MaterialModUI.CreateMakerTab(clothesSelectMenu, clothesSettingsGroup);
 
                 clothesTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
                 {
-                    if (isOn) MakeClothesContent(__instance);
+                    if (isOn) MakeClothesDropdown(__instance);
                 }
 
-                MakeClothesContent(__instance);
+                MakeClothesDropdown(__instance);
             }
         }
     }

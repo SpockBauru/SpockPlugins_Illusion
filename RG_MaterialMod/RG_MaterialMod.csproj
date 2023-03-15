@@ -91,6 +91,7 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RG_MaterialMod_CharaMaker.cs" />
     <Compile Include="RG_MaterialMod_TextureTools.cs" />
     <Compile Include="MaterialModResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -113,6 +114,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\btnNormal_png" />
+    <None Include="resources\checkMark_png" />
+    <None Include="resources\dropdownArrow_png" />
+    <None Include="resources\dropdownStandard_png" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
