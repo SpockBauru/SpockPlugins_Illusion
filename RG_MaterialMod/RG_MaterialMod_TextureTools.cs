@@ -114,14 +114,11 @@ namespace IllusionPlugins
                     Texture texture = material.GetTexture(propertyName);
 
 
-
                     // REVIEW THIS
                     if (texture == null) continue;
                     if (string.IsNullOrEmpty(propertyName)) continue;
 
 
-
-                    MaterialContent materialContent = new MaterialContent();
                     string textureName = propertyName;
                     Texture2D texture2D = ToTexture2D(texture);
                     dicTexture.Add(textureName, texture2D);

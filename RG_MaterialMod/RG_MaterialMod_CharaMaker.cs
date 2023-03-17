@@ -26,25 +26,28 @@ using Chara;
 using CharaCustom;
 using System.Collections.Generic;
 using System.Linq;
+using MessagePack;
+using Il2CppSystem.Text;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
+
         public static void MakeClothesDropdown(CvsC_Clothes clothesControl)
         {
-            ChaControl charaControl = clothesControl.chaCtrl;
-            string characterName = charaControl.gameObject.name;
-
-            // index according to enum ChaFileDefine.ClothesKind
-            int kind = clothesControl.SNo;
-            GameObject clothesPiece = GetClothes(charaControl, kind);
-
-            // Stored textures for this kind (piece) of clothing
+            GameObject characterObject = clothesControl.chaCtrl.gameObject;
+            string characterName = characterObject.name;
+            int coordinateType = clothesControl.coordinateType;
+            int kindIndex = clothesControl.SNo;
             CharacterContent characterContent = CharactersLoaded[characterName];
-            if (!characterContent.clothes.ContainsKey(kind)) characterContent.clothes.Add(kind, new Dictionary<int, MaterialContent>());
-            Dictionary<int, MaterialContent> dicMaterials = characterContent.clothes[kind];
+            ChaFile chaFile = clothesControl.chaCtrl.ChaFile;
+            ChaControl chaControl = clothesControl.chaCtrl; 
+            GameObject clothesPiece = chaControl.ObjClothes[kindIndex];
 
+            
             // Create one button for each material
             rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
@@ -80,15 +83,15 @@ namespace IllusionPlugins
             clothesDropdown.RefreshShownValue();
             clothesDropdown.onValueChanged.AddListener((UnityAction<int>)delegate
             {
-                DrawTexturesGrid(rendererList, dicMaterials, clothesDropdown, kind);
+                DrawTexturesGrid(clothesDropdown, rendererList, characterContent, coordinateType, kindIndex);
             });
             lastDropdownSetting = -1;
-            DrawTexturesGrid(rendererList, dicMaterials, clothesDropdown, kind);
+            DrawTexturesGrid(clothesDropdown, rendererList, characterContent, coordinateType, kindIndex);
         }
 
         private static int lastDropdownSetting = -1;
         private static Renderer[] rendererList;
-        public static void DrawTexturesGrid(Renderer[] rendererList, Dictionary<int, MaterialContent> dicMaterials, Dropdown dropdown, int kind)
+        public static void DrawTexturesGrid(Dropdown dropdown, Renderer[] rendererList, CharacterContent characterContent, int coordinateType, int kindIndex)
         {
             // Fixing Unity bug for duplicated calls
             if (dropdown.value == lastDropdownSetting) return;
@@ -115,27 +118,21 @@ namespace IllusionPlugins
             // Getting Texture list from material
             Material material = rendererList[renderIndex].material;
             string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
+            Debug.Log("Material Name: " +  materialName);
 
             Dictionary<string, Texture2D> materialTextures = GetMaterialTextures(material);
 
-            if (!dicMaterials.ContainsKey(renderIndex)) dicMaterials.Add(renderIndex, new MaterialContent());
-            MaterialContent materialContent = dicMaterials[renderIndex];
-            if (materialContent.currentTextures == null) materialContent.currentTextures = new Dictionary<string, Texture2D>();
-            Dictionary<string, Texture2D> storedTextues = materialContent.currentTextures;
-            if (materialContent.originalTextures == null) materialContent.originalTextures = new Dictionary<string, Texture2D>();
-            Dictionary<string, Texture2D> originalTextures = materialContent.currentTextures;
-
             // Creating one texture block for each texture
-            for (int j = 0; j < materialTextures.Count; j++)
+            for (int i = 0; i < materialTextures.Count; i++)
             {
-                string textureName = materialTextures.ElementAt(j).Key;
+                string textureName = materialTextures.ElementAt(i).Key;
                 Texture2D materialTexture = materialTextures[textureName];
 
-                CreateTextureBlock(material, materialTexture, textureName, materialContent, clothesTabContent, kind);
+                CreateTextureBlock(material, materialTexture, clothesTabContent, characterContent, coordinateType, kindIndex, renderIndex, textureName);
             }
         }
 
-        public static void CreateTextureBlock(Material material, Texture2D materialTexture, string textureName, MaterialContent materialContent, GameObject parent, int kind)
+        public static void CreateTextureBlock(Material material, Texture2D materialTexture, GameObject parent, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName)
         {
             // UI group
             GameObject textureGroup = new GameObject("TextureGroup " + textureName);
@@ -161,12 +158,18 @@ namespace IllusionPlugins
 
             // Clothes Set Button
             Button buttonSet = RG_MaterialModUI.CreateButton("Green  " + textureName, 16, 200, 35);
-            buttonSet.onClick.AddListener((UnityAction)delegate { SetTextureButton(material, materialTexture, textureName, materialContent, miniature, kind); });
+            buttonSet.onClick.AddListener((UnityAction)delegate 
+            { 
+                SetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature); 
+            });
             buttonSet.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Reset Button
             Button buttonReset = RG_MaterialModUI.CreateButton("Reset " + textureName, 16, 200, 35);
-            buttonReset.onClick.AddListener((UnityAction)delegate { ResetTextureButton(material, materialTexture, textureName, materialContent, miniature); });
+            buttonReset.onClick.AddListener((UnityAction)delegate 
+            { 
+                ResetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature); 
+            });
             buttonReset.transform.SetParent(textureGroup.transform, false);
 
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
@@ -194,41 +197,87 @@ namespace IllusionPlugins
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void SetTextureButton(Material material, Texture2D materialTexture, string textureName, MaterialContent materialContent, Image miniature, int kind)
+        public static void SetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature)
         {
             // In the future the load texture will be here
             Texture2D texture = new Texture2D(512, 512);
             texture = GreenTexture(512, 512);
 
-            if (!materialContent.currentTextures.ContainsKey(textureName)) materialContent.currentTextures.Add(textureName, null);
-            if (!materialContent.originalTextures.ContainsKey(textureName)) materialContent.originalTextures.Add(textureName, null);
+            // ========================= TESTE TESTE =========================
 
-            // Storing original texture
-            if (materialContent.originalTextures[textureName] == null) materialContent.originalTextures[textureName] = materialTexture;
+            //Dictionary<string, byte[]> TestDictionary = new Dictionary<string, byte[]>();
+
+            //byte[] bytes1 = { 5, 7, 13 };
+            //byte[] bytes2 = { 20, 40, 60, 80, 100 };
+            //TestDictionary.Add("teste1", bytes1);
+            //TestDictionary.Add("teste2", bytes2);
+
+            //byte[] outputByte;
+
+            //BinaryFormatter formatter = new BinaryFormatter();
+            //MemoryStream stream = new MemoryStream();
+            //formatter.Serialize(stream, TestDictionary);
+            //outputByte = stream.ToArray();
+            //stream.Close();
+
+            //string texto = "";
+            //for (int i = 0; i< 10; i++)
+            //    texto = texto + outputByte[i] + " ";
+            //Debug.Log("Bytes Firsts: " + texto);
+
+            //string bytesString = Encoding.Latin1.GetString(outputByte);
+
+            //var decoded = Encoding.Latin1.GetBytes(bytesString);
+            //string texto2 = "";
+            //for (int i = 0; i < 10; i++)
+            //    texto2 = texto2 + decoded[i] + " ";
+            //Debug.Log("Bytes Firsts: " + texto2);
+
+            //SaveData(chaFile, "firstKey", bytesString);
+
+            // Working with the full path because is safer
+            // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
+            if (!characterContent.clothesTextures.ContainsKey(coordinateType)) characterContent.clothesTextures.Add(coordinateType, new Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>());
+            if (!characterContent.clothesTextures[coordinateType].ContainsKey(kindIndex)) characterContent.clothesTextures[coordinateType].Add(kindIndex, new Dictionary<int, Dictionary<string, Texture2D>>());
+            if (!characterContent.clothesTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) characterContent.clothesTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, Texture2D>());
+            if (!characterContent.clothesTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) characterContent.clothesTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
+
+            // Stored original textures 
+            // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
+            if (!characterContent.originalClothesTextures.ContainsKey(coordinateType)) characterContent.originalClothesTextures.Add(coordinateType, new Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>());
+            if (!characterContent.originalClothesTextures[coordinateType].ContainsKey(kindIndex)) characterContent.originalClothesTextures[coordinateType].Add(kindIndex, new Dictionary<int, Dictionary<string, Texture2D>>());
+            if (!characterContent.originalClothesTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) characterContent.originalClothesTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, Texture2D>());
+            if (!characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
+
+            // Getting material all textures
+            Dictionary<string, Texture2D> materialTextures = GetMaterialTextures(material);
+
+            // Store original texture
+            if (characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null) characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] = materialTextures[textureName];
 
             // Reset old texture
-            if (!(materialContent.currentTextures[textureName] == null)) GarbageTextures.Add(materialContent.currentTextures[textureName]);
+            if (!(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null)) GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
 
             // Update Texture
-            materialContent.currentTextures[textureName] = texture;
-            material.SetTexture(textureName, materialContent.currentTextures[textureName]);
+            characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] = texture;
+            material.SetTexture(textureName, characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
 
             // Update miniature
-            UpdateMiniature(miniature, materialContent.currentTextures[textureName], textureName);
+            UpdateMiniature(miniature, characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName], textureName);
 
             DestroyGarbage();
         }
 
-        public static void ResetTextureButton(Material material, Texture2D materialTexture, string textureName, MaterialContent materialContent, Image miniature)
+        public static void ResetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature)
         {
-            if (!materialContent.currentTextures.ContainsKey(textureName)) return;
+            if (!characterContent.clothesTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) return;
 
-            material.SetTexture(textureName, materialContent.originalTextures[textureName]);
-            UpdateMiniature(miniature, materialContent.originalTextures[textureName], textureName);
+            material.SetTexture(textureName, characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
+            UpdateMiniature(miniature, characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName], textureName);
 
             // cleaning texture and entrances
-            if (materialContent.currentTextures.ContainsKey(textureName)) GarbageTextures.Add(materialContent.currentTextures[textureName]);
-            materialContent.currentTextures.Remove(textureName);
+            GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
+            characterContent.clothesTextures[coordinateType][kindIndex][renderIndex].Remove(textureName);
 
             DestroyGarbage();
         }

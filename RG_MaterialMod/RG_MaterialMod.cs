@@ -57,7 +57,7 @@ namespace IllusionPlugins
         static List<Image> miniatureImages = new List<Image>();
 
         /// <summary>
-        /// Key: Name of Character's GameObject, Value: class CharacterTextures
+        /// Key: Name of Character's GameObject, Value: class CharacterContent
         /// </summary>
         public static Dictionary<string, CharacterContent> CharactersLoaded = new Dictionary<string, CharacterContent>();
 
@@ -66,28 +66,20 @@ namespace IllusionPlugins
         /// <summary>
         /// Every MaterialMod content for this character goes here
         /// </summary>
+        [Serializable]
         public class CharacterContent
         {
+            public GameObject characterObject;
             /// <summary>
-            /// <br> MaterialContent = clothes[kind][renderIndex]</br>
+            /// <br> Texture = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> Far from ideal but I tried many things and only this worked...</br>
             /// </summary>
-            public Dictionary<int, Dictionary<int, MaterialContent>> clothes = new Dictionary<int, Dictionary<int, MaterialContent>>();
-        }
-
-        /// <summary>
-        /// All content regarding one material
-        /// </summary>
-        public class MaterialContent
-        {
-            /// <summary>
-            /// Key: Texture name
-            /// </summary>
-            public Dictionary<string, Texture2D> currentTextures;
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>> clothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>>();
 
             /// <summary>
-            /// Key: Texture name
+            /// <br> Original Texture = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// </summary>
-            public Dictionary<string, Texture2D> originalTextures;
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>> originalClothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Texture2D>>>>();
         }
 
         public enum TextureType
@@ -102,34 +94,82 @@ namespace IllusionPlugins
             Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
         }
 
-        public static void SetClothesTextures(string characterName, int kind)
+        public static void SetAllClothesTextures(string characterName)
         {
-            ChaControl charaControl = GameObject.Find(characterName).GetComponent<ChaControl>();
-            GameObject clothesPiece = GetClothes(charaControl, kind);
-            Renderer[] rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
-
             CharacterContent characterContent = CharactersLoaded[characterName];
-            if (!characterContent.clothes.ContainsKey(kind)) return;
-            Dictionary<int, MaterialContent> dicMaterials = characterContent.clothes[kind];
+            GameObject characterObject = characterContent.characterObject;
+            ChaControl chaControl = characterObject.GetComponent<ChaControl>();
 
-            if (dicMaterials == null) return;
+            var clothesTextures = characterContent.clothesTextures;
+            if (clothesTextures == null) return;
 
-            // Search for all materials
-            for (int i = 0; i < rendererList.Length; i++)
+            // Texture = clothesTextures[coordinate][kind][renderIndex][TextureName]
+            // Far from ideal, but I tried many things and only this worked...
+            for (int i = 0; i < clothesTextures.Count; i++)
             {
-                if (!dicMaterials.ContainsKey(i)) continue;
+                if (clothesTextures.ElementAt(i).Value == null) continue;
+                int coordinateIndex = clothesTextures.ElementAt(i).Key;
+                var coordinate = clothesTextures[coordinateIndex];
 
-                Material material = rendererList[i].material;
-                MaterialContent materialContent = dicMaterials[i];
-                Dictionary<string, Texture2D> dicTexture = materialContent.currentTextures;
-
-                // Set all textures
-                for (int j = 0; j < dicTexture.Count; j++)
+                for (int j = 0; j < coordinate.Count; j++)
                 {
-                    string name = dicTexture.ElementAt(j).Key;
-                    Texture2D texture = dicTexture.ElementAt(j).Value;
-                    if (texture == null) continue;
-                    material.SetTexture(name, texture);
+                    if (coordinate.ElementAt(j).Value == null) continue;
+                    int kindIndex = coordinate.ElementAt(j).Key;
+                    var kind = coordinate[kindIndex];
+
+                    var rendererList = chaControl.ObjClothes[kindIndex].GetComponentsInChildren<Renderer>(true);
+
+                    for (int k = 0; k < kind.Count; k++)
+                    {
+                        if (kind.ElementAt(k).Value == null) continue;
+                        int rendererIndex = kind.ElementAt(k).Key;
+                        var storedRenderer = kind[rendererIndex];
+
+                        Material material = rendererList[rendererIndex].material;
+
+                        for (int l = 0; l < storedRenderer.Count; l++)
+                        {
+                            if (storedRenderer.ElementAt(l).Value == null) continue;
+                            string textureName = storedRenderer.ElementAt(l).Key;
+
+                            Texture2D texture = storedRenderer[textureName];
+                            material.SetTexture(textureName, texture);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void SetClothesKind(string characterName, int coordinateIndex, int kindIndex)
+        {
+            CharacterContent characterContent = CharactersLoaded[characterName];
+            GameObject characterObject = characterContent.characterObject;
+            ChaControl chaControl = characterObject.GetComponent<ChaControl>();
+            var clothesTextures = characterContent.clothesTextures;
+
+            if (!clothesTextures.ContainsKey(coordinateIndex)) return;
+            var coordinate = clothesTextures[coordinateIndex];
+
+            if (!coordinate.ContainsKey(kindIndex)) return;
+            var kind = coordinate[kindIndex];
+
+            var rendererList = chaControl.ObjClothes[kindIndex].GetComponentsInChildren<Renderer>(true);
+
+            for (int k = 0; k < kind.Count; k++)
+            {
+                if (kind.ElementAt(k).Value == null) continue;
+                int rendererIndex = kind.ElementAt(k).Key;
+                var storedRenderer = kind[rendererIndex];
+
+                Material material = rendererList[rendererIndex].material;
+
+                for (int l = 0; l < storedRenderer.Count; l++)
+                {
+                    if (storedRenderer.ElementAt(l).Value == null) continue;
+                    string textureName = storedRenderer.ElementAt(l).Key;
+
+                    Texture2D texture = storedRenderer[textureName];
+                    material.SetTexture(textureName, texture);
                 }
             }
         }
@@ -139,47 +179,43 @@ namespace IllusionPlugins
             return chaControl.ObjClothes[kind];
         }
 
-
-
-        public static void ResetKind(string characterName, int kind)
+        public static void ResetAllClothes(string characterName)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
-            if (!characterContent.clothes.ContainsKey(kind)) return;
-            Dictionary<int, MaterialContent> dicMaterials = characterContent.clothes[kind];
+            GameObject characterObject = characterContent.characterObject;
+            ChaControl chaControl = characterObject.GetComponent<ChaControl>();
+            var clothesTextures = characterContent.clothesTextures;
 
-            if (dicMaterials.Count <= 0) return;
+            // cleaning textures lol
+            foreach (var coordinate in clothesTextures.Values)
+                foreach (var kind in coordinate.Values)
+                    foreach (var render in kind.Values)
+                        foreach (var texture in render.Values)
+                            GarbageTextures.Add(texture);
 
-            for (int i = dicMaterials.Count -1; i >= 0; i--)
-            {
-                MaterialContent materialContent = dicMaterials.ElementAt(i).Value;
-                Dictionary<string, Texture2D> storedTextures = materialContent.currentTextures;
-                Dictionary<string, Texture2D> originalTextures = materialContent.originalTextures;
+            clothesTextures.Clear();
+            DestroyGarbage();
+        }
 
-                for (int j = storedTextures.Count - 1; j >= 0; j--)
-                {
-                    string textureName = storedTextures.ElementAt(j).Key;
-                    Texture2D storedTexture = storedTextures[textureName];
-                    GarbageTextures.Add(storedTexture);
-                    storedTexture = null;
-                    storedTextures.Remove(textureName);
-                }
-                storedTextures = null;
+        public static void ResetKind(string characterName, int coordinateIndex, int kindIndex)
+        {
+            CharacterContent characterContent = CharactersLoaded[characterName];
+            GameObject characterObject = characterContent.characterObject;
+            ChaControl chaControl = characterObject.GetComponent<ChaControl>();
+            var clothesTextures = characterContent.clothesTextures;
 
-                for (int j = originalTextures.Count - 1; j >= 0; j--)
-                {
-                    string textureName = originalTextures.ElementAt(j).Key;
-                    Texture2D originalTexture = originalTextures[textureName];
-                    GarbageTextures.Add(originalTexture);
-                    originalTexture = null;
-                    originalTextures.Remove(textureName);
-                }
-                originalTextures = null;
+            if (!clothesTextures.ContainsKey(coordinateIndex)) return;
+            var coordinate = clothesTextures[coordinateIndex];
 
-                dicMaterials.Remove(i);
-            }
+            if (!coordinate.ContainsKey(kindIndex)) return;
+            var kind = coordinate[kindIndex];
 
-            dicMaterials = null;
+            // cleaning textures lol
+            foreach (var render in kind.Values)
+                foreach (var texture in render.Values)
+                    GarbageTextures.Add(texture);
 
+            clothesTextures.Clear();
             DestroyGarbage();
         }
 
@@ -200,7 +236,5 @@ namespace IllusionPlugins
             GarbageTextures.Clear();
             GarbageImages.Clear();
         }
-
-
     }
 }

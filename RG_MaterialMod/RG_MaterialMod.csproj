@@ -53,6 +53,17 @@
     <Reference Include="Il2CppSystem">
       <HintPath>..\RoomGirlLibs\Il2CppSystem.dll</HintPath>
     </Reference>
+    <Reference Include="Il2CppSystem.Memory, Version=4.0.1.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\RoomGirlLibs\Il2CppSystem.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="MessagePack, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\RoomGirlLibs\MessagePack.dll</HintPath>
+    </Reference>
+    <Reference Include="RG_ExtendedSave">
+      <HintPath>..\RoomGirlLibs\RG_ExtendedSave.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="UnhollowerBaseLib">
@@ -91,6 +102,7 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RG_MaterialMod_CardManager.cs" />
     <Compile Include="RG_MaterialMod_CharaMaker.cs" />
     <Compile Include="RG_MaterialMod_TextureTools.cs" />
     <Compile Include="MaterialModResources.Designer.cs">
