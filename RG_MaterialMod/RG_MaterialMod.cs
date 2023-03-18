@@ -2,6 +2,8 @@
 using System.Collections;
 using System.IO;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 
 // BepInEx
 using BepInEx;
@@ -20,15 +22,18 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
+// Extended Save
+using RGExtendedSave;
+
 // Game Specific
 using RG;
 using Chara;
 using CharaCustom;
-using System.Collections.Generic;
-using System.Linq;
+
 
 namespace IllusionPlugins
 {
+    [BepInDependency("com.bogus.RGExtendedSave")]
     [BepInProcess(Constants.MainGameProcessName)]
     [BepInPlugin(GUID, PluginName, Version)]
     public partial class RG_MaterialMod : BasePlugin
@@ -45,7 +50,7 @@ namespace IllusionPlugins
 
         public static GameObject clothesSettingsGroup;
         public static GameObject clothesTabContent;
-        
+
 
         // Unity don't destroy textures automatically, need to do manually
         static List<Texture2D> GarbageTextures = new List<Texture2D>();
@@ -60,8 +65,6 @@ namespace IllusionPlugins
         /// Key: Name of Character's GameObject, Value: class CharacterContent
         /// </summary>
         public static Dictionary<string, CharacterContent> CharactersLoaded = new Dictionary<string, CharacterContent>();
-
-        // Everything MaterialMod content for this character goes here
 
         /// <summary>
         /// Every MaterialMod content for this character goes here
@@ -174,26 +177,38 @@ namespace IllusionPlugins
             }
         }
 
-        public static GameObject GetClothes(ChaControl chaControl, int kind)
-        {
-            return chaControl.ObjClothes[kind];
-        }
-
         public static void ResetAllClothes(string characterName)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
             GameObject characterObject = characterContent.characterObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
-            var clothesTextures = characterContent.clothesTextures;
 
-            // cleaning textures lol
-            foreach (var coordinate in clothesTextures.Values)
-                foreach (var kind in coordinate.Values)
-                    foreach (var render in kind.Values)
-                        foreach (var texture in render.Values)
-                            GarbageTextures.Add(texture);
+            for (int i = 0; i < characterContent.clothesTextures.Count; i++)
+            {
+                int coordinateIndex = characterContent.clothesTextures.ElementAt(i).Key;
+                var coordinate = characterContent.clothesTextures[coordinateIndex];
 
-            clothesTextures.Clear();
+                for (int j = 0; j < coordinate.Count; j++)
+                {
+                    int kindIndex = coordinate.ElementAt(j).Key;
+                    var kind = characterContent.clothesTextures[coordinateIndex][kindIndex];
+                    for (int k  = 0; k < kind.Count; k++)
+                    {
+                        int rendererIndex = kind.ElementAt(k).Key;
+                        var renderer = characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex];
+                        
+                        for (int l  = 0; l < renderer.Count; l++)
+                        {
+                            string textureIndex = renderer.ElementAt(l).Key;
+                            GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
+                        }
+                        characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex].Clear();
+                    }
+                    characterContent.clothesTextures[coordinateIndex][kindIndex].Clear();
+                }
+                characterContent.clothesTextures[coordinateIndex].Clear();
+            }
+            characterContent.clothesTextures.Clear();
             DestroyGarbage();
         }
 
@@ -208,14 +223,23 @@ namespace IllusionPlugins
             var coordinate = clothesTextures[coordinateIndex];
 
             if (!coordinate.ContainsKey(kindIndex)) return;
-            var kind = coordinate[kindIndex];
 
-            // cleaning textures lol
-            foreach (var render in kind.Values)
-                foreach (var texture in render.Values)
-                    GarbageTextures.Add(texture);
+            // cleaning textures 
+            var kind = characterContent.clothesTextures[coordinateIndex][kindIndex];
+            for (int k = 0; k < kind.Count; k++)
+            {
+                int rendererIndex = kind.ElementAt(k).Key;
+                var renderer = characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex];
 
-            clothesTextures.Clear();
+                for (int l = 0; l < renderer.Count; l++)
+                {
+                    string textureIndex = renderer.ElementAt(l).Key;
+                    GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
+                }
+                characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex].Clear();
+            }
+            characterContent.clothesTextures[coordinateIndex][kindIndex].Clear();
+
             DestroyGarbage();
         }
 

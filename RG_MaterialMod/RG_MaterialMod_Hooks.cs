@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+// BepInEx
 using HarmonyLib;
-using Chara;
-using CharaCustom;
+
+// Unity
 using UnityEngine;
 using UnityEngine.Events;
-using MessagePack;
-using Il2CppSystem.Text;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
+using UnityEngine.UI;
+
+// Game Specific
+using Chara;
+using CharaCustom;
+
 
 namespace IllusionPlugins
 {
@@ -25,50 +28,63 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Initialize))]
             private static void ChaControlInitialize(ChaControl __instance)
             {
-                GameObject characterObject = __instance.gameObject;
+                ChaControl chaControl = __instance;
+                GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
+                ChaFile chaFile = chaControl.ChaFile;
+                CharacterContent characterContent;
 
                 if (!CharactersLoaded.ContainsKey(characterName))
                 {
                     CharactersLoaded.Add(characterName, new CharacterContent());
-                    CharacterContent characterContent = CharactersLoaded[characterName];
-                    characterContent.characterObject = characterObject;
                 }
+                characterContent = CharactersLoaded[characterName];
+                characterContent.characterObject = characterObject;
+
+                GameObject optionsToggleObject = GameObject.Find("tglOption");
+                Toggle optionsToggle = optionsToggleObject.GetComponent<Toggle>();
+                optionsToggle.onValueChanged.AddListener((UnityAction<bool>)delegate
+                {
+                    SavePluginData(characterContent, chaFile, optionsToggle);
+                });
             }
 
-            // Reload Character
-            [HarmonyPostfix]
+            private static void SavePluginData(CharacterContent characterContent, ChaFile chaFile, Toggle toggle)
+            {
+                if (!toggle.isOn) return;
+                SaveCard(chaFile, characterContent);
+
+            }
+
+            // Reload Character Prefix
+            [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
-            private static void ChaControlReload(ChaControl __instance)
+            private static void ChaControlReloadPre(ChaControl __instance)
             {
                 string characterName = __instance.gameObject.name;
                 Debug.Log("== ChaControlReload: " + __instance.name + " ==");
                 ResetAllClothes(__instance.name);
+            }
 
 
-                // =============== TEST TEST ====================
-                //ChaFile chaFile = __instance.ChaFile;
-                //string byteString = LoadData(chaFile, "firstKey");
-                //var bytes = Encoding.Latin1.GetBytes(byteString);
-                //string texto1 = "";
-                //for (int i = 0; i < 10; i++)
-                //    texto1 = texto1 + bytes[i] + " ";
-                //Debug.Log("Bytes Firsts: " + texto1);
+            // Reload Character Postfix
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
+            private static void ChaControlReloadPost(ChaControl __instance)
+            {
+                GameObject characterObject = __instance.gameObject;
+                string characterName = characterObject.name;
+                GameObject customControl = GameObject.Find("CustomControl");
+                CvsC_Clothes cvsC_Clothes = customControl.GetComponentInChildren<CvsC_Clothes>();
+                int coordinateType = cvsC_Clothes.coordinateType;
 
+                MakeClothesDropdown(cvsC_Clothes);
 
-                //BinaryFormatter formatter = new BinaryFormatter();
-                //MemoryStream stream = new MemoryStream(bytes);
-                //stream.Position = 0;
-                //Debug.Log("Stream Length: " + stream.Length.ToString());
-                //var teste = (Dictionary<string, byte[]>)formatter.Deserialize(stream);
-                //stream.Close();
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                ChaFile chaFile = cvsC_Clothes.chaCtrl.ChaFile;
+                LoadCard(chaFile, characterContent);
 
-
-                //var textoTeste = teste.ElementAt(0).Key;
-                //Debug.Log("Loaded: " + textoTeste);
-
-
-
+                SetAllClothesTextures(characterName);
             }
 
             // Destroy Character
@@ -84,13 +100,15 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
             private static void ClothesChanged(ChaControl __instance, int kind)
             {
+                Debug.Log("== ClothesChanged ==");
                 GameObject characterObject = __instance.gameObject;
+                string characterName = characterObject.name;
                 GameObject customControl = GameObject.Find("CustomControl");
                 CvsC_Clothes cvsC_Clothes = customControl.GetComponentInChildren<CvsC_Clothes>();
                 int coordinateType = cvsC_Clothes.coordinateType;
 
-                ResetKind(characterObject.name, coordinateType,kind);
-                SetClothesKind(__instance.gameObject.name, coordinateType, kind);
+                ResetKind(characterName, coordinateType, kind);
+                SetClothesKind(characterName, coordinateType, kind);
             }
 
             // Get when material is updated
@@ -107,7 +125,7 @@ namespace IllusionPlugins
                 SetClothesKind(__instance.gameObject.name, coordinateType, kind);
             }
 
-            // ================================================== Clothes Section ==================================================
+            // ================================================== Clothes Submenu ==================================================
             // Get when clothing type change
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.ChangeMenuFunc))]
