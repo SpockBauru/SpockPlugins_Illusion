@@ -48,7 +48,6 @@ namespace IllusionPlugins
             ChaControl chaControl = clothesControl.chaCtrl;
             GameObject clothesPiece = chaControl.ObjClothes[kindIndex];
 
-
             // Create one button for each material
             rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
@@ -94,6 +93,7 @@ namespace IllusionPlugins
         private static Renderer[] rendererList;
         public static void DrawTexturesGrid(Dropdown dropdown, Renderer[] rendererList, CharacterContent characterContent, int coordinateType, int kindIndex, ChaFile chaFile)
         {
+            Debug.Log("DrawTexturesGrid");
             // Fixing Unity bug for duplicated calls
             if (dropdown.value == lastDropdownSetting) return;
             lastDropdownSetting = dropdown.value;
@@ -120,21 +120,24 @@ namespace IllusionPlugins
             Material material = rendererList[renderIndex].material;
             string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
             Debug.Log("Material Name: " + materialName);
-
-            Dictionary<string, Texture2D> materialTextures = GetMaterialTextures(material);
+            
+            Dictionary<string, (Vector2, Texture2D)> TexNamesAndMiniatures = GetTexNamesAndMiniatures(material, miniatureSize);
 
             // Creating one texture block for each texture
-            for (int i = 0; i < materialTextures.Count; i++)
+            for (int i = 0; i < TexNamesAndMiniatures.Count; i++)
             {
-                string textureName = materialTextures.ElementAt(i).Key;
-                Texture2D materialTexture = materialTextures[textureName];
+                string textureName = TexNamesAndMiniatures.ElementAt(i).Key;
+                Vector2 texOriginalSize = TexNamesAndMiniatures[textureName].Item1;
+                Texture2D miniatureTexture = TexNamesAndMiniatures[textureName].Item2;
+                CreateTextureBlock(material, miniatureTexture, texOriginalSize, clothesTabContent, characterContent, coordinateType, kindIndex, renderIndex, textureName);
 
-                CreateTextureBlock(material, materialTexture, clothesTabContent, characterContent, coordinateType, kindIndex, renderIndex, textureName);
             }
+            DestroyGarbage();
         }
 
-        public static void CreateTextureBlock(Material material, Texture2D materialTexture, GameObject parent, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName)
+        public static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName)
         {
+            //Debug.Log("CreateTextureBlock");
             // UI group
             GameObject textureGroup = new GameObject("TextureGroup " + textureName);
             textureGroup.transform.SetParent(parent.transform, false);
@@ -143,33 +146,28 @@ namespace IllusionPlugins
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
 
             // Clothes Image
-            int width, height;
-            width = height = miniatureSize;
-            if (materialTexture.height > materialTexture.width) width = height * materialTexture.width / materialTexture.height;
-            else height = width * materialTexture.height / materialTexture.width;
-
-            Image miniature = RG_MaterialModUI.CreateImage(width, height);
+            Image miniature = RG_MaterialModUI.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
-            UpdateMiniature(miniature, materialTexture, textureName);
+            UpdateMiniature(miniature, miniatureTexture, textureName);
 
             // Text with size
-            string textContent = "Size: " + materialTexture.width.ToString() + "x" + materialTexture.height.ToString();
+            string textContent = "Size: " + texOriginalSize.x.ToString() + "x" + texOriginalSize.y.ToString();
             Text text = RG_MaterialModUI.CreateText(textContent, 17, 200, 20);
             text.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Set Button
-            Button buttonSet = RG_MaterialModUI.CreateButton("Green  " + textureName, 16, 200, 35);
+            Button buttonSet = RG_MaterialModUI.CreateButton("Spock  " + textureName, 15, 200, 35);
             buttonSet.onClick.AddListener((UnityAction)delegate
             {
-                SetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature);
+                SetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature, text);
             });
             buttonSet.transform.SetParent(textureGroup.transform, false);
 
             // Clothes Reset Button
-            Button buttonReset = RG_MaterialModUI.CreateButton("Reset " + textureName, 16, 200, 35);
+            Button buttonReset = RG_MaterialModUI.CreateButton("Reset " + textureName, 15, 200, 35);
             buttonReset.onClick.AddListener((UnityAction)delegate
             {
-                ResetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature);
+                ResetTextureButton(material, characterContent, coordinateType, kindIndex, renderIndex, textureName, miniature, text);
             });
             buttonReset.transform.SetParent(textureGroup.transform, false);
 
@@ -178,34 +176,46 @@ namespace IllusionPlugins
 
         public static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
         {
-            // maitaining proportions
-            int width, height;
-            width = height = miniatureSize;
-            if (texture.height > texture.width) width = height * texture.width / texture.height;
-            else height =               width * texture.height / texture.width;
-
-            Debug.Log("Texture size: " + texture.width + " x " + texture.height);
-            Debug.Log("Update Miniature: " + width +" x " + height);
-            Texture2D scaledTexture = Resize(texture, width, height);
-
-            // Trom pink maps to regular normal maps
-            if (textureName.Contains("Bump"))
+            Texture2D miniatureTexture;
+            // resize textures bigger than miniature
+            if (texture.width > miniatureSize || texture.height > miniatureSize)
             {
-                scaledTexture = DXT2nmToNormal(scaledTexture);
+                // Getting miniature size maintaining proportions
+                int width, height;
+                width = height = miniatureSize;
+                if (texture.height > texture.width) width = height * texture.width / texture.height;
+                else height = width * texture.height / texture.width;
+
+                miniatureTexture = Resize(texture, width, height, false);
+            }
+            else
+            {
+                miniatureTexture = new Texture2D(texture.width, texture.height);
+                Graphics.CopyTexture(texture, miniatureTexture);
             }
 
-            miniature.sprite = Sprite.Create(scaledTexture, new Rect(0, 0, width, height), new Vector2());
-            miniatureTextures.Add(scaledTexture);
+            // From pink maps to regular normal maps
+            if (textureName.Contains("Bump"))
+            {
+                miniatureTexture = DXT2nmToNormal(miniatureTexture);
+            }
+
+            miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
+            miniatureTextures.Add(miniatureTexture);
             miniatureImages.Add(miniature);
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void SetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature)
+        public static void SetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
+            Debug.Log("SetTextureButton");
             // In the future the load texture will be here
-            Texture2D texture = new Texture2D(512, 512);
-            texture = GreenTexture(512, 512);
+            Texture2D texture = new Texture2D(2, 2);
+            texture = GreenTexture(4096, 4096);
             characterContent.enableSetTextures = true;
+            //Texture2D texture = new Texture2D(512, 512);
+            //byte[] spockBytes = File.ReadAllBytes("Spock.jpg");
+            //texture.LoadImage(spockBytes);
 
             coordinateType = (int)characterContent.currentCoordinate;
 
@@ -225,17 +235,24 @@ namespace IllusionPlugins
             if (!characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
 
             // Getting material all textures
-            Dictionary<string, Texture2D> materialTextures = GetMaterialTextures(material);
+            //Dictionary<string, Texture2D> materialTextures = GetMaterialTextures(material);
 
             // Store original texture
-            if (characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null) characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] = materialTextures[textureName].EncodeToPNG();
+            if (characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null)
+            {
+                Texture originalTexture = material.GetTexture(textureName);
+                Texture2D originalTexture2D = ToTexture2D(originalTexture);
+                characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName] = originalTexture2D.EncodeToPNG();
+            }
 
             // Reset old texture
             //if (!(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null)) GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
 
             // Update Texture
+            //texture.Compress(false);
             characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
             material.SetTexture(textureName, texture);
+            sizeText.text = "Size: " + texture.width.ToString() + "x" + texture.height.ToString();
 
             // Update miniature
             UpdateMiniature(miniature, texture, textureName);
@@ -243,13 +260,15 @@ namespace IllusionPlugins
             //DestroyGarbage();
         }
 
-        public static void ResetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature)
+        public static void ResetTextureButton(Material material, CharacterContent characterContent, int coordinateType, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
+            Debug.Log("ResetTextureButton");
             if (!characterContent.clothesTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) return;
 
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(characterContent.originalClothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
             material.SetTexture(textureName, texture);
+            sizeText.text = "Size: " + texture.width.ToString() + "x" + texture.height.ToString();
             UpdateMiniature(miniature, texture, textureName);
 
             // cleaning texture and entrances
@@ -258,6 +277,5 @@ namespace IllusionPlugins
 
             //DestroyGarbage();
         }
-
     }
 }

@@ -216,6 +216,7 @@ namespace IllusionPlugins
                         for (int l = 0; l < renderer.Count; l++)
                         {
                             string textureIndex = renderer.ElementAt(l).Key;
+                            renderer[textureIndex] = null;
                             //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                         }
                         characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex].Clear();
@@ -230,7 +231,7 @@ namespace IllusionPlugins
 
         public static void ResetKind(string characterName, int kindIndex)
         {
-            Debug.Log("ResetKind");
+            Debug.Log("ResetKind: " + kindIndex.ToString());
             CharacterContent characterContent = CharactersLoaded[characterName];
             GameObject characterObject = characterContent.characterObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
@@ -252,6 +253,7 @@ namespace IllusionPlugins
                 for (int l = 0; l < renderer.Count; l++)
                 {
                     string textureIndex = renderer.ElementAt(l).Key;
+                    renderer[textureIndex] = null;
                     //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                 }
                 characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex].Clear();

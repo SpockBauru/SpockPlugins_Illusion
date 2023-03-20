@@ -128,8 +128,8 @@ namespace IllusionPlugins
                 }
             }
 
-            // Get when select a clothes kind
-            [HarmonyPostfix]
+            // Get when change the clothes in right submenu
+            [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
             private static void ClothesChanged(ChaControl __instance, int id, int kind)
             {
@@ -141,7 +141,6 @@ namespace IllusionPlugins
                 characterContent.enableSetTextures = true;
 
                 ResetKind(characterName, kind);
-                SetClothesKind(characterName, kind);
             }
 
             // Get when material is updated

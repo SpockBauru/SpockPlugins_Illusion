@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 // BepInEx
 using BepInEx;
@@ -24,11 +25,12 @@ using Debug = UnityEngine.Debug;
 using RG;
 using Chara;
 using CharaCustom;
-using System.Collections.Generic;
+
 using System.Linq;
 
 namespace IllusionPlugins
 {
+    
     public partial class RG_MaterialMod
     {
         // ================================================== Texture Tools ==================================================
@@ -57,7 +59,6 @@ namespace IllusionPlugins
 
             texture.SetPixels(colorArray, 0);
             texture.Apply(true);
-
             return texture;
         }
 
@@ -85,55 +86,105 @@ namespace IllusionPlugins
             return texture;
         }
 
-        /// <summary>
-        /// Get all textures from material and turns into a dictionary of TextureContents
-        /// </summary>
-        /// <param name="material"></param>
-        /// <returns></returns>
-        public static Dictionary<string, Texture2D> GetMaterialTextures(Material material)
+
+        // Was so slow that deserved a specialized method
+        public static Dictionary<string, (Vector2, Texture2D)> GetTexNamesAndMiniatures(Material material, int maxSize)
         {
-            Dictionary<string, Texture2D> dicTexture = new Dictionary<string, Texture2D>();
+            Dictionary<string, (Vector2, Texture2D)> dicTexture = new Dictionary<string, (Vector2, Texture2D)>();
 
-            Shader shader = material.shader;
+            string[] textureaNames = material.GetTexturePropertyNames();
 
-            for (int i = 0; i < shader.GetPropertyCount(); i++)
+            for (int i = 0; i < textureaNames.Length; i++)
             {
-                string propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                string textureName = textureaNames[i];
+                Texture texture = material.GetTexture(textureName);
 
-                //if (propertyType == UnityEngine.Rendering.ShaderPropertyType.Range)
-                //{
-                //    var shaderFloat = material.GetFloat(propertyName);
-                //    Debug.Log("propertyType:" + propertyType + " propertyName: " + propertyName + " Value: " + shaderFloat);
-                //}
+                // REVIEW THIS
+                if (texture == null) continue;
+                if (string.IsNullOrEmpty(textureName)) continue;
 
-                //if (propertyName == "_WeatheringMask") Debug.Log(shader.GetPropertyAttributes(i).ToString());
+                Vector2 originalSize = new Vector2(texture.width, texture.height);
 
-                if (propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
-                {
-                    Texture texture = material.GetTexture(propertyName);
+                // === Resizing and converting to Texture2D ===
+                // Getting miniature size maintaining proportions
+                int width, height;
+                width = height = maxSize;
+                if (texture.height > texture.width) width = height * texture.width / texture.height;
+                else height = width * texture.height / texture.width;
 
+                Texture2D texture2D = Resize(texture, width, height, false);
 
-                    // REVIEW THIS
-                    if (texture == null) continue;
-                    if (string.IsNullOrEmpty(propertyName)) continue;
+                dicTexture.Add(textureName, (originalSize, texture2D));
 
-
-                    string textureName = propertyName;
-                    Texture2D texture2D = ToTexture2D(texture);
-                    dicTexture.Add(textureName, texture2D);
-
-                    //GarbageTextures.Add(texture2D);
-                }
             }
             return dicTexture;
         }
+
 
         /// <summary>
         /// Converts Texture into Texture2D. Texture2D can be applyed directly to the material later
         /// </summary>
         /// <param name="texture"></param>
         /// <returns></returns>
+
+        public static Texture2D Resize(Texture texture, int width, int height, bool updateMipMap)
+        {
+            Texture2D result = new Texture2D(width, height);
+            RenderTexture renderTexture = RenderTexture.GetTemporary(width, height, 0);
+            RenderTexture currentRT = RenderTexture.active;
+
+            Graphics.Blit(texture, renderTexture);
+            RenderTexture.active = renderTexture;
+
+            result.ReadPixels(new Rect(0, 0, width, height), 0, 0, false);
+
+            RenderTexture.active = currentRT;
+            RenderTexture.ReleaseTemporary(renderTexture);
+
+            result.Apply(updateMipMap);
+            return result;
+        }
+
+        public static Texture2D Resize(Texture2D texture2D, int targetX, int targetY, bool updateMipMap)
+        {
+            Texture2D result = new Texture2D(targetX, targetY);
+            RenderTexture renderTexture = RenderTexture.GetTemporary(targetX, targetY, 0);
+            RenderTexture currentRT = RenderTexture.active;
+
+            Graphics.Blit(texture2D, renderTexture);
+            RenderTexture.active = renderTexture;
+            result.ReadPixels(new Rect(0, 0, targetX, targetY), 0, 0, false);
+
+            RenderTexture.active = currentRT;
+            RenderTexture.ReleaseTemporary(renderTexture);
+            result.Apply(updateMipMap);
+            return result;
+        }
+
+        /// <summary>
+        /// Generate a square texture with the desired size
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        static Texture2D GreenTexture(int width, int height)
+        {
+            Texture2D texture = new Texture2D(2, 2);
+
+            // Making the Texture2D Green
+            Color[] colorArray = texture.GetPixels(0);
+            for (int x = 0; x < colorArray.Length; x++)
+            {
+                colorArray[x] = Color.green;
+            }
+
+            texture.SetPixels(colorArray, 0);
+            texture.Apply(false);
+            texture = Resize(texture, width, height, true);
+            
+
+            return texture;
+        }
+
         public static Texture2D ToTexture2D(Texture texture)
         {
             Texture2D texture2D = new Texture2D(texture.width, texture.height);
@@ -148,46 +199,6 @@ namespace IllusionPlugins
             RenderTexture.ReleaseTemporary(renderTexture);
             texture2D.Apply(true);
             return texture2D;
-        }
-
-        public static Texture2D Resize(Texture2D texture2D, int targetX, int targetY)
-        {
-            Texture2D result = new Texture2D(targetX, targetY);
-            RenderTexture renderTexture = RenderTexture.GetTemporary(targetX, targetY, 0);
-            RenderTexture currentRT = RenderTexture.active;
-
-            Graphics.Blit(texture2D, renderTexture);
-            RenderTexture.active = renderTexture;
-            result.ReadPixels(new Rect(0, 0, targetX, targetY), 0, 0);
-
-            RenderTexture.active = currentRT;
-            RenderTexture.ReleaseTemporary(renderTexture);
-            result.Apply(true);
-            return result;
-        }
-
-        /// <summary>
-        /// Generate a square texture with the desired size
-        /// </summary>
-        /// <param name="size"></param>
-        /// <returns></returns>
-        static Texture2D GreenTexture(int width, int height)
-        {
-            Texture2D texture = new Texture2D(width, height);
-
-            // Making the Texture2D Green
-            Color[] colorArray = texture.GetPixels(0);
-            for (int x = 0; x < colorArray.Length; x++)
-            {
-                colorArray[x].r = 0;
-                colorArray[x].g = 1;
-                colorArray[x].b = 0;
-            }
-
-            texture.SetPixels(colorArray, 0);
-            texture.Apply(true);
-
-            return texture;
         }
     }
 }

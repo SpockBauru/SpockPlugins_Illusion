@@ -221,7 +221,7 @@ namespace IllusionPlugins
         /// </summary>
         public static (UI_ToggleEx, GameObject) CreateMakerTab(GameObject selectMenu, GameObject settingsGroup)
         {
-            string tabName = "Green";
+            string tabName = "Spock";
 
             // ======================================== Creating the toogle tab ==========================================           
             GameObject originalToggle = selectMenu.GetComponentInChildren<UI_ToggleEx>().gameObject;
@@ -318,9 +318,5 @@ namespace IllusionPlugins
                 canvas.interactable = false;
             }
         }
-
-
-
-
     }
 }
