@@ -76,6 +76,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\RoomGirlLibs\UniRx.dll</HintPath>
     </Reference>
+    <Reference Include="UniTask, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\RoomGirlLibs\UniTask.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\RoomGirlLibs\UnityEngine.dll</HintPath>
     </Reference>

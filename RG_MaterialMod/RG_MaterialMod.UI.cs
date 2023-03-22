@@ -169,7 +169,6 @@ namespace IllusionPlugins
             // Checkmark
             checkSprite = CreateSprite(MaterialModResources.checkMark_png, 0);
 
-
             DefaultControls.Resources uiResources = new DefaultControls.Resources();
             //Set the Dropdown Background and Handle Image someBgSprite;
             uiResources.standard = standardSprite;
@@ -184,6 +183,7 @@ namespace IllusionPlugins
 
             // Createing dropdown
             GameObject dropdownObject = DefaultControls.CreateDropdown(uiResources);
+            dropdownObject.name = "MaterialModDropdown";
             Dropdown dropdown = dropdownObject.GetComponent<Dropdown>();
             RectTransform dropdownRect = dropdownObject.GetComponent<RectTransform>();
             dropdownRect.sizeDelta = new Vector2(width, height);
@@ -201,7 +201,7 @@ namespace IllusionPlugins
             return dropdown;
         }
 
-
+        // Change window size and move to left/right. Cause many troubles...
         public static void ChangeWindowSize(float xSize, GameObject window)
         {
             RectTransform settingRect = window.GetComponent<RectTransform>();
@@ -221,7 +221,7 @@ namespace IllusionPlugins
         /// </summary>
         public static (UI_ToggleEx, GameObject) CreateMakerTab(GameObject selectMenu, GameObject settingsGroup)
         {
-            string tabName = "Spock";
+            string tabName = "Material";
 
             // ======================================== Creating the toogle tab ==========================================           
             GameObject originalToggle = selectMenu.GetComponentInChildren<UI_ToggleEx>().gameObject;
@@ -242,8 +242,15 @@ namespace IllusionPlugins
             text.text = tabName;
 
             // ======================================== Creating Content Panel ==========================================
-            GameObject originalSetting = settingsGroup.transform.GetChild(settingsGroup.transform.childCount - 1).gameObject;
+            GameObject originalSetting = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinHair/H_Hair/Setting/Setting02");
             GameObject newSetting = UnityEngine.Object.Instantiate(originalSetting, settingsGroup.transform);
+            Canvas newCanvas = newSetting.GetComponent<Canvas>();
+            GraphicRaycaster newgraphicRaycaster = newSetting.GetComponent<GraphicRaycaster>();
+            CanvasGroup newCanvasGroup = newSetting.AddComponent<CanvasGroup>();
+            newCanvasGroup.alpha = 1;
+
+            newCanvas.enabled = true;
+            newgraphicRaycaster.enabled = true;
 
             // Naming the object
             newSetting.name = "Setting0" + settingsGroup.transform.childCount;
@@ -258,7 +265,7 @@ namespace IllusionPlugins
             }
 
             // Dropdown for materials
-            Dropdown dropdown = CreateDropdown(470, 35, 18);
+            Dropdown dropdown = CreateDropdown(410, 35, 18);
             dropdown.transform.SetParent(newSetting.transform, false);
             dropdown.ClearOptions();
             RectTransform dropdownRect = dropdown.gameObject.GetComponent<RectTransform>();
@@ -276,16 +283,20 @@ namespace IllusionPlugins
             // Making the grid layout group
             UnityEngine.Object.DestroyImmediate(tabContent.GetComponent<VerticalLayoutGroup>());
             GridLayoutGroup grid = tabContent.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(230, 300);
+            grid.cellSize = new Vector2(190, 270);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 2;
             grid.spacing = new Vector2(5, 5);
 
-            // ====== Enable/disable when set ======
-            ui_toggleEx.onValueChanged.AddListener((UnityAction<bool>)delegate
+            // ====== Enable/disable when setting is handled by CanvasGroup ======
+            CanvasGroup canvasGroup = newSetting.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
             {
-                OnMakerTabeEnabled(ui_toggleEx, newSetting.GetComponent<CanvasGroup>());
-            });
+                ui_toggleEx.onValueChanged.AddListener((UnityAction<bool>)delegate
+                {
+                    OnMakerTabeEnabled(ui_toggleEx, newSetting.GetComponent<CanvasGroup>());
+                });
+            }
 
             // ======  Making the first item active on start =========
             UI_ToggleEx originalUI = originalToggle.GetComponent<UI_ToggleEx>();
@@ -293,7 +304,6 @@ namespace IllusionPlugins
 
             return (ui_toggleEx, tabContent);
         }
-
         private static void OnMakerTabeEnabled(Toggle toggle, CanvasGroup canvas)
         {
             if (toggle.isOn)
@@ -303,6 +313,7 @@ namespace IllusionPlugins
                 for (int i = 0; i < parent.childCount; i++)
                 {
                     CanvasGroup childcanvas = parent.GetChild(i).GetComponent<CanvasGroup>();
+                    if (childcanvas == null) continue;
                     childcanvas.alpha = 0;
                     childcanvas.blocksRaycasts = false;
                     childcanvas.interactable = false;
@@ -317,6 +328,21 @@ namespace IllusionPlugins
                 canvas.blocksRaycasts = false;
                 canvas.interactable = false;
             }
+        }
+
+        public static void ResetMakerDropdown(GameObject parent)
+        {
+            GameObject dropDownObject = parent.GetComponentInChildren<Dropdown>().gameObject;
+            GameObject dropDownParent = dropDownObject.transform.parent.gameObject;
+            UnityEngine.Object.DestroyImmediate(dropDownObject);
+            Dropdown newDropdown = RG_MaterialModUI.CreateDropdown(410, 35, 18);
+            newDropdown.transform.SetParent(dropDownParent.transform, false);
+            newDropdown.ClearOptions();
+            RectTransform dropdownRect = newDropdown.gameObject.GetComponent<RectTransform>();
+            dropdownRect.anchoredPosition = new Vector2(0, -10);
+            GameObject dropContentObj = newDropdown.gameObject.GetComponentInChildren<ScrollRect>(true).gameObject;
+            RectTransform dropContentRect = dropContentObj.GetComponent<RectTransform>();
+            dropContentRect.sizeDelta = new Vector2(0, 500);
         }
     }
 }

@@ -43,45 +43,41 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
-        [HideFromIl2Cpp]
-        private PluginData CreateNewPluginData(Il2CppSystem.Object obj)
-        {
-            PluginData pluginData = new PluginData();
-            pluginData.data.Add("testKey", obj.GetIl2CppType().FullName);
-
-            return pluginData;
-        }
-
         public static void SaveCard(CharacterContent characterContent)
         {
             ChaFile chaFile = characterContent.chafile;
 
-            Debug.Log("Save Card");
             // Cleaning previews plugin data
             ExtendedSave.SetExtendedDataById(chaFile, GUID, null);
 
-            // Populating plugin data
             PluginData pluginData = new PluginData();
             pluginData.version = 1;
-            
-            var clothesTextures = characterContent.clothesTextures;
-            if (clothesTextures.Count == 0) return;
 
-            // Converting the big boy to string
-            BinaryFormatter formatter1 = new BinaryFormatter();
-            MemoryStream stream1 = new MemoryStream();
-            formatter1.Serialize(stream1, clothesTextures);
-            byte[] outputByte = stream1.ToArray();
-            stream1.Close();
+            // Clothes
+            var clothesTextures = characterContent.clothesTextures;
+            if (clothesTextures.Count >= 0) SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.clothesTextures.ToString(), clothesTextures);
+
+            // Accesories
+            var accessoryTextures = characterContent.accessoryTextures;
+            if (accessoryTextures.Count >= 0) SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.accessoryTextures.ToString(), accessoryTextures);
+        }
+
+        private static void SaveTextureDictionary(PluginData pluginData, ChaFile chaFile, string dicName, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
+        {
+            // Converting the big boy to byte[]
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            formatter.Serialize(stream, dicTextures);
+            byte[] outputByte = stream.ToArray();
+            stream.Close();
 
             // Encoding to string
             string bytesString = Encoding.Latin1.GetString(outputByte);
-
-            // Finally saving
-            pluginData.data.Add("chothesTextures", bytesString);
+            
+            // Saving
+            pluginData.data.Add(dicName, bytesString);
             ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
         }
-
 
         public static void LoadCard(CharacterContent characterContent)
         {
@@ -91,25 +87,37 @@ namespace IllusionPlugins
             pluginData = ExtendedSave.GetExtendedDataById(chaFile, GUID);
             if (pluginData == null)
             {
-                Debug.Log("Plugin data is null");
                 return;
             }
 
-            object objectString;
-            pluginData.data.TryGetValue("chothesTextures", out objectString);
-            string byteString = (string)objectString;
+            // Clothes
+            object texturesObject;
+            pluginData.data.TryGetValue(TextureDictionaries.clothesTextures.ToString(), out texturesObject);
+            string byteString = (string)texturesObject;
 
+            var dicTextures = LoadTexturesDictionary(byteString);
+            characterContent.clothesTextures = dicTextures;
 
+            // Accessories
+            pluginData.data.TryGetValue(TextureDictionaries.accessoryTextures.ToString(), out texturesObject);
+            byteString = (string)texturesObject;
+
+            dicTextures = LoadTexturesDictionary(byteString);
+            characterContent.accessoryTextures = dicTextures;
+        }
+
+        private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)
+        {
             // Deserializing
             var outputByte = Encoding.Latin1.GetBytes(byteString);
-            BinaryFormatter formatter1 = new BinaryFormatter();
-            MemoryStream stream1 = new MemoryStream(outputByte);
-            stream1.Position = 0;
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream(outputByte);
+            stream.Position = 0;
 
-            var clothesTexturesByte = (Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>)formatter1.Deserialize(stream1);
-            stream1.Close();
+            var clothesTexturesByte = (Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>)formatter.Deserialize(stream);
+            stream.Close();
 
-            characterContent.clothesTextures = clothesTexturesByte;
+            return clothesTexturesByte;
         }
     }
 }

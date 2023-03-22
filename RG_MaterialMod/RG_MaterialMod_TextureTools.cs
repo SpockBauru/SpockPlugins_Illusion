@@ -34,7 +34,10 @@ namespace IllusionPlugins
     public partial class RG_MaterialMod
     {
         // ================================================== Texture Tools ==================================================
-        public static Texture2D DXT2nmToNormal(Texture2D texture)
+        /// <summary>
+        /// Converts Illusion Pink map to Normal map. Warning: CPU heavy
+        /// </summary>
+        public static Texture2D PinkToNormal(Texture2D texture)
         {
             Color[] colorArray = texture.GetPixels(0);
             float x, y, z, polyfit;
@@ -62,7 +65,7 @@ namespace IllusionPlugins
             return texture;
         }
 
-        public static Texture2D NormalToDXT2nm(Texture2D texture)
+        public static Texture2D NormalToPink(Texture2D texture)
         {
             Color[] colorArray = texture.GetPixels(0);
             float y, polyfit;
@@ -86,12 +89,10 @@ namespace IllusionPlugins
             return texture;
         }
 
-
         // Was so slow that deserved a specialized method
         public static Dictionary<string, (Vector2, Texture2D)> GetTexNamesAndMiniatures(Material material, int maxSize)
         {
             Dictionary<string, (Vector2, Texture2D)> dicTexture = new Dictionary<string, (Vector2, Texture2D)>();
-
             string[] textureaNames = material.GetTexturePropertyNames();
 
             for (int i = 0; i < textureaNames.Length; i++)
@@ -105,7 +106,6 @@ namespace IllusionPlugins
 
                 Vector2 originalSize = new Vector2(texture.width, texture.height);
 
-                // === Resizing and converting to Texture2D ===
                 // Getting miniature size maintaining proportions
                 int width, height;
                 width = height = maxSize;
@@ -115,18 +115,13 @@ namespace IllusionPlugins
                 Texture2D texture2D = Resize(texture, width, height, false);
 
                 dicTexture.Add(textureName, (originalSize, texture2D));
-
             }
             return dicTexture;
         }
 
-
         /// <summary>
-        /// Converts Texture into Texture2D. Texture2D can be applyed directly to the material later
+        /// Resize texture in the GPU
         /// </summary>
-        /// <param name="texture"></param>
-        /// <returns></returns>
-
         public static Texture2D Resize(Texture texture, int width, int height, bool updateMipMap)
         {
             Texture2D result = new Texture2D(width, height);
@@ -144,7 +139,9 @@ namespace IllusionPlugins
             result.Apply(updateMipMap);
             return result;
         }
-
+        /// <summary>
+        /// Resize texture in the GPU
+        /// </summary>
         public static Texture2D Resize(Texture2D texture2D, int targetX, int targetY, bool updateMipMap)
         {
             Texture2D result = new Texture2D(targetX, targetY);
@@ -162,10 +159,8 @@ namespace IllusionPlugins
         }
 
         /// <summary>
-        /// Generate a square texture with the desired size
+        /// Generate a square green texture with the desired size
         /// </summary>
-        /// <param name="size"></param>
-        /// <returns></returns>
         static Texture2D GreenTexture(int width, int height)
         {
             Texture2D texture = new Texture2D(2, 2);
@@ -180,11 +175,13 @@ namespace IllusionPlugins
             texture.SetPixels(colorArray, 0);
             texture.Apply(false);
             texture = Resize(texture, width, height, true);
-            
 
             return texture;
         }
 
+        /// <summary>
+        /// Converts Texture into Texture2D. Texture2D can be applyed directly to the material later
+        /// </summary>
         public static Texture2D ToTexture2D(Texture texture)
         {
             Texture2D texture2D = new Texture2D(texture.width, texture.height);
