@@ -60,6 +60,10 @@ namespace IllusionPlugins
             // Accesories
             var accessoryTextures = characterContent.accessoryTextures;
             if (accessoryTextures.Count >= 0) SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.accessoryTextures.ToString(), accessoryTextures);
+
+            // Hair
+            var hairTextures = characterContent.hairTextures;
+            if (hairTextures.Count >= 0) SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.hairTextures.ToString(), hairTextures);
         }
 
         private static void SaveTextureDictionary(PluginData pluginData, ChaFile chaFile, string dicName, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
@@ -104,6 +108,13 @@ namespace IllusionPlugins
 
             dicTextures = LoadTexturesDictionary(byteString);
             characterContent.accessoryTextures = dicTextures;
+
+            // Hair
+            pluginData.data.TryGetValue(TextureDictionaries.hairTextures.ToString(), out texturesObject);
+            byteString = (string)texturesObject;
+
+            dicTextures = LoadTexturesDictionary(byteString);
+            characterContent.hairTextures = dicTextures;
         }
 
         private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)

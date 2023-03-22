@@ -77,6 +77,18 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, accessoryPiece, settingsGroup, tabContent, kindIndex);
         }
 
+        public static void MakeHairDropdown(CharacterContent characterContent, int kindIndex)
+        {
+            
+            ChaControl chaControl = characterContent.chaControl;
+            GameObject hairPiece = chaControl.ObjHair[kindIndex];
+            GameObject settingsGroup = hairSettingsGroup;
+            GameObject tabContent = hairTabContent;
+            TextureDictionaries texDictionary = TextureDictionaries.hairTextures;
+
+            MakeDropdown(characterContent, texDictionary, hairPiece, settingsGroup, tabContent, kindIndex);
+        }
+
         public static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
         {
             // Create one button for each material
@@ -247,6 +259,11 @@ namespace IllusionPlugins
                 dicTextures = characterContent.accessoryTextures;
                 dicOriginalTextures = characterContent.originalAccessoryTextures;
             }
+            else if (texDictionary == TextureDictionaries.hairTextures)
+            {
+                dicTextures = characterContent.hairTextures;
+                dicOriginalTextures = characterContent.originalHairTextures;
+            }
             else return;
 
             // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
@@ -297,6 +314,11 @@ namespace IllusionPlugins
             {
                 dicTextures = characterContent.accessoryTextures;
                 dicOriginalTextures = characterContent.originalAccessoryTextures;
+            }
+            else if (texDictionary == TextureDictionaries.hairTextures)
+            {
+                dicTextures = characterContent.hairTextures;
+                dicOriginalTextures = characterContent.originalHairTextures;
             }
             else return;
 

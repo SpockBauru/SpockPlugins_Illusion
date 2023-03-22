@@ -189,10 +189,14 @@ namespace IllusionPlugins
             dropdownRect.sizeDelta = new Vector2(width, height);
             dropdownRect.anchorMin = new Vector2(0.5f, 1);
             dropdownRect.anchorMax = new Vector2(0.5f, 1);
-            dropdown.captionText.fontSize = fontSize;
+            dropdown.captionText.resizeTextForBestFit = true;
+            dropdown.captionText.resizeTextMaxSize = fontSize;
+            dropdown.captionText.resizeTextMinSize = fontSize - 5;
 
             // Items
-            dropdown.itemText.fontSize = fontSize;
+            dropdown.itemText.resizeTextForBestFit = true;
+            dropdown.itemText.resizeTextMaxSize = fontSize;
+            dropdown.itemText.resizeTextMinSize = fontSize - 5;            
             GameObject item = dropdownObject.GetComponentInChildren<Toggle>(true).gameObject;
             RectTransform itemRect = item.GetComponent<RectTransform>();
             itemRect.sizeDelta = new Vector2(0, height);
@@ -289,12 +293,21 @@ namespace IllusionPlugins
             grid.spacing = new Vector2(5, 5);
 
             // ====== Enable/disable when setting is handled by CanvasGroup ======
-            CanvasGroup canvasGroup = newSetting.GetComponent<CanvasGroup>();
-            if (canvasGroup != null)
+            CanvasGroup settingCanvasGroup = newSetting.GetComponent<CanvasGroup>();
+            if (settingCanvasGroup != null)
             {
                 ui_toggleEx.onValueChanged.AddListener((UnityAction<bool>)delegate
                 {
                     OnMakerTabeEnabled(ui_toggleEx, newSetting.GetComponent<CanvasGroup>());
+                });
+            }
+
+            Canvas settingCanvas = newSetting.GetComponent<Canvas>();
+            if (settingCanvasGroup != null)
+            {
+                ui_toggleEx.onValueChanged.AddListener((UnityAction<bool>)delegate
+                {
+                    OnMakerTabeEnabled(ui_toggleEx, newSetting.GetComponent<Canvas>());
                 });
             }
 
@@ -329,6 +342,33 @@ namespace IllusionPlugins
                 canvas.interactable = false;
             }
         }
+
+        private static void OnMakerTabeEnabled(Toggle toggle, Canvas canvas)
+        {
+            GraphicRaycaster graphicRaycaster = canvas.gameObject.GetComponent<GraphicRaycaster>();
+
+            if (toggle.isOn)
+            {
+                // Disable every canvas, then enable just the current one
+                Transform parent = canvas.transform.parent;
+                for (int i = 0; i < parent.childCount; i++)
+                {
+                    Canvas childcanvas = parent.GetChild(i).GetComponent<Canvas>();
+                    GraphicRaycaster childGraphicRaycaster = parent.GetChild(i).GetComponent<GraphicRaycaster>();
+                    if (childcanvas == null) continue;
+                    childcanvas.enabled = false;
+                    childGraphicRaycaster.enabled = false;
+                }
+                canvas.enabled = true;
+                graphicRaycaster.enabled = true;
+            }
+            else
+            {
+                canvas.enabled = false;
+                graphicRaycaster.enabled = false;
+            }
+        }
+
 
         public static void ResetMakerDropdown(GameObject parent)
         {

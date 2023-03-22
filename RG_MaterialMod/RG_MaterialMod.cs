@@ -54,6 +54,11 @@ namespace IllusionPlugins
         public static UI_ToggleEx accessoryTab;
         public static GameObject accessorySettingsGroup;
         public static GameObject accessoryTabContent;
+        // Maker Objects: Hair Tab - Initialized in Hooks
+        public static GameObject hairSelectMenu;
+        public static UI_ToggleEx hairTab;
+        public static GameObject hairSettingsGroup;
+        public static GameObject hairTabContent;
 
         // Unity don't destroy textures automatically, need to do manually
         static List<Texture2D> GarbageTextures = new List<Texture2D>();
@@ -88,22 +93,21 @@ namespace IllusionPlugins
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> clothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalClothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
             /// <summary>
-            /// <br> Original Texture = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
-            /// </summary>
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalClothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-        
-            /// <summary>
-            /// <br> TextureByte = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte = accessoryTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> accessoryTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalAccessoryTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
             /// <summary>
-            /// <br> Original Texture = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalAccessoryTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> hairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalHairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
         }
 
         internal static new ManualLogSource Log;
@@ -117,7 +121,8 @@ namespace IllusionPlugins
         public enum TextureDictionaries
         {
             clothesTextures,
-            accessoryTextures
+            accessoryTextures,
+            hairTextures
         }
 
         public static void SetAllTextures(string characterName)
@@ -131,6 +136,9 @@ namespace IllusionPlugins
 
             objects = chaControl.ObjAccessory;
             SetAllDictionary(characterContent, objects, characterContent.accessoryTextures);
+
+            objects = chaControl.ObjHair;
+            SetAllDictionary(characterContent, objects, characterContent.hairTextures);
         }
 
         private static void SetAllDictionary(CharacterContent characterContent, UnhollowerBaseLib.Il2CppReferenceArray<GameObject> objects, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
@@ -174,7 +182,7 @@ namespace IllusionPlugins
             }
         }
 
-        public static void SetClothesKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
+        public static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
             GameObject characterObject = characterContent.characterObject;
@@ -193,8 +201,16 @@ namespace IllusionPlugins
                 dicTextures = characterContent.accessoryTextures;
                 itemObject = chaControl.ObjAccessory[kindIndex];
             }
-            else return;
-
+            else if (texDictionary == TextureDictionaries.hairTextures)
+            {
+                dicTextures = characterContent.hairTextures;
+                itemObject = chaControl.ObjHair[kindIndex];
+            }
+            else
+            {
+                Log.LogWarning("Character piece not recognized");
+                return;
+            }
 
             if (!dicTextures.ContainsKey(coordinateIndex)) return;
             var coordinate = dicTextures[coordinateIndex];
@@ -232,6 +248,7 @@ namespace IllusionPlugins
             CharacterContent characterContent = CharactersLoaded[characterName];
             ResetAllDictionary(characterContent.clothesTextures);
             ResetAllDictionary(characterContent.accessoryTextures);
+            ResetAllDictionary(characterContent.hairTextures);
         }
 
         private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
@@ -274,7 +291,12 @@ namespace IllusionPlugins
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
             if (texDictionary == TextureDictionaries.clothesTextures) dicTextures = characterContent.clothesTextures;
             else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
-            else return;
+            else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
+            else
+            {
+                Log.LogWarning("Character piece not recognized");
+                return;
+            }
 
             if (!dicTextures.ContainsKey(coordinateIndex)) return;
             var coordinate = dicTextures[coordinateIndex];
