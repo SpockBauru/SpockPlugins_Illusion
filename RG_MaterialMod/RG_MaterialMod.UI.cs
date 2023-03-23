@@ -28,10 +28,10 @@ namespace IllusionPlugins
     /// </summary>
     internal class RG_MaterialModUI
     {
-        static Sprite buttonSprite;
-        static Sprite standardSprite;
-        static Sprite arrowSprite;
-        static Sprite checkSprite;
+        public static Sprite buttonSprite;
+        public static Sprite standardSprite;
+        public static Sprite arrowSprite;
+        public static Sprite checkSprite;
 
 
 

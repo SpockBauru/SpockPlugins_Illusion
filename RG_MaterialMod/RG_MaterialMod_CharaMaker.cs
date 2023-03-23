@@ -30,7 +30,7 @@ using Debug = UnityEngine.Debug;
 using RG;
 using Chara;
 using CharaCustom;
-
+using UniRx.Triggers;
 
 namespace IllusionPlugins
 {
@@ -79,7 +79,6 @@ namespace IllusionPlugins
 
         public static void MakeHairDropdown(CharacterContent characterContent, int kindIndex)
         {
-            
             ChaControl chaControl = characterContent.chaControl;
             GameObject hairPiece = chaControl.ObjHair[kindIndex];
             GameObject settingsGroup = hairSettingsGroup;
@@ -89,6 +88,127 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, hairPiece, settingsGroup, tabContent, kindIndex);
         }
 
+        public static void MakeBodySkinDropdown(CharacterContent characterContent, int kindIndex)
+        {
+            Debug.Log("MakeSkinDropdown: " + kindIndex);
+            ChaControl chaControl = characterContent.chaControl;
+            GameObject body = chaControl.ObjBody;
+
+            Transform buttonParent = bodySkinTabContent.transform.parent.parent.parent;
+            Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
+            if (resetSkinObject == null)
+             {
+                Button resetSkin = RG_MaterialModUI.CreateButton("Reset Skin", 19, 400, 40);
+                resetSkin.gameObject.name = "ResetSkinButton";
+                resetSkin.transform.SetParent(buttonParent, false);
+                RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
+                resetRect.anchorMin = new Vector3(0.5f, -0.05f);
+                resetRect.anchorMax = new Vector3(0.5f, -0.05f);
+
+                resetSkin.onClick.AddListener((UnityAction)ResetSkin);
+                void ResetSkin()
+                { 
+                    ResetKind(characterContent.gameObject.name, TextureDictionaries.bodySkinTextures, kindIndex);
+                    chaControl.SetBodyBaseMaterial();
+                    MakeBodySkinDropdown(characterContent, kindIndex);
+                }
+
+                // Warning to not set when clothed
+                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen setting the skin!", 20, 400, 30);
+                text.gameObject.name = "ClothesWarning";
+                text.transform.SetParent(buttonParent, false);
+                text.color = Color.red;
+                Outline outline = text.gameObject.AddComponent<Outline>();
+                outline.effectDistance = new Vector2(1.3f, 1.3f);
+                outline.effectColor = new Color(1, 1, 1, 0.5f);
+                RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
+                textRect.anchorMin = new Vector3(0.5f, -0.16f);
+                textRect.anchorMax = new Vector3(0.5f, -0.16f);
+            }
+
+
+            // Search for skin object
+            GameObject skin = null;
+            SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                if (meshRenderers[i].gameObject.name.StartsWith("o_body_c"))
+                {
+                    skin = meshRenderers[i].gameObject;
+                    break;
+                }
+            }
+
+            if (skin == null) return;
+
+            GameObject settingsGroup = bodySkinSettingsGroup;
+            GameObject tabContent = bodySkinTabContent;
+            TextureDictionaries texDictionary = TextureDictionaries.bodySkinTextures;
+
+            MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
+        
+        }
+
+        public static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
+        {
+            Debug.Log("MakeHeadSkinDropdown: " + kindIndex);
+            ChaControl chaControl = characterContent.chaControl;
+            GameObject head = chaControl.ObjHead;
+
+            Transform buttonParent = headSkinTabContent.transform.parent.parent.parent;
+            Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
+            if (resetSkinObject == null)
+            {
+                Button resetSkin = RG_MaterialModUI.CreateButton("Reset Skin", 19, 400, 40);
+                resetSkin.gameObject.name = "ResetSkinButton";
+                resetSkin.transform.SetParent(buttonParent, false);
+                RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
+                resetRect.anchorMin = new Vector3(0.5f, -0.05f);
+                resetRect.anchorMax = new Vector3(0.5f, -0.05f);
+
+                resetSkin.onClick.AddListener((UnityAction)ResetSkin);
+                void ResetSkin()
+                {
+                    ResetKind(characterContent.gameObject.name, TextureDictionaries.headSkinTextures, kindIndex);
+                    chaControl.SetFaceBaseMaterial();
+                    MakeHeadSkinDropdown(characterContent, kindIndex);
+                }
+
+                // Warning to not set when clothed
+                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen setting the skin!", 20, 400, 30);
+                text.gameObject.name = "ClothesWarning";
+                text.transform.SetParent(buttonParent, false);
+                text.color = Color.red;
+                Outline outline = text.gameObject.AddComponent<Outline>();
+                outline.effectDistance = new Vector2(1.3f, 1.3f);
+                outline.effectColor = new Color(1, 1, 1, 0.5f);
+                RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
+                textRect.anchorMin = new Vector3(0.5f, -0.16f);
+                textRect.anchorMax = new Vector3(0.5f, -0.16f);
+            }
+
+
+            // Search for skin object
+            GameObject skin = null;
+            SkinnedMeshRenderer[] meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                if (meshRenderers[i].gameObject.name.StartsWith("o_head"))
+                {
+                    skin = meshRenderers[i].gameObject;
+                    break;
+                }
+            }
+
+            if (skin == null) return;
+
+            GameObject settingsGroup = headSkinSettingsGroup;
+            GameObject tabContent = headSkinTabContent;
+            TextureDictionaries texDictionary = TextureDictionaries.headSkinTextures;
+
+            MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
+        }
+
         public static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
         {
             // Create one button for each material
@@ -96,7 +216,7 @@ namespace IllusionPlugins
 
             // Purging Dropdown for materials because of Unity bugs in 2020.3
             RG_MaterialModUI.ResetMakerDropdown(settingsGroup);
-            Dropdown clothesDropdown = settingsGroup.GetComponentInChildren<Dropdown>();
+            Dropdown clothesDropdown = settingsGroup.GetComponentInChildren<Dropdown>();            
 
             // Populating dropdown
             Il2CppSystem.Collections.Generic.List<string> dropdownOptions = new Il2CppSystem.Collections.Generic.List<string>();
@@ -113,6 +233,7 @@ namespace IllusionPlugins
                 string materialName = "<b>Material: </b>" + material.name.Replace("(Instance)", "").Trim() + "<b> Piece: </b>" + piecePartName;
                 dropdownOptions.Add(materialName);
             }
+
             clothesDropdown.AddOptions(dropdownOptions);
             clothesDropdown.RefreshShownValue();
             clothesDropdown.onValueChanged.AddListener((UnityAction<int>)delegate
@@ -163,7 +284,7 @@ namespace IllusionPlugins
                 Texture2D miniatureTexture = TexNamesAndMiniatures[textureName].Item2;
                 CreateTextureBlock(material, miniatureTexture, texOriginalSize, tabContent, characterContent, texDictionary, kindIndex, renderIndex, textureName);
             }
-            DestroyGarbage();
+            //DestroyGarbage();
         }
 
         public static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
@@ -239,12 +360,12 @@ namespace IllusionPlugins
         public static void SetTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             // In the future the load texture will be here
-            Texture2D texture = new Texture2D(2, 2);
-            texture = GreenTexture(256, 256);
-            characterContent.enableSetTextures = true;
-            //Texture2D texture = new Texture2D(512, 512);
-            //byte[] spockBytes = File.ReadAllBytes("Spock.jpg");
-            //texture.LoadImage(spockBytes);
+            //Texture2D texture = new Texture2D(2, 2);
+            //texture = GreenTexture(256, 256);
+            //characterContent.enableSetTextures = true;
+            Texture2D texture = new Texture2D(4096, 4096);
+            byte[] spockBytes = File.ReadAllBytes("FacePaint.png");
+            texture.LoadImage(spockBytes);
 
             int coordinateType = (int)characterContent.currentCoordinate;
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
@@ -263,6 +384,18 @@ namespace IllusionPlugins
             {
                 dicTextures = characterContent.hairTextures;
                 dicOriginalTextures = characterContent.originalHairTextures;
+            }
+            else if (texDictionary == TextureDictionaries.bodySkinTextures)
+            {
+                Debug.Log("Button Set Skin Texture");
+                dicTextures = characterContent.bodySkinTextures;
+                dicOriginalTextures = characterContent.originalBodySkinTextures;
+            }
+            else if (texDictionary == TextureDictionaries.headSkinTextures)
+            {
+                Debug.Log("Button Set head Skin Texture");
+                dicTextures = characterContent.headSkinTextures;
+                dicOriginalTextures = characterContent.originalHeadSkinTextures;
             }
             else return;
 
@@ -294,6 +427,8 @@ namespace IllusionPlugins
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
             material.SetTexture(textureName, texture);
             sizeText.text = "Size: " + texture.width.ToString() + "x" + texture.height.ToString();
+            Debug.Log("Button Set: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
+
 
             UpdateMiniature(miniature, texture, textureName);
 
@@ -319,6 +454,16 @@ namespace IllusionPlugins
             {
                 dicTextures = characterContent.hairTextures;
                 dicOriginalTextures = characterContent.originalHairTextures;
+            }
+            else if (texDictionary == TextureDictionaries.bodySkinTextures)
+            {
+                dicTextures = characterContent.bodySkinTextures;
+                dicOriginalTextures = characterContent.originalBodySkinTextures;
+            }
+            else if (texDictionary == TextureDictionaries.headSkinTextures)
+            {
+                dicTextures = characterContent.headSkinTextures;
+                dicOriginalTextures = characterContent.originalHeadSkinTextures;
             }
             else return;
 

@@ -64,6 +64,22 @@ namespace IllusionPlugins
             // Hair
             var hairTextures = characterContent.hairTextures;
             if (hairTextures.Count >= 0) SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.hairTextures.ToString(), hairTextures);
+
+            // Body Skin
+            var bodySkinTextures = characterContent.bodySkinTextures;
+            if (bodySkinTextures.Count >= 0)
+            {
+                Debug.Log("Skin Saved");
+                SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.bodySkinTextures.ToString(), bodySkinTextures);
+            }
+
+            // Head Skin
+            var headSkinTextures = characterContent.headSkinTextures;
+            if (headSkinTextures.Count >= 0)
+            {
+                Debug.Log("Head Skin Saved");
+                SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.headSkinTextures.ToString(), headSkinTextures);
+            }
         }
 
         private static void SaveTextureDictionary(PluginData pluginData, ChaFile chaFile, string dicName, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
@@ -86,6 +102,10 @@ namespace IllusionPlugins
         public static void LoadCard(CharacterContent characterContent)
         {
             ChaFile chaFile = characterContent.chafile;
+            bool hasData;
+            object texturesObject;
+            string byteString;
+            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
 
             PluginData pluginData;
             pluginData = ExtendedSave.GetExtendedDataById(chaFile, GUID);
@@ -95,26 +115,49 @@ namespace IllusionPlugins
             }
 
             // Clothes
-            object texturesObject;
-            pluginData.data.TryGetValue(TextureDictionaries.clothesTextures.ToString(), out texturesObject);
-            string byteString = (string)texturesObject;
-
-            var dicTextures = LoadTexturesDictionary(byteString);
-            characterContent.clothesTextures = dicTextures;
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.clothesTextures.ToString(), out texturesObject);
+            if (hasData)
+            {
+                byteString = (string)texturesObject;
+                dicTextures = LoadTexturesDictionary(byteString);
+                characterContent.clothesTextures = dicTextures;
+            }
 
             // Accessories
-            pluginData.data.TryGetValue(TextureDictionaries.accessoryTextures.ToString(), out texturesObject);
-            byteString = (string)texturesObject;
-
-            dicTextures = LoadTexturesDictionary(byteString);
-            characterContent.accessoryTextures = dicTextures;
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.accessoryTextures.ToString(), out texturesObject);
+            if (hasData)
+            {
+                byteString = (string)texturesObject;
+                dicTextures = LoadTexturesDictionary(byteString);
+                characterContent.accessoryTextures = dicTextures;
+            }
 
             // Hair
-            pluginData.data.TryGetValue(TextureDictionaries.hairTextures.ToString(), out texturesObject);
-            byteString = (string)texturesObject;
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.hairTextures.ToString(), out texturesObject);
+            if (hasData)
+            {
+                byteString = (string)texturesObject;
+                dicTextures = LoadTexturesDictionary(byteString);
+                characterContent.hairTextures = dicTextures;
+            }
 
-            dicTextures = LoadTexturesDictionary(byteString);
-            characterContent.hairTextures = dicTextures;
+            // body Skin
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.bodySkinTextures.ToString(), out texturesObject);
+            if (hasData)
+            {
+                byteString = (string)texturesObject;
+                dicTextures = LoadTexturesDictionary(byteString);
+                characterContent.bodySkinTextures = dicTextures;
+            }
+
+            // head Skin
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.headSkinTextures.ToString(), out texturesObject);
+            if (hasData)
+            {
+                byteString = (string)texturesObject;
+                dicTextures = LoadTexturesDictionary(byteString);
+                characterContent.headSkinTextures = dicTextures;
+            }
         }
 
         private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)

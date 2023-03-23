@@ -37,11 +37,11 @@ namespace IllusionPlugins
                 if (!CharactersLoaded.ContainsKey(characterName))
                     CharactersLoaded.Add(characterName, new CharacterContent());
                 characterContent = CharactersLoaded[characterName];
-                characterContent.characterObject = characterObject;
+                characterContent.gameObject = characterObject;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
                 characterContent.enableSetTextures = true;
-                ResetAllClothes(characterName);
+                ResetAllTextures(characterName);
 
                 // Chara Maker stuff
                 GameObject charaCustom = GameObject.Find("CharaCustom");
@@ -76,7 +76,7 @@ namespace IllusionPlugins
                 if (!CharactersLoaded.ContainsKey(characterName))
                     CharactersLoaded.Add(characterName, new CharacterContent());
                 characterContent = CharactersLoaded[characterName];
-                characterContent.characterObject = characterObject;
+                characterContent.gameObject = characterObject;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
 
@@ -90,7 +90,7 @@ namespace IllusionPlugins
                 Toggle clothesMainToggle = GameObject.Find("tglClothes").GetComponent<Toggle>();
 
                 if (clothesMainToggle.isOn) return;
-                ResetAllClothes(characterName);
+                ResetAllTextures(characterName);
             }
 
             // Reload Character Postfix
@@ -366,8 +366,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsH_Hair), nameof(CvsH_Hair.Initialize))]
             private static void StartHairMenu(CvsH_Hair __instance)
             {
-                Debug.Log("= CvsH_Hair.Initialize");
-
                 CvsH_Hair cvsH_Hair = __instance;
                 GameObject characterObject = cvsH_Hair.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -392,7 +390,6 @@ namespace IllusionPlugins
                 hairMainToggle.onValueChanged.AddListener((UnityAction<bool>)valueChanged);
                 void valueChanged(bool isOn)
                 {
-                    Debug.Log("HairDeselect: " + isOn);
                     if (isOn)
                     {
                         if (hairSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
@@ -407,7 +404,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsH_Hair), nameof(CvsH_Hair.SetDrawSettingByHair))]
             private static void SetDrawSettingByHair(CvsH_Hair __instance)
             {
-                Debug.Log("= CvsH_Hair.SetDrawSettingByHair");
                 GameObject characterObject = __instance.chaCtrl.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -437,7 +433,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeHair), typeof(int), typeof(int), typeof(bool))]
             private static void ChangeHair1(ChaControl __instance, int kind, int id)
             {
-                Debug.Log("ChangeHair1: kind " + kind + " id " + id);
                 string characterName = __instance.gameObject.name;
                 ResetKind(characterName, TextureDictionaries.hairTextures, kind);
             }
@@ -455,6 +450,117 @@ namespace IllusionPlugins
             //{
             //    Debug.Log("ChangeHairAll");
             //}
+
+
+
+            // ================================================== Body Skin Submenu ==================================================
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsB_Skin), nameof(CvsB_Skin.Initialize))]
+            private static void CvsB_SkinInitialize(CvsB_Skin __instance)
+            {
+                Debug.Log("= CvsB_Skin.Initialize");
+
+                CvsB_Skin cvsB_Skin = __instance;
+                GameObject characterObject = cvsB_Skin.chaCtrl.gameObject;
+                string characterName = characterObject.name;
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                int kindIndex = cvsB_Skin.SNo;
+
+                // Skin clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
+                bodySkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/B_Skin/SelectMenu");
+                bodySkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/B_Skin/Setting");
+                (bodySkinTab, bodySkinTabContent) = RG_MaterialModUI.CreateMakerTab(bodySkinSelectMenu, bodySkinSettingsGroup);
+
+                bodySkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
+                void Make(bool isOn)
+                {
+                    kindIndex = cvsB_Skin.SNo;
+                    if (isOn) MakeBodySkinDropdown(characterContent, kindIndex);
+                }
+
+                // Make when entering skin section
+                UI_ButtonEx skinButton = GameObject.Find("CharaCustom/CustomControl/CanvasMain/SubMenu/SubMenuBody/Scroll View/Viewport/Content/Category/CategoryTop/SkinType").GetComponent<UI_ButtonEx>();
+                skinButton.onClick.AddListener((UnityAction)onClick);
+                void onClick()
+                {
+                    MakeBodySkinDropdown(characterContent, kindIndex);
+                }
+
+                // Make when entering body section
+                Toggle bodyMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglBody").GetComponent<Toggle>();
+                GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
+                bodyMainToggle.onValueChanged.AddListener((UnityAction<bool>)valueChanged);
+                void valueChanged(bool isOn)
+                {
+                    if (isOn) RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                    if (isOn && bodySkinTab.isOn)
+                    {
+                        MakeBodySkinDropdown(characterContent, kindIndex);
+                    }
+                }
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.CreateBodyTexture))]
+            private static void CreateBodyTexture(ChaControl __instance)
+            {
+                Debug.Log("=== Skin CreateBodyTexture");
+                //__instance.SetBodyBaseMaterial();
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetBodyBaseMaterial))]
+            private static void SetBodyBaseMaterial(ChaControl __instance)
+            {
+                Debug.Log("Skin SetBodyBaseMaterial");
+            }
+
+            // ================================================== Facial Type  Submenu ==================================================
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsF_FaceType), nameof(CvsF_FaceType.Initialize))]
+            private static void CvsF_FaceType_Initialize(CvsF_FaceType __instance)
+            {
+                Debug.Log("= CvsF_FaceType.Initialize");
+
+                CvsF_FaceType cvsF_FaceType = __instance;
+                GameObject characterObject = cvsF_FaceType.chaCtrl.gameObject;
+                string characterName = characterObject.name;
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                int kindIndex = cvsF_FaceType.SNo;
+
+                // Skin clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
+                headSkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/SelectMenu");
+                headSkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/Setting");
+                (headSkinTab, headSkinTabContent) = RG_MaterialModUI.CreateMakerTab(headSkinSelectMenu, headSkinSettingsGroup);
+
+                headSkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
+                void Make(bool isOn)
+                {
+                    kindIndex = cvsF_FaceType.SNo;
+                    if (isOn) MakeHeadSkinDropdown(characterContent, kindIndex);
+                }
+
+                // Make when entering Face Type section
+                UI_ButtonEx headSkinButton = GameObject.Find("CharaCustom/CustomControl/CanvasMain/SubMenu/SubMenuFace/Scroll View/Viewport/Content/Category/CategoryTop/FaceType").GetComponent<UI_ButtonEx>();
+                headSkinButton.onClick.AddListener((UnityAction)onClick);
+                void onClick()
+                {
+                    MakeHeadSkinDropdown(characterContent, kindIndex);
+                }
+
+                // Make when entering Face section
+                Toggle faceMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglFace").GetComponent<Toggle>();
+                GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
+                faceMainToggle.onValueChanged.AddListener((UnityAction<bool>)valueChanged);
+                void valueChanged(bool isOn)
+                {
+                    if (isOn) RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                    if (isOn && headSkinTab.isOn)
+                    {
+                        MakeHeadSkinDropdown(characterContent, kindIndex);
+                    }
+                }
+            }
         }
     }
 }

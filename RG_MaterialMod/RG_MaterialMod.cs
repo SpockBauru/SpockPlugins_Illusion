@@ -59,6 +59,16 @@ namespace IllusionPlugins
         public static UI_ToggleEx hairTab;
         public static GameObject hairSettingsGroup;
         public static GameObject hairTabContent;
+        // Maker Objects: Body Skin Tab - Initialized in Hooks
+        public static GameObject bodySkinSelectMenu;
+        public static UI_ToggleEx bodySkinTab;
+        public static GameObject bodySkinSettingsGroup;
+        public static GameObject bodySkinTabContent;
+        // Maker Objects: Head skin Tab - Initialized in Hooks
+        public static GameObject headSkinSelectMenu;
+        public static UI_ToggleEx headSkinTab;
+        public static GameObject headSkinSettingsGroup;
+        public static GameObject headSkinTabContent;
 
         // Unity don't destroy textures automatically, need to do manually
         static List<Texture2D> GarbageTextures = new List<Texture2D>();
@@ -74,6 +84,15 @@ namespace IllusionPlugins
         /// </summary>
         public static Dictionary<string, CharacterContent> CharactersLoaded = new Dictionary<string, CharacterContent>();
 
+
+        internal static new ManualLogSource Log;
+        public override void Load()
+        {
+            Log = base.Log;
+            Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+        }
+
+
         /// <summary>
         /// Every MaterialMod content for this character goes here
         /// </summary>
@@ -82,7 +101,7 @@ namespace IllusionPlugins
         {
             // IMPORTANT: KEEP TRACK OF THIS ACCROSS FILES
             public bool enableSetTextures = true;
-            public GameObject characterObject;
+            public GameObject gameObject;
             public ChaControl chaControl;
             public ChaFile chafile;
             public ChaFileDefine.CoordinateType currentCoordinate = ChaFileDefine.CoordinateType.Outer;
@@ -108,21 +127,30 @@ namespace IllusionPlugins
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> hairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalHairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-        }
+            
+            /// <summary>
+            /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte is an PNG encoded byte[]</br>
+            /// </summary>
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> bodySkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalBodySkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
-        internal static new ManualLogSource Log;
+            /// <summary>
+            /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte is an PNG encoded byte[]</br>
+            /// </summary>
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> headSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalHeadSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
-        public override void Load()
-        {
-            Log = base.Log;
-            Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
         }
 
         public enum TextureDictionaries
         {
             clothesTextures,
             accessoryTextures,
-            hairTextures
+            hairTextures,
+            bodySkinTextures,
+            headSkinTextures,
         }
 
         public static void SetAllTextures(string characterName)
@@ -130,20 +158,54 @@ namespace IllusionPlugins
             CharacterContent characterContent = CharactersLoaded[characterName];
             ChaControl chaControl = characterContent.chaControl;
 
+            var objects = chaControl.ObjClothes.ToList();
+            SetAllDictionary(characterContent, objects, characterContent.clothesTextures, "Clothes");
 
-            var objects = chaControl.ObjClothes;
-            SetAllDictionary(characterContent, objects, characterContent.clothesTextures);
+            objects = chaControl.ObjAccessory.ToList();
+            SetAllDictionary(characterContent, objects, characterContent.accessoryTextures, "Accessory");
 
-            objects = chaControl.ObjAccessory;
-            SetAllDictionary(characterContent, objects, characterContent.accessoryTextures);
+            objects = chaControl.ObjHair.ToList();
+            SetAllDictionary(characterContent, objects, characterContent.hairTextures, "Hair");
 
-            objects = chaControl.ObjHair;
-            SetAllDictionary(characterContent, objects, characterContent.hairTextures);
+            // === Skin is special
+            GameObject body = chaControl.ObjBody;
+            // Search for skin object
+            SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
+            objects.Clear();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                GameObject thisObject = meshRenderers[i].gameObject;
+                if (thisObject.name.StartsWith("o_body_c"))
+                {
+                    objects.Add(thisObject);
+                    Debug.Log("Skin Found! object no: " + objects.Count);
+                    break;
+                }
+            }
+            if (objects != null) SetAllDictionary(characterContent, objects, characterContent.bodySkinTextures, "Skin");
+
+            // === Head Skin
+            GameObject head = chaControl.ObjHead;
+            // Search for skin object
+            meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
+            objects.Clear();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                GameObject thisObject = meshRenderers[i].gameObject;
+                if (thisObject.name.StartsWith("o_head"))
+                {
+                    objects.Add(thisObject);
+                    Debug.Log("Head Skin Found! object no: " + objects.Count);
+                    break;
+                }
+            }
+            if (objects != null) SetAllDictionary(characterContent, objects, characterContent.headSkinTextures, "Head");
         }
 
-        private static void SetAllDictionary(CharacterContent characterContent, UnhollowerBaseLib.Il2CppReferenceArray<GameObject> objects, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
+        private static void SetAllDictionary(CharacterContent characterContent, List<GameObject> objects, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
             if (dicTextures == null) return;
+            Debug.Log("SetAllDictionary: " + origin);
 
             int currentCoordinate = (int)characterContent.currentCoordinate;
             if (!dicTextures.ContainsKey(currentCoordinate)) return;
@@ -168,6 +230,8 @@ namespace IllusionPlugins
 
                     for (int l = 0; l < storedRenderer.Count; l++)
                     {
+                        Debug.Log("Dictionary: " + origin + " Coordinate: " + currentCoordinate + " kind: " + kindIndex + " renderer: " + rendererIndex);
+
                         if (storedRenderer.ElementAt(l).Key == null) continue;
                         string textureName = storedRenderer.ElementAt(l).Key;
 
@@ -184,13 +248,14 @@ namespace IllusionPlugins
 
         public static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
+            Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];
-            GameObject characterObject = characterContent.characterObject;
+            GameObject characterObject = characterContent.gameObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
             int coordinateIndex = (int)characterContent.currentCoordinate;
 
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
-            GameObject itemObject;
+            GameObject itemObject = null;
             if (texDictionary == TextureDictionaries.clothesTextures)
             {
                 dicTextures = characterContent.clothesTextures;
@@ -205,6 +270,40 @@ namespace IllusionPlugins
             {
                 dicTextures = characterContent.hairTextures;
                 itemObject = chaControl.ObjHair[kindIndex];
+            }
+            else if (texDictionary == TextureDictionaries.bodySkinTextures)
+            {
+                dicTextures = characterContent.bodySkinTextures;
+
+                Debug.Log("SetKind Skin: " + kindIndex);
+                GameObject body = chaControl.ObjBody;
+                // Search for skin object
+                SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
+                for (int i = 0; i < meshRenderers.Length; i++)
+                {
+                    if (meshRenderers[i].gameObject.name.StartsWith("o_body_c"))
+                    {
+                        itemObject = meshRenderers[i].gameObject;
+                        break;
+                    }
+                }
+            }
+            else if (texDictionary == TextureDictionaries.headSkinTextures)
+            {
+                dicTextures = characterContent.headSkinTextures;
+
+                Debug.Log("SetKind Head Skin: " + kindIndex);
+                GameObject head = chaControl.ObjHead;
+                // Search for skin object
+                SkinnedMeshRenderer[] meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
+                for (int i = 0; i < meshRenderers.Length; i++)
+                {
+                    if (meshRenderers[i].gameObject.name.StartsWith("o_head"))
+                    {
+                        itemObject = meshRenderers[i].gameObject;
+                        break;
+                    }
+                }
             }
             else
             {
@@ -243,16 +342,25 @@ namespace IllusionPlugins
             }
         }
 
-        public static void ResetAllClothes(string characterName)
+        public static void ResetAllTextures(string characterName)
         {
+            Debug.Log("Reset all Textues");
             CharacterContent characterContent = CharactersLoaded[characterName];
-            ResetAllDictionary(characterContent.clothesTextures);
-            ResetAllDictionary(characterContent.accessoryTextures);
-            ResetAllDictionary(characterContent.hairTextures);
+            ChaControl chaControl = characterContent.chaControl;
+            ResetAllDictionary(characterContent.clothesTextures, "clothes");
+            ResetAllDictionary(characterContent.accessoryTextures, "accessory");
+            ResetAllDictionary(characterContent.hairTextures, "hair");
+
+            chaControl.SetBodyBaseMaterial();
+            ResetAllDictionary(characterContent.bodySkinTextures, "BodySkin");
+
+            chaControl.SetFaceBaseMaterial();
+            ResetAllDictionary(characterContent.headSkinTextures, "HeadSkin");
         }
 
-        private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
+        private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
+            Debug.Log("ResetAllDictionary" + origin);
             for (int i = 0; i < dicTextures.Count; i++)
             {
                 int coordinateIndex = dicTextures.ElementAt(i).Key;
@@ -270,6 +378,7 @@ namespace IllusionPlugins
                         for (int l = 0; l < renderer.Count; l++)
                         {
                             string textureIndex = renderer.ElementAt(l).Key;
+                            Debug.Log("Reseting: coordinate " + coordinateIndex + " kind " + kindIndex + " renderer " + rendererIndex); 
                             renderer[textureIndex] = null;
                             //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                         }
@@ -280,11 +389,12 @@ namespace IllusionPlugins
                 dicTextures[coordinateIndex].Clear();
             }
             dicTextures.Clear();
-            DestroyGarbage();
+            //DestroyGarbage();
         }
 
         public static void ResetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
+            Debug.Log("ResetKind: dictionary " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];
             int coordinateIndex = (int)characterContent.currentCoordinate;
 
@@ -292,6 +402,8 @@ namespace IllusionPlugins
             if (texDictionary == TextureDictionaries.clothesTextures) dicTextures = characterContent.clothesTextures;
             else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
             else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
+            else if (texDictionary == TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
+            else if (texDictionary == TextureDictionaries.headSkinTextures) dicTextures = characterContent.headSkinTextures;
             else
             {
                 Log.LogWarning("Character piece not recognized");
@@ -313,6 +425,7 @@ namespace IllusionPlugins
                 for (int l = 0; l < renderer.Count; l++)
                 {
                     string textureIndex = renderer.ElementAt(l).Key;
+                    Debug.Log("Reseting: coordinate " + coordinateIndex + " kind " + kindIndex + " renderer " + rendererIndex);
                     renderer[textureIndex] = null;
                     //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                 }
@@ -320,25 +433,25 @@ namespace IllusionPlugins
             }
             dicTextures[coordinateIndex][kindIndex].Clear();
 
-            DestroyGarbage();
+            //DestroyGarbage();
         }
 
-        static void DestroyGarbage()
-        {
-            // Destroy textures, up to 30 per second
-            for (int i = 0; i < GarbageTextures.Count; i++)
-            {
-                UnityEngine.Object.Destroy(GarbageTextures[i], i * 0.034f);
-            }
+        //static void DestroyGarbage()
+        //{
+        //    // Destroy textures, up to 30 per second
+        //    for (int i = 0; i < GarbageTextures.Count; i++)
+        //    {
+        //        UnityEngine.Object.Destroy(GarbageTextures[i], i * 0.034f);
+        //    }
 
-            // Destroy images, up to 30 per second
-            for (int i = 0; i < GarbageImages.Count; i++)
-            {
-                UnityEngine.Object.Destroy(GarbageImages[i], i * 0.034f + 0.017f);
-            }
+        //    // Destroy images, up to 30 per second
+        //    for (int i = 0; i < GarbageImages.Count; i++)
+        //    {
+        //        UnityEngine.Object.Destroy(GarbageImages[i], i * 0.034f + 0.017f);
+        //    }
 
-            GarbageTextures.Clear();
-            GarbageImages.Clear();
-        }
+        //    GarbageTextures.Clear();
+        //    GarbageImages.Clear();
+        //}
     }
 }
