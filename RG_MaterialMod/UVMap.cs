@@ -6,9 +6,9 @@ using UnityEngine.Rendering;
 
 namespace IllusionPlugins
 {
+    // Inspired on KKPlugins MaterialEditor: https://github.com/IllusionMods/KK_Plugins/blob/master/src/MaterialEditor.Base/Export.UV.cs
     internal class UVMap
     {
-
         /// <summary>
         /// Get the UV map(s) of the SkinnedMeshRenderer or MeshRenderer
         /// </summary>

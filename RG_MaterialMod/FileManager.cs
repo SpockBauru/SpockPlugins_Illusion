@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace IllusionPlugins
 {
-    // Shamelessly stolen from KKPlugins: https://github.com/IllusionMods/KK_Plugins/blob/master/src/MaterialEditor.Base/Utilities.cs
+    // Shamelessly stolen from KKPlugins MaterialEditor: https://github.com/IllusionMods/KK_Plugins/blob/master/src/MaterialEditor.Base/Utilities.cs
     internal class Utilities
     {
         /// <summary>
@@ -209,7 +209,7 @@ namespace IllusionPlugins
 
 
 
-        private static class NativeMethods
+        internal static class NativeMethods
         {
             [DllImport("comdlg32.dll", SetLastError = false, CharSet = CharSet.Unicode)]
             public static extern bool GetOpenFileName([In, Out] OpenFileName ofn);
@@ -261,7 +261,7 @@ namespace IllusionPlugins
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        private class OpenFileName
+        internal class OpenFileName
         {
             public int structSize = 0;
             public IntPtr dlgOwner = IntPtr.Zero;

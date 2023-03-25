@@ -343,7 +343,9 @@ namespace IllusionPlugins
 
         public static void ExportUVButton(Renderer renderer, int index)
         {
-            string[] files = OpenFileDialog.ShowSaveDialog("Export File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+            if (files == null) return;
             if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
 
 
@@ -446,7 +448,9 @@ namespace IllusionPlugins
         public static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             // Load from file
-            string[] files = OpenFileDialog.ShowOpenDialog("Open File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowOpenDialog("Open File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+            if (files == null) return;
 
             Texture2D texture = new Texture2D(2, 2);
             byte[] bytes = File.ReadAllBytes(files[0]);
@@ -491,8 +495,11 @@ namespace IllusionPlugins
 
         public static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-            string[] files = OpenFileDialog.ShowSaveDialog("Export File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+            if (files == null) return;
             if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
+
             Texture2D texture = ToTexture2D(material.GetTexture(textureName));
             File.WriteAllBytes(files[0], texture.EncodeToPNG());
             Log.LogWarning("File Saved");
