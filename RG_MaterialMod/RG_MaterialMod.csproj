@@ -80,6 +80,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\RoomGirlLibs\UniTask.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\RoomGirlLibs\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.HighDefinition.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\RoomGirlLibs\Unity.RenderPipelines.HighDefinition.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\RoomGirlLibs\UnityEngine.dll</HintPath>
     </Reference>
@@ -106,6 +114,8 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UVMap.cs" />
+    <Compile Include="FileManager.cs" />
     <Compile Include="RG_MaterialMod_CardManager.cs" />
     <Compile Include="RG_MaterialMod_CharaMaker.cs" />
     <Compile Include="RG_MaterialMod_TextureTools.cs" />

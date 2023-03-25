@@ -112,36 +112,31 @@ namespace IllusionPlugins
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> clothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalClothesTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-
+           
             /// <summary>
             /// <br> TextureByte = accessoryTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> accessoryTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalAccessoryTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-
+           
             /// <summary>
             /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> hairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalHairTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            
+
             /// <summary>
-            /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte = bodySkinTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> bodySkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalBodySkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
             /// <summary>
-            /// <br> TextureByte = hairTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte = headSkinTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> headSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> originalHeadSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
-
+            
         }
 
         public enum TextureDictionaries

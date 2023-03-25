@@ -114,7 +114,7 @@ namespace IllusionPlugins
                 }
 
                 // Warning to not set when clothed
-                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen setting the skin!", 20, 400, 30);
+                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
                 text.gameObject.name = "ClothesWarning";
                 text.transform.SetParent(buttonParent, false);
                 text.color = Color.red;
@@ -175,7 +175,7 @@ namespace IllusionPlugins
                 }
 
                 // Warning to not set when clothed
-                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen setting the skin!", 20, 400, 30);
+                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
                 text.gameObject.name = "ClothesWarning";
                 text.transform.SetParent(buttonParent, false);
                 text.color = Color.red;
@@ -186,7 +186,6 @@ namespace IllusionPlugins
                 textRect.anchorMin = new Vector3(0.5f, -0.16f);
                 textRect.anchorMax = new Vector3(0.5f, -0.16f);
             }
-
 
             // Search for skin object
             GameObject skin = null;
@@ -273,7 +272,32 @@ namespace IllusionPlugins
             // Getting Texture list from material
             Material material = rendererList[renderIndex].material;
             string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
-            
+            Debug.Log("Material: " + materialName);
+
+            // Creating UV Maps blocks
+            List<Texture2D> UVRenderers = new List<Texture2D>();
+
+            MeshRenderer meshRenderer = rendererList[renderIndex].gameObject.GetComponent<MeshRenderer>();            
+            if (meshRenderer != null)
+            {
+                Mesh mesh = meshRenderer.GetComponent<MeshFilter>().mesh;
+                if (mesh.isReadable) UVRenderers = UVMap.GetUVMaps(meshRenderer, miniatureSize, miniatureSize);
+            }
+
+            SkinnedMeshRenderer skinnedMeshRenderer = rendererList[renderIndex].gameObject.GetComponent<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderer != null)
+            {
+                Mesh mesh = skinnedMeshRenderer.sharedMesh;
+                if (mesh.isReadable) UVRenderers.AddRange(UVMap.GetUVMaps(skinnedMeshRenderer, miniatureSize, miniatureSize));
+            }
+
+            for (int i = 0; i < UVRenderers.Count; i++)
+            {
+                string mapName = "UV Map " + i + 1;
+                if (UVRenderers[i].isReadable) CreateUVBlock(rendererList[renderIndex], i, UVRenderers[i], mapName, tabContent);
+            }
+
+            // Creating Textures blocks
             Dictionary<string, (Vector2, Texture2D)> TexNamesAndMiniatures = GetTexNamesAndMiniatures(material, miniatureSize);
 
             // Creating one texture block for each texture
@@ -287,6 +311,68 @@ namespace IllusionPlugins
             //DestroyGarbage();
         }
 
+        public static void CreateUVBlock(Renderer renderer, int index, Texture2D miniatureTexture, string mapName, GameObject parent)
+        {
+            // UI group
+            GameObject UVGroup = new GameObject("UVGroup " + mapName);
+            UVGroup.transform.SetParent(parent.transform, false);
+            VerticalLayoutGroup verticalLayoutGroup = UVGroup.AddComponent<VerticalLayoutGroup>();
+            verticalLayoutGroup.childForceExpandHeight = false;
+            verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
+
+            // Texture Image
+            //Texture2D miniatureTexture = Resize(texture, miniatureSize, miniatureSize, false);
+            Image miniature = RG_MaterialModUI.CreateImage(miniatureTexture.width, miniatureTexture.height);
+            miniature.transform.SetParent(UVGroup.transform, false);
+            miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
+            miniatureTextures.Add(miniatureTexture);
+            miniatureImages.Add(miniature);
+
+            // Text with name
+            Text text = RG_MaterialModUI.CreateText(mapName, 17, 180, 20);
+            text.transform.SetParent(UVGroup.transform, false);
+
+            // Export Button
+            Button exportButton = RG_MaterialModUI.CreateButton("Export UV", 16, 180, 35);
+            exportButton.transform.SetParent(UVGroup.transform, false);
+            exportButton.onClick.AddListener((UnityAction)delegate
+            {
+                ExportUVButton(renderer, index);
+            });
+        }
+
+        public static void ExportUVButton(Renderer renderer, int index)
+        {
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
+
+
+            // Getting size of main texture
+            int width, height;
+            Texture mainTexture = renderer.material.GetTexture("_MainTex");
+            if (mainTexture != null)
+            {
+                width = mainTexture.width;
+                height = mainTexture.height;
+            }
+            else width = height = 1024;
+
+            List<Texture2D> UVRenderers = new List<Texture2D>();
+            MeshRenderer meshRenderer = renderer.gameObject.GetComponent<MeshRenderer>();
+            if (meshRenderer != null) UVRenderers = UVMap.GetUVMaps(meshRenderer, width, height);
+            SkinnedMeshRenderer skinnedMeshRenderer = renderer.gameObject.GetComponent<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderer != null) UVRenderers.AddRange(UVMap.GetUVMaps(skinnedMeshRenderer, width, height));
+
+            Texture2D UVtexture = UVRenderers[index];
+            File.WriteAllBytes(files[0], UVtexture.EncodeToPNG());
+            Log.LogWarning("File Saved");
+
+            // Cleaning textures
+            for (int i = 1; i < UVRenderers.Count; i++)
+                GarbageTextures.Add(UVRenderers[i]);
+            //DestroyGarbage();
+        }
+
         public static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
         {
             // UI group
@@ -296,29 +382,29 @@ namespace IllusionPlugins
             verticalLayoutGroup.childForceExpandHeight = false;
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
 
-            // Clothes Image
+            // Texture Image
             Image miniature = RG_MaterialModUI.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
             UpdateMiniature(miniature, miniatureTexture, textureName);
 
-            // Text with size
-            string textContent = "Size: " + texOriginalSize.x.ToString() + "x" + texOriginalSize.y.ToString();
+            // Text with name
+            string textContent = textureName.Replace("_", "");
             Text text = RG_MaterialModUI.CreateText(textContent, 17, 180, 20);
             text.transform.SetParent(textureGroup.transform, false);
 
-            // Clothes Set Button
-            Button buttonSet = RG_MaterialModUI.CreateButton("Green  " + textureName.Replace("_", ""), 15, 180, 35);
+            // Load Button
+            Button buttonSet = RG_MaterialModUI.CreateButton("Load new texture", 18, 180, 35);
             buttonSet.onClick.AddListener((UnityAction)delegate
             {
-                SetTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
+                LoadTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
             });
             buttonSet.transform.SetParent(textureGroup.transform, false);
 
-            // Clothes Reset Button
-            Button buttonReset = RG_MaterialModUI.CreateButton("Reset " + textureName.Replace("_", ""), 15, 180, 35);
+            // Export Button
+            Button buttonReset = RG_MaterialModUI.CreateButton("Export current texture", 16, 180, 35);
             buttonReset.onClick.AddListener((UnityAction)delegate
             {
-                ResetTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
+                ExportTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
             });
             buttonReset.transform.SetParent(textureGroup.transform, false);
 
@@ -357,46 +443,30 @@ namespace IllusionPlugins
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void SetTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        public static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-            // In the future the load texture will be here
-            //Texture2D texture = new Texture2D(2, 2);
-            //texture = GreenTexture(256, 256);
-            //characterContent.enableSetTextures = true;
-            Texture2D texture = new Texture2D(4096, 4096);
-            byte[] spockBytes = File.ReadAllBytes("FacePaint.png");
-            texture.LoadImage(spockBytes);
+            // Load from file
+            string[] files = OpenFileDialog.ShowOpenDialog("Open File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+
+            Texture2D texture = new Texture2D(2, 2);
+            byte[] bytes = File.ReadAllBytes(files[0]);
+            texture.LoadImage(bytes);
+            if (texture.width > 4096 || texture.height > 4096)
+            {
+                Log.LogWarning("WARNING: Max texture size is 4096x4096");
+                GarbageTextures.Add(texture);
+                return;
+            }
 
             int coordinateType = (int)characterContent.currentCoordinate;
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
-            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicOriginalTextures;
-            if (texDictionary == TextureDictionaries.clothesTextures)
-            {
-                dicTextures = characterContent.clothesTextures;
-                dicOriginalTextures = characterContent.originalClothesTextures;
-            }
-            else if (texDictionary == TextureDictionaries.accessoryTextures)
-            {
-                dicTextures = characterContent.accessoryTextures;
-                dicOriginalTextures = characterContent.originalAccessoryTextures;
-            }
-            else if (texDictionary == TextureDictionaries.hairTextures)
-            {
-                dicTextures = characterContent.hairTextures;
-                dicOriginalTextures = characterContent.originalHairTextures;
-            }
-            else if (texDictionary == TextureDictionaries.bodySkinTextures)
-            {
-                Debug.Log("Button Set Skin Texture");
-                dicTextures = characterContent.bodySkinTextures;
-                dicOriginalTextures = characterContent.originalBodySkinTextures;
-            }
-            else if (texDictionary == TextureDictionaries.headSkinTextures)
-            {
-                Debug.Log("Button Set head Skin Texture");
-                dicTextures = characterContent.headSkinTextures;
-                dicOriginalTextures = characterContent.originalHeadSkinTextures;
-            }
+
+            // Getting the texture dictionary
+            if (texDictionary == TextureDictionaries.clothesTextures) dicTextures = characterContent.clothesTextures;
+            else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
+            else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
+            else if (texDictionary == TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
+            else if (texDictionary == TextureDictionaries.headSkinTextures) dicTextures = characterContent.headSkinTextures;
             else return;
 
             // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
@@ -405,20 +475,6 @@ namespace IllusionPlugins
             if (!dicTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) dicTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, byte[]>());
             if (!dicTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) dicTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
 
-            // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
-            if (!dicOriginalTextures.ContainsKey(coordinateType)) dicOriginalTextures.Add(coordinateType, new Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>());
-            if (!dicOriginalTextures[coordinateType].ContainsKey(kindIndex)) dicOriginalTextures[coordinateType].Add(kindIndex, new Dictionary<int, Dictionary<string, byte[]>>());
-            if (!dicOriginalTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) dicOriginalTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, byte[]>());
-            if (!dicOriginalTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) dicOriginalTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
-
-            // Store original texture
-            if (dicOriginalTextures[coordinateType][kindIndex][renderIndex][textureName] == null)
-            {
-                Texture originalTexture = material.GetTexture(textureName);
-                Texture2D originalTexture2D = ToTexture2D(originalTexture);
-                dicOriginalTextures[coordinateType][kindIndex][renderIndex][textureName] = originalTexture2D.EncodeToPNG();
-            }
-
             // Reset old texture
             //if (!(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null)) GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
 
@@ -426,60 +482,20 @@ namespace IllusionPlugins
             //texture.Compress(false);
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
             material.SetTexture(textureName, texture);
-            sizeText.text = "Size: " + texture.width.ToString() + "x" + texture.height.ToString();
             Debug.Log("Button Set: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
-
 
             UpdateMiniature(miniature, texture, textureName);
 
             //DestroyGarbage();
         }
 
-        public static void ResetTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        public static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-            int coordinateType = (int)characterContent.currentCoordinate;
-            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
-            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicOriginalTextures;
-            if (texDictionary == TextureDictionaries.clothesTextures)
-            {
-                dicTextures = characterContent.clothesTextures;
-                dicOriginalTextures = characterContent.originalClothesTextures;
-            }
-            else if (texDictionary == TextureDictionaries.accessoryTextures)
-            {
-                dicTextures = characterContent.accessoryTextures;
-                dicOriginalTextures = characterContent.originalAccessoryTextures;
-            }
-            else if (texDictionary == TextureDictionaries.hairTextures)
-            {
-                dicTextures = characterContent.hairTextures;
-                dicOriginalTextures = characterContent.originalHairTextures;
-            }
-            else if (texDictionary == TextureDictionaries.bodySkinTextures)
-            {
-                dicTextures = characterContent.bodySkinTextures;
-                dicOriginalTextures = characterContent.originalBodySkinTextures;
-            }
-            else if (texDictionary == TextureDictionaries.headSkinTextures)
-            {
-                dicTextures = characterContent.headSkinTextures;
-                dicOriginalTextures = characterContent.originalHeadSkinTextures;
-            }
-            else return;
-
-            if (!dicTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) return;
-
-            Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(dicOriginalTextures[coordinateType][kindIndex][renderIndex][textureName]);
-            material.SetTexture(textureName, texture);
-            sizeText.text = "Size: " + texture.width.ToString() + "x" + texture.height.ToString();
-            UpdateMiniature(miniature, texture, textureName);
-
-            // cleaning texture and entrances
-            //GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
-            dicTextures[coordinateType][kindIndex][renderIndex].Remove(textureName);
-
-            //DestroyGarbage();
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", "", "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, IntPtr.Zero);
+            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
+            Texture2D texture = ToTexture2D(material.GetTexture(textureName));
+            File.WriteAllBytes(files[0], texture.EncodeToPNG());
+            Log.LogWarning("File Saved");
         }
     }
 }
