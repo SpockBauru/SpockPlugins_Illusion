@@ -296,7 +296,7 @@ namespace IllusionPlugins
             }
             else
             {
-                Log.LogWarning("Character piece not recognized");
+                Log.LogMessage("Character piece not recognized");
                 return;
             }
 
@@ -394,7 +394,7 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.headSkinTextures) dicTextures = characterContent.headSkinTextures;
             else
             {
-                Log.LogWarning("Character piece not recognized");
+                Log.LogMessage("Character piece not recognized");
                 return;
             }
 

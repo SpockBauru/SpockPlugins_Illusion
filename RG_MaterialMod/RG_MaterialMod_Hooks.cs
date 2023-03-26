@@ -172,7 +172,7 @@ namespace IllusionPlugins
                 // Create clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
                 clothesSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/SelectMenu");
                 clothesSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/C_Clothes/Setting");
-                (clothesTab, clothesTabContent) = RG_MaterialModUI.CreateMakerTab(clothesSelectMenu, clothesSettingsGroup);
+                (clothesTab, clothesTabContent) = UITools.CreateMakerTab(clothesSelectMenu, clothesSettingsGroup);
 
                 clothesTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
@@ -191,8 +191,8 @@ namespace IllusionPlugins
                     if (isOn)
                     {
                         if (clothesSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
-                            RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
-                        else RG_MaterialModUI.ChangeWindowSize(428, settingWindow);
+                            UITools.ChangeWindowSize(502f, settingWindow);
+                        else UITools.ChangeWindowSize(428, settingWindow);
                         MakeClothesDropdown(characterContent, kindIndex);
                     }
                 }
@@ -209,8 +209,8 @@ namespace IllusionPlugins
             {
                 // Make settings size bigger if there's more than 5 tabs
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
-                if (clothesSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
-                else RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                if (clothesSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) UITools.ChangeWindowSize(502f, settingWindow);
+                else UITools.ChangeWindowSize(428f, settingWindow);
             }
 
             // Get when change the clothes in right submenu
@@ -284,7 +284,7 @@ namespace IllusionPlugins
                 // Accessory clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
                 accessorySelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinAccessory/A_Slot/SelectMenu");
                 accessorySettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinAccessory/A_Slot/Setting");
-                (accessoryTab, accessoryTabContent) = RG_MaterialModUI.CreateMakerTab(accessorySelectMenu, accessorySettingsGroup);
+                (accessoryTab, accessoryTabContent) = UITools.CreateMakerTab(accessorySelectMenu, accessorySettingsGroup);
 
                 accessoryTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
@@ -302,8 +302,8 @@ namespace IllusionPlugins
                     if (isOn)
                     {
                         if (accessorySelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
-                             RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
-                        else RG_MaterialModUI.ChangeWindowSize(428, settingWindow);
+                             UITools.ChangeWindowSize(502f, settingWindow);
+                        else UITools.ChangeWindowSize(428, settingWindow);
                         MakeAccessoryDropdown(characterContent, kindIndex);
                     }
                 }
@@ -316,8 +316,8 @@ namespace IllusionPlugins
             {
                 // Make settings size bigger if there's more than 5 tabs
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
-                if (accessorySelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
-                else RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                if (accessorySelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) UITools.ChangeWindowSize(502f, settingWindow);
+                else UITools.ChangeWindowSize(428f, settingWindow);
             }
 
             //Get when Accessory material is updated
@@ -373,7 +373,7 @@ namespace IllusionPlugins
                 // Hair clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
                 hairSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinHair/H_Hair/SelectMenu");
                 hairSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinHair/H_Hair/Setting");
-                (hairTab, hairTabContent) = RG_MaterialModUI.CreateMakerTab(hairSelectMenu, hairSettingsGroup);
+                (hairTab, hairTabContent) = UITools.CreateMakerTab(hairSelectMenu, hairSettingsGroup);
 
                 hairTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
@@ -391,8 +391,8 @@ namespace IllusionPlugins
                     if (isOn)
                     {
                         if (hairSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
-                             RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
-                        else RG_MaterialModUI.ChangeWindowSize(428, settingWindow);
+                             UITools.ChangeWindowSize(502f, settingWindow);
+                        else UITools.ChangeWindowSize(428, settingWindow);
                         MakeHairDropdown(characterContent, kindIndex);
                     }
                 }
@@ -416,11 +416,11 @@ namespace IllusionPlugins
                 Toggle hairMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglHair").GetComponent<Toggle>();
                 if (hairMainToggle.isOn && hairSelectMenu.GetComponentsInChildren< UI_ToggleEx>(false).Count > 5)
                 {
-                    RG_MaterialModUI.ChangeWindowSize(502f, settingWindow);
+                    UITools.ChangeWindowSize(502f, settingWindow);
                 }
                 else
                 {
-                    RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                    UITools.ChangeWindowSize(428f, settingWindow);
                 }
 
                 //SetAllTextures(characterName);
@@ -465,7 +465,7 @@ namespace IllusionPlugins
                 // Skin clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
                 bodySkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/B_Skin/SelectMenu");
                 bodySkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/B_Skin/Setting");
-                (bodySkinTab, bodySkinTabContent) = RG_MaterialModUI.CreateMakerTab(bodySkinSelectMenu, bodySkinSettingsGroup);
+                (bodySkinTab, bodySkinTabContent) = UITools.CreateMakerTab(bodySkinSelectMenu, bodySkinSettingsGroup);
 
                 bodySkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
@@ -488,7 +488,7 @@ namespace IllusionPlugins
                 bodyMainToggle.onValueChanged.AddListener((UnityAction<bool>)valueChanged);
                 void valueChanged(bool isOn)
                 {
-                    if (isOn) RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                    if (isOn) UITools.ChangeWindowSize(428f, settingWindow);
                     if (isOn && bodySkinTab.isOn)
                     {
                         MakeBodySkinDropdown(characterContent, kindIndex);
@@ -525,7 +525,7 @@ namespace IllusionPlugins
                 // Skin clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
                 headSkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/SelectMenu");
                 headSkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/Setting");
-                (headSkinTab, headSkinTabContent) = RG_MaterialModUI.CreateMakerTab(headSkinSelectMenu, headSkinSettingsGroup);
+                (headSkinTab, headSkinTabContent) = UITools.CreateMakerTab(headSkinSelectMenu, headSkinSettingsGroup);
 
                 headSkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
@@ -548,7 +548,7 @@ namespace IllusionPlugins
                 faceMainToggle.onValueChanged.AddListener((UnityAction<bool>)valueChanged);
                 void valueChanged(bool isOn)
                 {
-                    if (isOn) RG_MaterialModUI.ChangeWindowSize(428f, settingWindow);
+                    if (isOn) UITools.ChangeWindowSize(428f, settingWindow);
                     if (isOn && headSkinTab.isOn)
                     {
                         MakeHeadSkinDropdown(characterContent, kindIndex);

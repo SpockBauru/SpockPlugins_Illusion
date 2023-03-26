@@ -58,12 +58,12 @@ namespace IllusionPlugins
             // if no object is sleected, display error text
             if (accessoryPiece == null)
             {
-                RG_MaterialModUI.ResetMakerDropdown(settingsGroup);
+                UITools.ResetMakerDropdown(settingsGroup);
                 // Cleaning UI content
                 for (int i = tabContent.transform.childCount - 1; i >= 0; i--)
                     GameObject.Destroy(tabContent.transform.GetChild(i).gameObject);
 
-                Text text = RG_MaterialModUI.CreateText("No accessory selected", 20, 200, 30);
+                Text text = UITools.CreateText("No accessory selected", 20, 200, 30);
                 text.alignment = TextAnchor.UpperLeft;
                 text.transform.SetParent(tabContent.transform, false);
                 return;
@@ -96,8 +96,8 @@ namespace IllusionPlugins
             Transform buttonParent = bodySkinTabContent.transform.parent.parent.parent;
             Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
             if (resetSkinObject == null)
-             {
-                Button resetSkin = RG_MaterialModUI.CreateButton("Reset Skin", 19, 400, 40);
+            {
+                Button resetSkin = UITools.CreateButton("Reset Skin", 19, 400, 40);
                 resetSkin.gameObject.name = "ResetSkinButton";
                 resetSkin.transform.SetParent(buttonParent, false);
                 RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
@@ -106,14 +106,14 @@ namespace IllusionPlugins
 
                 resetSkin.onClick.AddListener((UnityAction)ResetSkin);
                 void ResetSkin()
-                { 
+                {
                     ResetKind(characterContent.gameObject.name, TextureDictionaries.bodySkinTextures, kindIndex);
                     chaControl.SetBodyBaseMaterial();
                     MakeBodySkinDropdown(characterContent, kindIndex);
                 }
 
                 // Warning to not set when clothed
-                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
+                Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
                 text.gameObject.name = "ClothesWarning";
                 text.transform.SetParent(buttonParent, false);
                 text.color = Color.red;
@@ -145,7 +145,7 @@ namespace IllusionPlugins
             TextureDictionaries texDictionary = TextureDictionaries.bodySkinTextures;
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
-        
+
         }
 
         internal static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
@@ -157,7 +157,7 @@ namespace IllusionPlugins
             Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
             if (resetSkinObject == null)
             {
-                Button resetSkin = RG_MaterialModUI.CreateButton("Reset Skin", 19, 400, 40);
+                Button resetSkin = UITools.CreateButton("Reset Skin", 19, 400, 40);
                 resetSkin.gameObject.name = "ResetSkinButton";
                 resetSkin.transform.SetParent(buttonParent, false);
                 RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
@@ -173,7 +173,7 @@ namespace IllusionPlugins
                 }
 
                 // Warning to not set when clothed
-                Text text = RG_MaterialModUI.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
+                Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
                 text.gameObject.name = "ClothesWarning";
                 text.transform.SetParent(buttonParent, false);
                 text.color = Color.red;
@@ -212,8 +212,8 @@ namespace IllusionPlugins
             rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
             // Purging Dropdown for materials because of Unity bugs in 2020.3
-            RG_MaterialModUI.ResetMakerDropdown(settingsGroup);
-            Dropdown clothesDropdown = settingsGroup.GetComponentInChildren<Dropdown>();            
+            UITools.ResetMakerDropdown(settingsGroup);
+            Dropdown clothesDropdown = settingsGroup.GetComponentInChildren<Dropdown>();
 
             // Populating dropdown
             Il2CppSystem.Collections.Generic.List<string> dropdownOptions = new Il2CppSystem.Collections.Generic.List<string>();
@@ -275,7 +275,7 @@ namespace IllusionPlugins
             // Creating UV Maps blocks
             List<Texture2D> UVRenderers = new List<Texture2D>();
 
-            MeshRenderer meshRenderer = rendererList[renderIndex].gameObject.GetComponent<MeshRenderer>();            
+            MeshRenderer meshRenderer = rendererList[renderIndex].gameObject.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
                 Mesh mesh = meshRenderer.GetComponent<MeshFilter>().mesh;
@@ -320,18 +320,18 @@ namespace IllusionPlugins
 
             // Texture Image
             //Texture2D miniatureTexture = Resize(texture, miniatureSize, miniatureSize, false);
-            Image miniature = RG_MaterialModUI.CreateImage(miniatureTexture.width, miniatureTexture.height);
+            Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(UVGroup.transform, false);
             miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
             miniatureTextures.Add(miniatureTexture);
             miniatureImages.Add(miniature);
 
             // Text with name
-            Text text = RG_MaterialModUI.CreateText(mapName, 17, 180, 20);
+            Text text = UITools.CreateText(mapName, 17, 180, 20);
             text.transform.SetParent(UVGroup.transform, false);
 
             // Export Button
-            Button exportButton = RG_MaterialModUI.CreateButton("Export UV", 16, 180, 35);
+            Button exportButton = UITools.CreateButton("Export UV", 16, 180, 35);
             exportButton.transform.SetParent(UVGroup.transform, false);
             exportButton.onClick.AddListener((UnityAction)delegate
             {
@@ -365,7 +365,7 @@ namespace IllusionPlugins
 
             Texture2D UVtexture = UVRenderers[index];
             File.WriteAllBytes(files[0], UVtexture.EncodeToPNG());
-            Log.LogWarning("File Saved");
+            Log.LogMessage("File Saved");
 
             // Cleaning textures
             for (int i = 1; i < UVRenderers.Count; i++)
@@ -383,17 +383,17 @@ namespace IllusionPlugins
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
 
             // Texture Image
-            Image miniature = RG_MaterialModUI.CreateImage(miniatureTexture.width, miniatureTexture.height);
+            Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
             UpdateMiniature(miniature, miniatureTexture, textureName);
 
             // Text with name
             string textContent = textureName.Replace("_", "");
-            Text text = RG_MaterialModUI.CreateText(textContent, 17, 180, 20);
+            Text text = UITools.CreateText(textContent, 17, 180, 20);
             text.transform.SetParent(textureGroup.transform, false);
 
             // Load Button
-            Button buttonSet = RG_MaterialModUI.CreateButton("Load new texture", 18, 180, 35);
+            Button buttonSet = UITools.CreateButton("Load new texture", 18, 180, 35);
             buttonSet.onClick.AddListener((UnityAction)delegate
             {
                 LoadTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
@@ -401,7 +401,7 @@ namespace IllusionPlugins
             buttonSet.transform.SetParent(textureGroup.transform, false);
 
             // Export Button
-            Button buttonReset = RG_MaterialModUI.CreateButton("Export current texture", 16, 180, 35);
+            Button buttonReset = UITools.CreateButton("Export current texture", 16, 180, 35);
             buttonReset.onClick.AddListener((UnityAction)delegate
             {
                 ExportTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
@@ -455,7 +455,7 @@ namespace IllusionPlugins
             texture.LoadImage(bytes);
             if (texture.width > 4096 || texture.height > 4096)
             {
-                Log.LogWarning("WARNING: Max texture size is 4096x4096");
+                Log.LogMessage("WARNING: Max texture size is 4096 x 4096");
                 GarbageTextures.Add(texture);
                 return;
             }
@@ -482,6 +482,22 @@ namespace IllusionPlugins
 
             // Update Texture
             //texture.Compress(false);
+            // From normal maps to Illusion pre-processed pink maps
+            if (textureName.Contains("Bump")) texture = TextureTools.NormalToPink(texture);
+            // Weatering mask must have the same dimensions
+            if (textureName.Contains("_Weathering"))
+            {
+                int newWidth = texture.width;
+                int newHeight = texture.height;
+                Texture oldTexture = material.GetTexture(textureName);
+                int oldWidth = oldTexture.width;
+                int oldHeight = oldTexture.height;
+                if (newWidth != oldWidth || newHeight != oldHeight)
+                {
+                    Log.LogMessage("ERROR: Texture dimensions must match");
+                    return;
+                }
+            }
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
             material.SetTexture(textureName, texture);
             Debug.Log("Button Load: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
@@ -499,8 +515,11 @@ namespace IllusionPlugins
             if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
 
             Texture2D texture = TextureTools.ToTexture2D(material.GetTexture(textureName));
+            // From pink maps to regular normal maps
+            if (textureName.Contains("Bump")) texture = TextureTools.PinkToNormal(texture);
+
             File.WriteAllBytes(files[0], texture.EncodeToPNG());
-            Log.LogWarning("File Saved");
+            Log.LogMessage("File Saved");
         }
     }
 }

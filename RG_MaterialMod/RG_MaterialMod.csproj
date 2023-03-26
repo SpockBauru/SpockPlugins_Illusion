@@ -127,7 +127,7 @@
     <Compile Include="RG_MaterialMod_Hooks.cs" />
     <Compile Include="RG_MaterialMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RG_MaterialMod.UI.cs" />
+    <Compile Include="UITools.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

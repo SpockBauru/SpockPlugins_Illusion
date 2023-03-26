@@ -26,7 +26,7 @@ namespace IllusionPlugins
     /// <summary>
     /// Methods for make UI. Try to make it as less dependent on game instance as possible
     /// </summary>
-    internal class RG_MaterialModUI
+    internal class UITools
     {
         public static Sprite buttonSprite;
         public static Sprite standardSprite;
@@ -38,9 +38,6 @@ namespace IllusionPlugins
         /// <summary>
         /// Create text object
         /// </summary>
-        /// <param name="textContent"></param>
-        /// <param name="fontSize"></param>
-        /// <returns></returns>
         public static Text CreateText(string textContent, int fontSize, int width, int height)
         {
             GameObject textObject = new GameObject("Text");
@@ -63,7 +60,6 @@ namespace IllusionPlugins
             text.text = textContent;
             text.fontSize = fontSize;
 
-
             return text;
         }
 
@@ -82,9 +78,6 @@ namespace IllusionPlugins
         /// <summary>
         /// Create an empty image object
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <returns></returns>
         public static Image CreateImage(int width, int height)
         {
             GameObject imageObject = new GameObject("Image");
@@ -102,14 +95,10 @@ namespace IllusionPlugins
             return image;
         }
 
+
         /// <summary>
         /// Create button object with text and image as separate child objects
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="fontSize"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <returns></returns>
         public static Button CreateButton(string text, int fontSize, int width, int height)
         {
             GameObject buttonObject = new GameObject("Button");
@@ -220,7 +209,7 @@ namespace IllusionPlugins
         }
 
         /// <summary>
-        /// <br></br>Create a new tab on Chara Maker sub-menu</br>
+        /// <br>Create a new tab on Chara Maker sub-menu</br>
         /// Outputs (Toggle Tab, GameObject Window Content)
         /// </summary>
         public static (UI_ToggleEx, GameObject) CreateMakerTab(GameObject selectMenu, GameObject settingsGroup)
@@ -375,7 +364,7 @@ namespace IllusionPlugins
             GameObject dropDownObject = parent.GetComponentInChildren<Dropdown>().gameObject;
             GameObject dropDownParent = dropDownObject.transform.parent.gameObject;
             UnityEngine.Object.DestroyImmediate(dropDownObject);
-            Dropdown newDropdown = RG_MaterialModUI.CreateDropdown(410, 35, 18);
+            Dropdown newDropdown = UITools.CreateDropdown(410, 35, 18);
             newDropdown.transform.SetParent(dropDownParent.transform, false);
             newDropdown.ClearOptions();
             RectTransform dropdownRect = newDropdown.gameObject.GetComponent<RectTransform>();
