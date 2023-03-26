@@ -8,7 +8,7 @@ using RG_Cheats;
 
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("https://github.com/SpockBauru/SpockPlugins_Illusion")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

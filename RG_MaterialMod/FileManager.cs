@@ -7,7 +7,7 @@ using System.Threading;
 namespace IllusionPlugins
 {
     // Shamelessly stolen from KKPlugins MaterialEditor: https://github.com/IllusionMods/KK_Plugins/blob/master/src/MaterialEditor.Base/Utilities.cs
-    internal class Utilities
+    internal class OpenExplorer
     {
         /// <summary>
         /// Open explorer focused on the specified file or directory

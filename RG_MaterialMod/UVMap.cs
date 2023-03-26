@@ -14,7 +14,6 @@ namespace IllusionPlugins
         /// </summary>
         public static List<Texture2D> GetUVMaps(Renderer renderer, int width, int height)
         {
-            Debug.Log("GetUVMaps");
             List<Texture2D> textures = new List<Texture2D>();
             Shader shader = Shader.Find("Hidden/Internal-Colored");
 

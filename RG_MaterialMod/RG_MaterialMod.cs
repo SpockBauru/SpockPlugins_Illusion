@@ -45,44 +45,44 @@ namespace IllusionPlugins
         public const string PluginNameInternal = Constants.Prefix + "MaterialMod";
 
         // Maker Objects: Clothes Tab - Initialized in Hooks
-        public static GameObject clothesSelectMenu;
-        public static UI_ToggleEx clothesTab;
-        public static GameObject clothesSettingsGroup;
-        public static GameObject clothesTabContent;
+        internal static GameObject clothesSelectMenu;
+        internal static UI_ToggleEx clothesTab;
+        internal static GameObject clothesSettingsGroup;
+        internal static GameObject clothesTabContent;
         // Maker Objects: Accessory Tab - Initialized in Hooks
-        public static GameObject accessorySelectMenu;
-        public static UI_ToggleEx accessoryTab;
-        public static GameObject accessorySettingsGroup;
-        public static GameObject accessoryTabContent;
+        internal static GameObject accessorySelectMenu;
+        internal static UI_ToggleEx accessoryTab;
+        internal static GameObject accessorySettingsGroup;
+        internal static GameObject accessoryTabContent;
         // Maker Objects: Hair Tab - Initialized in Hooks
-        public static GameObject hairSelectMenu;
-        public static UI_ToggleEx hairTab;
-        public static GameObject hairSettingsGroup;
-        public static GameObject hairTabContent;
+        internal static GameObject hairSelectMenu;
+        internal static UI_ToggleEx hairTab;
+        internal static GameObject hairSettingsGroup;
+        internal static GameObject hairTabContent;
         // Maker Objects: Body Skin Tab - Initialized in Hooks
-        public static GameObject bodySkinSelectMenu;
-        public static UI_ToggleEx bodySkinTab;
-        public static GameObject bodySkinSettingsGroup;
-        public static GameObject bodySkinTabContent;
+        internal static GameObject bodySkinSelectMenu;
+        internal static UI_ToggleEx bodySkinTab;
+        internal static GameObject bodySkinSettingsGroup;
+        internal static GameObject bodySkinTabContent;
         // Maker Objects: Head skin Tab - Initialized in Hooks
-        public static GameObject headSkinSelectMenu;
-        public static UI_ToggleEx headSkinTab;
-        public static GameObject headSkinSettingsGroup;
-        public static GameObject headSkinTabContent;
+        internal static GameObject headSkinSelectMenu;
+        internal static UI_ToggleEx headSkinTab;
+        internal static GameObject headSkinSettingsGroup;
+        internal static GameObject headSkinTabContent;
 
         // Unity don't destroy textures automatically, need to do manually
-        static List<Texture2D> GarbageTextures = new List<Texture2D>();
-        static List<Image> GarbageImages = new List<Image>();
+        internal static List<Texture2D> GarbageTextures = new List<Texture2D>();
+        internal static List<Image> GarbageImages = new List<Image>();
 
         // Miniatures
-        static int miniatureSize = 180;
-        static List<Texture2D> miniatureTextures = new List<Texture2D>();
-        static List<Image> miniatureImages = new List<Image>();
+        internal static int miniatureSize = 180;
+        internal static List<Texture2D> miniatureTextures = new List<Texture2D>();
+        internal static List<Image> miniatureImages = new List<Image>();
 
         /// <summary>
         /// Key: Name of Character's GameObject, Value: class CharacterContent
         /// </summary>
-        public static Dictionary<string, CharacterContent> CharactersLoaded = new Dictionary<string, CharacterContent>();
+        internal static Dictionary<string, CharacterContent> CharactersLoaded = new Dictionary<string, CharacterContent>();
 
 
         internal static new ManualLogSource Log;
@@ -97,7 +97,7 @@ namespace IllusionPlugins
         /// Every MaterialMod content for this character goes here
         /// </summary>
         [Serializable]
-        public class CharacterContent
+        internal class CharacterContent
         {
             // IMPORTANT: KEEP TRACK OF THIS ACCROSS FILES
             public bool enableSetTextures = true;
@@ -139,7 +139,7 @@ namespace IllusionPlugins
             
         }
 
-        public enum TextureDictionaries
+        internal enum TextureDictionaries
         {
             clothesTextures,
             accessoryTextures,
@@ -148,7 +148,7 @@ namespace IllusionPlugins
             headSkinTextures,
         }
 
-        public static void SetAllTextures(string characterName)
+        internal static void SetAllTextures(string characterName)
         {
             CharacterContent characterContent = CharactersLoaded[characterName];
             ChaControl chaControl = characterContent.chaControl;
@@ -173,7 +173,6 @@ namespace IllusionPlugins
                 if (thisObject.name.StartsWith("o_body_c"))
                 {
                     objects.Add(thisObject);
-                    Debug.Log("Skin Found! object no: " + objects.Count);
                     break;
                 }
             }
@@ -190,7 +189,6 @@ namespace IllusionPlugins
                 if (thisObject.name.StartsWith("o_head"))
                 {
                     objects.Add(thisObject);
-                    Debug.Log("Head Skin Found! object no: " + objects.Count);
                     break;
                 }
             }
@@ -241,7 +239,7 @@ namespace IllusionPlugins
             }
         }
 
-        public static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
+        internal static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
             Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];
@@ -269,8 +267,6 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.bodySkinTextures)
             {
                 dicTextures = characterContent.bodySkinTextures;
-
-                Debug.Log("SetKind Skin: " + kindIndex);
                 GameObject body = chaControl.ObjBody;
                 // Search for skin object
                 SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -286,8 +282,6 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.headSkinTextures)
             {
                 dicTextures = characterContent.headSkinTextures;
-
-                Debug.Log("SetKind Head Skin: " + kindIndex);
                 GameObject head = chaControl.ObjHead;
                 // Search for skin object
                 SkinnedMeshRenderer[] meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -337,9 +331,8 @@ namespace IllusionPlugins
             }
         }
 
-        public static void ResetAllTextures(string characterName)
+        internal static void ResetAllTextures(string characterName)
         {
-            Debug.Log("Reset all Textues");
             CharacterContent characterContent = CharactersLoaded[characterName];
             ChaControl chaControl = characterContent.chaControl;
             ResetAllDictionary(characterContent.clothesTextures, "clothes");
@@ -387,7 +380,7 @@ namespace IllusionPlugins
             //DestroyGarbage();
         }
 
-        public static void ResetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
+        internal static void ResetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
             Debug.Log("ResetKind: dictionary " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];

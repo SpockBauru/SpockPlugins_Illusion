@@ -36,7 +36,7 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
-        public static void MakeClothesDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeClothesDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject clothesPiece = chaControl.ObjClothes[kindIndex];
@@ -47,7 +47,7 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, clothesPiece, settingsGroup, clothesTabContent, kindIndex);
         }
 
-        public static void MakeAccessoryDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeAccessoryDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject accessoryPiece = chaControl.ObjAccessory[kindIndex];
@@ -77,7 +77,7 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, accessoryPiece, settingsGroup, tabContent, kindIndex);
         }
 
-        public static void MakeHairDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeHairDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject hairPiece = chaControl.ObjHair[kindIndex];
@@ -88,9 +88,8 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, hairPiece, settingsGroup, tabContent, kindIndex);
         }
 
-        public static void MakeBodySkinDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeBodySkinDropdown(CharacterContent characterContent, int kindIndex)
         {
-            Debug.Log("MakeSkinDropdown: " + kindIndex);
             ChaControl chaControl = characterContent.chaControl;
             GameObject body = chaControl.ObjBody;
 
@@ -149,9 +148,8 @@ namespace IllusionPlugins
         
         }
 
-        public static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
         {
-            Debug.Log("MakeHeadSkinDropdown: " + kindIndex);
             ChaControl chaControl = characterContent.chaControl;
             GameObject head = chaControl.ObjHead;
 
@@ -208,7 +206,7 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
 
-        public static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
+        private static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
         {
             // Create one button for each material
             rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
@@ -245,7 +243,7 @@ namespace IllusionPlugins
 
         private static int lastDropdownSetting = -1;
         private static Renderer[] rendererList;
-        public static void DrawTexturesGrid(Dropdown dropdown, GameObject tabContent, Renderer[] rendererList, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
+        private static void DrawTexturesGrid(Dropdown dropdown, GameObject tabContent, Renderer[] rendererList, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
         {
             // Fixing Unity bug for duplicated calls
             if (dropdown.value == lastDropdownSetting) return;
@@ -298,7 +296,7 @@ namespace IllusionPlugins
             }
 
             // Creating Textures blocks
-            Dictionary<string, (Vector2, Texture2D)> TexNamesAndMiniatures = GetTexNamesAndMiniatures(material, miniatureSize);
+            Dictionary<string, (Vector2, Texture2D)> TexNamesAndMiniatures = TextureTools.GetTexNamesAndMiniatures(material, miniatureSize);
 
             // Creating one texture block for each texture
             for (int i = 0; i < TexNamesAndMiniatures.Count; i++)
@@ -311,7 +309,7 @@ namespace IllusionPlugins
             //DestroyGarbage();
         }
 
-        public static void CreateUVBlock(Renderer renderer, int index, Texture2D miniatureTexture, string mapName, GameObject parent)
+        private static void CreateUVBlock(Renderer renderer, int index, Texture2D miniatureTexture, string mapName, GameObject parent)
         {
             // UI group
             GameObject UVGroup = new GameObject("UVGroup " + mapName);
@@ -341,7 +339,7 @@ namespace IllusionPlugins
             });
         }
 
-        public static void ExportUVButton(Renderer renderer, int index)
+        private static void ExportUVButton(Renderer renderer, int index)
         {
             string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
             string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
@@ -375,7 +373,7 @@ namespace IllusionPlugins
             //DestroyGarbage();
         }
 
-        public static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
+        private static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
         {
             // UI group
             GameObject textureGroup = new GameObject("TextureGroup " + textureName);
@@ -413,7 +411,7 @@ namespace IllusionPlugins
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
+        private static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
         {
             Texture2D miniatureTexture;
             // resize textures bigger than miniature
@@ -425,7 +423,7 @@ namespace IllusionPlugins
                 if (texture.height > texture.width) width = height * texture.width / texture.height;
                 else height = width * texture.height / texture.width;
 
-                miniatureTexture = Resize(texture, width, height, false);
+                miniatureTexture = TextureTools.Resize(texture, width, height, false);
             }
             else
             {
@@ -436,7 +434,7 @@ namespace IllusionPlugins
             // From pink maps to regular normal maps
             if (textureName.Contains("Bump"))
             {
-                miniatureTexture = PinkToNormal(miniatureTexture);
+                miniatureTexture = TextureTools.PinkToNormal(miniatureTexture);
             }
 
             miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
@@ -445,7 +443,7 @@ namespace IllusionPlugins
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
-        public static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        private static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             // Load from file
             string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
@@ -486,21 +484,21 @@ namespace IllusionPlugins
             //texture.Compress(false);
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
             material.SetTexture(textureName, texture);
-            Debug.Log("Button Set: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
+            Debug.Log("Button Load: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
 
             UpdateMiniature(miniature, texture, textureName);
 
             //DestroyGarbage();
         }
 
-        public static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        private static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
             string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
             if (files == null) return;
             if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
 
-            Texture2D texture = ToTexture2D(material.GetTexture(textureName));
+            Texture2D texture = TextureTools.ToTexture2D(material.GetTexture(textureName));
             File.WriteAllBytes(files[0], texture.EncodeToPNG());
             Log.LogWarning("File Saved");
         }

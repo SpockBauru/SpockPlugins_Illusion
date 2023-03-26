@@ -30,8 +30,7 @@ using System.Linq;
 
 namespace IllusionPlugins
 {
-    
-    public partial class RG_MaterialMod
+    internal class TextureTools
     {
         // ================================================== Texture Tools ==================================================
         /// <summary>

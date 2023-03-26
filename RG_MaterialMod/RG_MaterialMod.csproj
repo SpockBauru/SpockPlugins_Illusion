@@ -118,7 +118,7 @@
     <Compile Include="FileManager.cs" />
     <Compile Include="RG_MaterialMod_CardManager.cs" />
     <Compile Include="RG_MaterialMod_CharaMaker.cs" />
-    <Compile Include="RG_MaterialMod_TextureTools.cs" />
+    <Compile Include="TextureTools.cs" />
     <Compile Include="MaterialModResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

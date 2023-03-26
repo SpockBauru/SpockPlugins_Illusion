@@ -43,7 +43,7 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
-        public static void SaveCard(CharacterContent characterContent)
+        internal static void SaveCard(CharacterContent characterContent)
         {
             ChaFile chaFile = characterContent.chafile;
 
@@ -69,7 +69,6 @@ namespace IllusionPlugins
             var bodySkinTextures = characterContent.bodySkinTextures;
             if (bodySkinTextures.Count >= 0)
             {
-                Debug.Log("Skin Saved");
                 SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.bodySkinTextures.ToString(), bodySkinTextures);
             }
 
@@ -77,7 +76,6 @@ namespace IllusionPlugins
             var headSkinTextures = characterContent.headSkinTextures;
             if (headSkinTextures.Count >= 0)
             {
-                Debug.Log("Head Skin Saved");
                 SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.headSkinTextures.ToString(), headSkinTextures);
             }
         }
@@ -99,7 +97,7 @@ namespace IllusionPlugins
             ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
         }
 
-        public static void LoadCard(CharacterContent characterContent)
+        internal static void LoadCard(CharacterContent characterContent)
         {
             ChaFile chaFile = characterContent.chafile;
             bool hasData;

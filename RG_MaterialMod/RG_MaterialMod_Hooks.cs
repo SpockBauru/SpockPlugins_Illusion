@@ -218,7 +218,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
             private static void ClothesChangedPre(ChaControl __instance, int id, int kind)
             {
-                Debug.Log("ChaControl.ChangeClothes: " + kind);
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -247,7 +246,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.ChangeMenuFunc))]
             private static void PieceUpdated(CvsC_Clothes __instance)
             {
-                Debug.Log("CvsC_Clothes.ChangeMenuFunc: " + __instance.SNo);
                 Canvas winClothes = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes").GetComponent<Canvas>();
                 //if (!winClothes.enabled) return;
 
@@ -458,8 +456,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsB_Skin), nameof(CvsB_Skin.Initialize))]
             private static void CvsB_SkinInitialize(CvsB_Skin __instance)
             {
-                Debug.Log("= CvsB_Skin.Initialize");
-
                 CvsB_Skin cvsB_Skin = __instance;
                 GameObject characterObject = cvsB_Skin.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -500,28 +496,26 @@ namespace IllusionPlugins
                 }
             }
 
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.CreateBodyTexture))]
-            private static void CreateBodyTexture(ChaControl __instance)
-            {
-                Debug.Log("=== Skin CreateBodyTexture");
-                //__instance.SetBodyBaseMaterial();
-            }
+            //[HarmonyPrefix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.CreateBodyTexture))]
+            //private static void CreateBodyTexture(ChaControl __instance)
+            //{
+            //    Debug.Log("=== Skin CreateBodyTexture");
+            //    //__instance.SetBodyBaseMaterial();
+            //}
 
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetBodyBaseMaterial))]
-            private static void SetBodyBaseMaterial(ChaControl __instance)
-            {
-                Debug.Log("Skin SetBodyBaseMaterial");
-            }
+            //[HarmonyPrefix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetBodyBaseMaterial))]
+            //private static void SetBodyBaseMaterial(ChaControl __instance)
+            //{
+            //    Debug.Log("Skin SetBodyBaseMaterial");
+            //}
 
             // ================================================== Facial Type  Submenu ==================================================
             [HarmonyPrefix]
             [HarmonyPatch(typeof(CvsF_FaceType), nameof(CvsF_FaceType.Initialize))]
             private static void CvsF_FaceType_Initialize(CvsF_FaceType __instance)
             {
-                Debug.Log("= CvsF_FaceType.Initialize");
-
                 CvsF_FaceType cvsF_FaceType = __instance;
                 GameObject characterObject = cvsF_FaceType.chaCtrl.gameObject;
                 string characterName = characterObject.name;
