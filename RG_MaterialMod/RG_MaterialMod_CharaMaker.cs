@@ -125,7 +125,6 @@ namespace IllusionPlugins
                 textRect.anchorMax = new Vector3(0.5f, -0.16f);
             }
 
-
             // Search for skin object
             GameObject skin = null;
             SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -145,7 +144,6 @@ namespace IllusionPlugins
             TextureDictionaries texDictionary = TextureDictionaries.bodySkinTextures;
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
-
         }
 
         internal static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
@@ -318,6 +316,13 @@ namespace IllusionPlugins
             verticalLayoutGroup.childForceExpandHeight = false;
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
 
+            // Background image for getting the scroll
+            RectTransform textureGroupRect = UVGroup.GetComponent<RectTransform>();
+            textureGroupRect.sizeDelta = new Vector2(190, 280);
+            CanvasRenderer canvasRenderer = UVGroup.AddComponent<CanvasRenderer>();
+            Image background = UVGroup.AddComponent<Image>();
+            background.color = new Color(0, 0, 0, 0);
+
             // Texture Image
             //Texture2D miniatureTexture = Resize(texture, miniatureSize, miniatureSize, false);
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
@@ -381,6 +386,13 @@ namespace IllusionPlugins
             VerticalLayoutGroup verticalLayoutGroup = textureGroup.AddComponent<VerticalLayoutGroup>();
             verticalLayoutGroup.childForceExpandHeight = false;
             verticalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
+
+            // Background image for getting the scroll
+            RectTransform textureGroupRect = textureGroup.GetComponent<RectTransform>();
+            textureGroupRect.sizeDelta = new Vector2(190, 280);
+            CanvasRenderer canvasRenderer = textureGroup.AddComponent<CanvasRenderer>();
+            Image background = textureGroup.AddComponent<Image>();
+            background.color = new Color(0, 0, 0, 0);
 
             // Texture Image
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);

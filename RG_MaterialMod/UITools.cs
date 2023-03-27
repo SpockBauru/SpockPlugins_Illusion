@@ -323,10 +323,10 @@ namespace IllusionPlugins
             // Making the grid layout group
             UnityEngine.Object.DestroyImmediate(tabContent.GetComponent<VerticalLayoutGroup>());
             GridLayoutGroup grid = tabContent.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(190, 270);
+            grid.cellSize = new Vector2(190, 280);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 2;
-            grid.spacing = new Vector2(5, 5);
+            //grid.spacing = new Vector2(5, 5);
 
             // ====== Enable/disable when setting is handled by CanvasGroup ======
             CanvasGroup settingCanvasGroup = newSetting.GetComponent<CanvasGroup>();
