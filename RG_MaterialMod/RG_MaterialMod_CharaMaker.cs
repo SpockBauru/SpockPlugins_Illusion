@@ -408,7 +408,53 @@ namespace IllusionPlugins
             });
             buttonReset.transform.SetParent(textureGroup.transform, false);
 
+            //// Offset input
+            //InputField offsetX, offsetY;
+            //Button offsetButton;
+            //(offsetX, offsetY, offsetButton) = UITools.InputVector2("Offset", 16, 60, 30, textureGroup.transform);
+            //offsetX.text = material.GetTextureOffset(textureName).x.ToString();
+            //offsetY.text = material.GetTextureOffset(textureName).y.ToString();
+            //offsetButton.onClick.AddListener((UnityAction) delegate { SetOffset(material, textureName, offsetX, offsetY); });
+
+            //// Scale input
+            //InputField scaleX, scaleY;
+            //Button scaleButton;
+            //(scaleX, scaleY, scaleButton) = UITools.InputVector2("Scale", 16, 60, 30, textureGroup.transform);
+            //scaleX.text = material.GetTextureScale(textureName).x.ToString();
+            //scaleY.text = material.GetTextureScale(textureName).y.ToString();
+            //scaleButton.onClick.AddListener((UnityAction)delegate { SetScale(material, textureName, scaleX, scaleY); });
+
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
+        }
+
+        private static void SetOffset(Material material, string textureName, InputField xInput, InputField yInput)
+        {
+            xInput.text = xInput.text.Replace(",", ".");
+            yInput.text = yInput.text.Replace(",", ".");
+            float.TryParse(xInput.text, out float x);
+            float.TryParse(yInput.text, out float y);
+            Vector2 vector2 = new Vector2(x, y);
+
+            material.SetTextureOffset(textureName, vector2);
+            Debug.Log("Apply Offset " + textureName + ": " + vector2);
+
+            Vector2 internalScale = material.GetTextureScale(textureName);
+            Debug.Log("Get Offset " + textureName + ": " + internalScale);
+        }
+
+        private static void SetScale(Material material, string textureName, InputField xInput, InputField yInput)
+        {
+            xInput.text = xInput.text.Replace(",", ".");
+            yInput.text = yInput.text.Replace(",", ".");
+            float.TryParse(xInput.text, out float x);
+            float.TryParse(yInput.text, out float y);
+            Vector2 vector2 = new Vector2(x, y);
+
+            material.SetTextureScale(textureName, vector2);
+            Debug.Log("Apply Scale " + textureName + ": " + vector2);
+
+            Vector2 internalScale = material.GetTextureScale(textureName);
+            Debug.Log("Get Scale " + textureName + ": " + internalScale);
         }
 
         private static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
@@ -499,7 +545,10 @@ namespace IllusionPlugins
                 }
             }
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
+
+            // ======= Texture is set here =====
             material.SetTexture(textureName, texture);
+
             Debug.Log("Button Load: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
 
             UpdateMiniature(miniature, texture, textureName);

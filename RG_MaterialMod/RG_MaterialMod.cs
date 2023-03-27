@@ -42,7 +42,7 @@ namespace IllusionPlugins
         public const string GUID = "SpockBauru.MaterialMod";
         public const string PluginName = "MaterialMod";
         public const string Version = "0.1";
-        public const string PluginNameInternal = Constants.Prefix + "MaterialMod";
+        public const string PluginNameInternal = Constants.Prefix + "_MaterialMod";
 
         // Maker Objects: Clothes Tab - Initialized in Hooks
         internal static GameObject clothesSelectMenu;
@@ -91,7 +91,6 @@ namespace IllusionPlugins
             Log = base.Log;
             Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
         }
-
 
         /// <summary>
         /// Every MaterialMod content for this character goes here

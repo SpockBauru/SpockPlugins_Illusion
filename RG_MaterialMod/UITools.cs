@@ -141,10 +141,57 @@ namespace IllusionPlugins
 
             return button;
         }
-
         private static void DeselectButton()
         {
             EventSystem.current.SetSelectedGameObject(null);
+        }
+
+        public static InputField CreateInputField(string name, int fontSize, int width, int height)
+        {
+            DefaultControls.Resources uiResources = new DefaultControls.Resources();
+            //Set the InputField Background Image someBgSprite;
+            uiResources.inputField = standardSprite;
+            GameObject inputFieldObject = DefaultControls.CreateInputField(uiResources);
+
+            LayoutElement layout = inputFieldObject.AddComponent<LayoutElement>();
+            layout.minHeight = height;
+
+            InputField inputField = inputFieldObject.GetComponent<InputField>();
+            inputField.contentType = InputField.ContentType.DecimalNumber;
+            inputField.textComponent.fontSize = fontSize;
+            inputField.textComponent.color = Color.black;
+            inputField.textComponent.verticalOverflow = VerticalWrapMode.Overflow;
+            inputField.textComponent.horizontalOverflow = HorizontalWrapMode.Overflow;
+
+            Text text = inputFieldObject.GetComponentInChildren<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.text = name;
+
+            return inputField;
+        }
+
+        public static (InputField, InputField, Button) InputVector2(string name, int fontSize, int width, int height, Transform parent)
+        {
+            GameObject inputVector2 = new GameObject("InputVector2");
+            inputVector2.transform.SetParent(parent, false);
+
+            HorizontalLayoutGroup horizontalLayoutGroup = inputVector2.AddComponent<HorizontalLayoutGroup>();
+            horizontalLayoutGroup.spacing = 5;
+            horizontalLayoutGroup.childForceExpandHeight = false;
+
+            LayoutElement layout = inputVector2.AddComponent<LayoutElement>();
+            layout.minHeight = height;
+
+            InputField xInput = CreateInputField("x", fontSize, width, height);
+            xInput.transform.SetParent(inputVector2.transform, false);
+
+            InputField yInput = CreateInputField("y", fontSize, width, height);
+            yInput.transform.SetParent(inputVector2.transform, false);
+
+            Button inputButton = CreateButton(name, fontSize, width, height);
+            inputButton.transform.SetParent(inputVector2.transform, false);
+
+            return (xInput, yInput, inputButton);
         }
 
         public static Dropdown CreateDropdown(int width, int height, int fontSize)
