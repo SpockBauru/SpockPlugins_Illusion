@@ -114,6 +114,7 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MaterialModMonoBehaviour.cs" />
     <Compile Include="UVMap.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="RG_MaterialMod_CardManager.cs" />

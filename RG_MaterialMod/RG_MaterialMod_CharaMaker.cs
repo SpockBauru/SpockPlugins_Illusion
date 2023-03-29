@@ -108,21 +108,21 @@ namespace IllusionPlugins
                 void ResetSkin()
                 {
                     ResetKind(characterContent.gameObject.name, TextureDictionaries.bodySkinTextures, kindIndex);
-                    chaControl.SetBodyBaseMaterial();
+                    MaterialModMonoBehaviour.ResetSkin(chaControl);
                     MakeBodySkinDropdown(characterContent, kindIndex);
                 }
 
-                // Warning to not set when clothed
-                Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
-                text.gameObject.name = "ClothesWarning";
-                text.transform.SetParent(buttonParent, false);
-                text.color = Color.red;
-                Outline outline = text.gameObject.AddComponent<Outline>();
-                outline.effectDistance = new Vector2(1.3f, 1.3f);
-                outline.effectColor = new Color(1, 1, 1, 0.5f);
-                RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
-                textRect.anchorMin = new Vector3(0.5f, -0.16f);
-                textRect.anchorMax = new Vector3(0.5f, -0.16f);
+                //// Warning to not set when clothed
+                //Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
+                //text.gameObject.name = "ClothesWarning";
+                //text.transform.SetParent(buttonParent, false);
+                //text.color = Color.red;
+                //Outline outline = text.gameObject.AddComponent<Outline>();
+                //outline.effectDistance = new Vector2(1.3f, 1.3f);
+                //outline.effectColor = new Color(1, 1, 1, 0.5f);
+                //RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
+                //textRect.anchorMin = new Vector3(0.5f, -0.16f);
+                //textRect.anchorMax = new Vector3(0.5f, -0.16f);
             }
 
             // Search for skin object
@@ -171,16 +171,16 @@ namespace IllusionPlugins
                 }
 
                 // Warning to not set when clothed
-                Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
-                text.gameObject.name = "ClothesWarning";
-                text.transform.SetParent(buttonParent, false);
-                text.color = Color.red;
-                Outline outline = text.gameObject.AddComponent<Outline>();
-                outline.effectDistance = new Vector2(1.3f, 1.3f);
-                outline.effectColor = new Color(1, 1, 1, 0.5f);
-                RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
-                textRect.anchorMin = new Vector3(0.5f, -0.16f);
-                textRect.anchorMax = new Vector3(0.5f, -0.16f);
+                //Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
+                //text.gameObject.name = "ClothesWarning";
+                //text.transform.SetParent(buttonParent, false);
+                //text.color = Color.red;
+                //Outline outline = text.gameObject.AddComponent<Outline>();
+                //outline.effectDistance = new Vector2(1.3f, 1.3f);
+                //outline.effectColor = new Color(1, 1, 1, 0.5f);
+                //RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
+                //textRect.anchorMin = new Vector3(0.5f, -0.16f);
+                //textRect.anchorMax = new Vector3(0.5f, -0.16f);
             }
 
             // Search for skin object
@@ -448,10 +448,8 @@ namespace IllusionPlugins
             Vector2 vector2 = new Vector2(x, y);
 
             material.SetTextureOffset(textureName, vector2);
-            Debug.Log("Apply Offset " + textureName + ": " + vector2);
 
             Vector2 internalScale = material.GetTextureScale(textureName);
-            Debug.Log("Get Offset " + textureName + ": " + internalScale);
         }
 
         private static void SetScale(Material material, string textureName, InputField xInput, InputField yInput)
@@ -463,10 +461,8 @@ namespace IllusionPlugins
             Vector2 vector2 = new Vector2(x, y);
 
             material.SetTextureScale(textureName, vector2);
-            Debug.Log("Apply Scale " + textureName + ": " + vector2);
 
             Vector2 internalScale = material.GetTextureScale(textureName);
-            Debug.Log("Get Scale " + textureName + ": " + internalScale);
         }
 
         private static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
@@ -558,10 +554,13 @@ namespace IllusionPlugins
             }
             dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
 
-            // ======= Texture is set here =====
-            material.SetTexture(textureName, texture);
 
+            // ======================================= Texture is set here ===========================================
+            //material.SetTexture(textureName, texture);
+            ChaControl chaControl = characterContent.chaControl;
+            SetKind(chaControl.name, texDictionary, kindIndex);
             Debug.Log("Button Load: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
+
 
             UpdateMiniature(miniature, texture, textureName);
 

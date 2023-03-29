@@ -86,11 +86,27 @@ namespace IllusionPlugins
 
 
         internal static new ManualLogSource Log;
+        public static GameObject SpockBauru;
         public override void Load()
         {
             Log = base.Log;
             Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+
+            // IL2CPP don't automatically inherits MonoBehaviour, so needs to add a component separatelly
+            ClassInjector.RegisterTypeInIl2Cpp<MaterialModMonoBehaviour>();
+
+            // Add the monobehavior component to your personal GameObject. Try to not duplicate.
+            SpockBauru = GameObject.Find("SpockBauru");
+            if (SpockBauru == null)
+            {
+                SpockBauru = new GameObject("SpockBauru");
+                GameObject.DontDestroyOnLoad(SpockBauru);
+                SpockBauru.hideFlags = HideFlags.DontSave;
+                SpockBauru.AddComponent<MaterialModMonoBehaviour>();
+            }
+            else SpockBauru.AddComponent<MaterialModMonoBehaviour>();
         }
+
 
         /// <summary>
         /// Every MaterialMod content for this character goes here
@@ -100,11 +116,12 @@ namespace IllusionPlugins
         {
             // IMPORTANT: KEEP TRACK OF THIS ACCROSS FILES
             public bool enableSetTextures = true;
+            public bool enableLoadCard = true;
             public GameObject gameObject;
+            public string name;
             public ChaControl chaControl;
             public ChaFile chafile;
             public ChaFileDefine.CoordinateType currentCoordinate = ChaFileDefine.CoordinateType.Outer;
-
 
             /// <summary>
             /// <br> TextureByte = clothesTextures[coordinate][kind][renderIndex][TextureName]</br>
@@ -149,7 +166,9 @@ namespace IllusionPlugins
 
         internal static void SetAllTextures(string characterName)
         {
+            Debug.Log("SetAllTextures");
             CharacterContent characterContent = CharactersLoaded[characterName];
+            if (!characterContent.enableSetTextures) return;
             ChaControl chaControl = characterContent.chaControl;
 
             var objects = chaControl.ObjClothes.ToList();
@@ -240,11 +259,15 @@ namespace IllusionPlugins
 
         internal static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
-            Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
+            //Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];
+            if (!characterContent.enableSetTextures) return;
             GameObject characterObject = characterContent.gameObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
             int coordinateIndex = (int)characterContent.currentCoordinate;
+
+            // Fix invisible body parts
+            MaterialModMonoBehaviour.MakeBodyVisible(chaControl);
 
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
             GameObject itemObject = null;
@@ -328,6 +351,15 @@ namespace IllusionPlugins
                     material.SetTexture(textureName, texture);
                 }
             }
+        }
+
+        internal static void ResetCoordinateTextures(string characterName)
+        {
+            CharacterContent characterContent = CharactersLoaded[characterName];
+            ChaControl chaControl = characterContent.chaControl;
+            ResetAllDictionary(characterContent.clothesTextures, "clothes");
+            ResetAllDictionary(characterContent.accessoryTextures, "accessory");
+            ResetAllDictionary(characterContent.hairTextures, "hair");
         }
 
         internal static void ResetAllTextures(string characterName)

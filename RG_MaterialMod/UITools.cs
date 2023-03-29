@@ -101,7 +101,7 @@ namespace IllusionPlugins
         /// </summary>
         public static Button CreateButton(string text, int fontSize, int width, int height)
         {
-            GameObject buttonObject = new GameObject("Button");
+            GameObject buttonObject = new GameObject(text);
             LayoutElement layout = buttonObject.AddComponent<LayoutElement>();
             layout.minHeight = height;
 
@@ -172,7 +172,7 @@ namespace IllusionPlugins
 
         public static (InputField, InputField, Button) InputVector2(string name, int fontSize, int width, int height, Transform parent)
         {
-            GameObject inputVector2 = new GameObject("InputVector2");
+            GameObject inputVector2 = new GameObject("InputVector2_" + name);
             inputVector2.transform.SetParent(parent, false);
 
             HorizontalLayoutGroup horizontalLayoutGroup = inputVector2.AddComponent<HorizontalLayoutGroup>();

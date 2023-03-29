@@ -9,6 +9,7 @@ using UnhollowerRuntimeLib;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 // Game Specific
 using Chara;
@@ -21,7 +22,7 @@ namespace IllusionPlugins
     {
         internal class Hooks
         {
-            // ================================================== Load/Reload Section ==================================================
+            // ================================================== Initialize Section ==================================================
             // Initialize Character
             [HarmonyPostfix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Initialize))]
@@ -38,14 +39,15 @@ namespace IllusionPlugins
                     CharactersLoaded.Add(characterName, new CharacterContent());
                 characterContent = CharactersLoaded[characterName];
                 characterContent.gameObject = characterObject;
+                characterContent.name = characterName;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
                 characterContent.enableSetTextures = true;
                 ResetAllTextures(characterName);
 
                 // Chara Maker stuff
-                GameObject charaCustom = GameObject.Find("CharaCustom");
-                if (charaCustom == null) return;
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene != "CharaCustom") return;
 
                 // Save when click on options toggle
                 GameObject optionsToggleObject = GameObject.Find("tglOption");
@@ -67,6 +69,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPre(ChaControl __instance)
             {
+                Debug.Log("== ChaControlReloadPre ==");
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
@@ -77,20 +80,25 @@ namespace IllusionPlugins
                     CharactersLoaded.Add(characterName, new CharacterContent());
                 characterContent = CharactersLoaded[characterName];
                 characterContent.gameObject = characterObject;
+                characterContent.name = characterName;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
 
                 // Something bad happens between the ChaControlReloadPre and the ChaControlReloadPost
                 characterContent.enableSetTextures = false;
 
-                // ==== Chara Maker Section ===
-                GameObject customControl = GameObject.Find("CustomControl");
-                if (customControl == null) return;
-                // Don't reset clothes when in clothes menu
-                Toggle clothesMainToggle = GameObject.Find("tglClothes").GetComponent<Toggle>();
-
-                if (clothesMainToggle.isOn) return;
-                ResetAllTextures(characterName);
+                // if not in chara maker, just reset textures
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene != "CharaCustom")
+                {
+                    ResetAllTextures(characterName);
+                }
+                else
+                {
+                    // Don't reset clothes when in clothes menu
+                    Canvas clothesDefaultWin = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/").GetComponent<Canvas>();
+                    if (!clothesDefaultWin.enabled) ResetAllTextures(characterName);
+                }
             }
 
             // Reload Character Postfix
@@ -98,6 +106,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPost(ChaControl __instance)
             {
+                Debug.Log("== ChaControlReloadPost ==");
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
@@ -105,8 +114,8 @@ namespace IllusionPlugins
                 characterContent.enableSetTextures = true;
 
                 // If not in the chara maker, just load card and set textures
-                GameObject customControl = GameObject.Find("CustomControl");
-                if (customControl == null)
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene != "CharaCustom")
                 {
                     LoadCard(characterContent);
                     SetAllTextures(characterName);
@@ -114,6 +123,7 @@ namespace IllusionPlugins
                 else
                 {
                     // Make clothes tab
+                    GameObject customControl = GameObject.Find("CustomControl");
                     CvsC_Clothes cvsC_Clothes = customControl.GetComponentInChildren<CvsC_Clothes>();
                     int kindIndex = cvsC_Clothes.SNo;
                     MakeClothesDropdown(characterContent, kindIndex);
@@ -126,13 +136,16 @@ namespace IllusionPlugins
                         SetAllTextures(characterName);
                     }
                 }
+
+                Debug.Log("Coordinate File Name: " + __instance.NowCoordinate.coordinateFileName);
             }
 
             // Get when change the coordinate type (outer, house, bath)
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
-            private static void ChangeCoordinatePre(ChaControl __instance, ChaFileDefine.CoordinateType type)
+            private static void ChangeCoordinateTypePre(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
+                Debug.Log("== ChangeCoordinateTypePre");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -140,8 +153,9 @@ namespace IllusionPlugins
                 characterContent.currentCoordinate = type;
 
                 // Chara Maker Section
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene != "CharaCustom") return;
                 GameObject customControl = GameObject.Find("CustomControl");
-                if (customControl == null) return;
                 CvsC_Clothes cvsC_Clothes = customControl.GetComponentInChildren<CvsC_Clothes>();
                 int kindIndex = cvsC_Clothes.SNo;
                 if (clothesTab.isOn) MakeClothesDropdown(characterContent, kindIndex);
@@ -149,12 +163,94 @@ namespace IllusionPlugins
 
             [HarmonyPostfix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
-            private static void ChangeCoordinatePost(ChaControl __instance, ChaFileDefine.CoordinateType type)
+            private static void ChangeCoordinateTypePost(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
+                Debug.Log("== ChangeCoordinateTypePost");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 SetAllTextures(characterName);
             }
+
+            //[HarmonyPrefix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
+            //private static void AssignCoordinate3(ChaControl __instance)
+            //{
+            //    Debug.Log("== AssignCoordinate3");
+            //    //ResetCoordinateTextures(__instance.gameObject.name);
+            //}
+
+
+            //[HarmonyPrefix]
+            //[HarmonyPatch(typeof(ChaFile), nameof(ChaFile.AssignCoordinate))]
+            //private static void ChaFile_AssignCoordinate()
+            //{
+            //    Debug.Log("== ChaFile_AssignCoordinate");
+            //}
+
+
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate))]
+            //private static void SetNowCoordinate(ChaControl __instance)
+            //{
+            //    Debug.Log("== SetNowCoordinate");
+            //}
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), typeof(bool), typeof(bool))]
+            //private static void ChangeNowCoordinate1(ChaControl __instance)
+            //{
+            //    Debug.Log("== ChangeNowCoordinate1");
+            //}
+
+
+
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadFile), typeof(string), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
+            //private static void LoadFile2(ChaFileCoordinate __instance, string path)
+            //{
+            //    Debug.Log("==== LoadFile2 Path: " + path);
+            //    ChaFileCoordinate chaFileCoordinate = __instance;
+            //}
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadFile), typeof(Stream), typeof(int), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
+            //private static void LoadFile3()
+            //{
+            //    Debug.Log("==== LoadFile3");
+            //}
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveBytes))]
+            //private static void SaveBytes()
+            //{
+            //    Debug.Log("==== SaveBytes");
+            //}
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
+            //private static void SaveFile()
+            //{
+            //    Debug.Log("==== SaveFile");
+            //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             // ================================================== Clothes Submenu ==================================================
@@ -205,40 +301,12 @@ namespace IllusionPlugins
             // Get when submenu tabs change
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.RestrictClothesMenu))]
-            private static void ResizeClothesWindow()
+            private static void ResizeClothesWindow(CvsC_Clothes __instance)
             {
                 // Make settings size bigger if there's more than 5 tabs
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
                 if (clothesSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) UITools.ChangeWindowSize(502f, settingWindow);
                 else UITools.ChangeWindowSize(428f, settingWindow);
-            }
-
-            // Get when change the clothes in right submenu
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
-            private static void ClothesChangedPre(ChaControl __instance, int id, int kind)
-            {
-                GameObject characterObject = __instance.gameObject;
-                string characterName = characterObject.name;
-                CharacterContent characterContent = CharactersLoaded[characterName];
-                characterContent.enableSetTextures = true;
-
-                ResetKind(characterName, TextureDictionaries.clothesTextures, kind);
-            }
-
-            // Get when clothes material is updated
-            [HarmonyPostfix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCustomClothes))]
-            private static void MaterialChanged(ChaControl __instance, int kind)
-            {
-                GameObject characterObject = __instance.gameObject;
-                string characterName = characterObject.name;
-                CharacterContent characterContent = CharactersLoaded[characterName];
-
-                if (!characterContent.enableSetTextures) return;
-
-                //SetAllClothesTextures(characterName);
-                SetKind(characterName, TextureDictionaries.clothesTextures, kind);
             }
 
             // Get when clothing or accessory type change
@@ -268,6 +336,68 @@ namespace IllusionPlugins
 
                 if (winAccessory.enabled) MakeAccessoryDropdown(characterContent, kindIndex);
             }
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.UpdateClothesList))]
+            //private static void UpdateClothesList(CvsC_Clothes __instance)
+            //{
+            //    Debug.Log("UpdateClothesList");
+            //}
+
+            // Get when change the clothes in right submenu
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
+            private static void ClothesChangedPre(ChaControl __instance, int id, int kind)
+            {
+                Debug.Log("ClothesChangedPre");
+                GameObject characterObject = __instance.gameObject;
+                string characterName = characterObject.name;
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                characterContent.enableSetTextures = true;
+
+                ResetKind(characterName, TextureDictionaries.clothesTextures, kind);
+
+            }
+
+            // Get when clothes material is updated
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCustomClothes))]
+            private static void ChangeCustomClothesPost(ChaControl __instance, int kind)
+            {
+                Debug.Log("ChangeCustomClothesPost: " + kind);
+                GameObject characterObject = __instance.gameObject;
+                string characterName = characterObject.name;
+                CharacterContent characterContent = CharactersLoaded[characterName];
+
+                if (!characterContent.enableSetTextures) return;
+
+                //SetAllClothesTextures(characterName);
+                SetKind(characterName, TextureDictionaries.clothesTextures, kind);
+            }
+
+
+            //[HarmonyPostfix]
+            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetCreateTexture))]
+            //private static void SetCreateTexture(ChaControl __instance)
+            //{
+            //    Debug.Log("== SetCreateTexture");
+            //    // Set body visible
+            //}
+
+            // Used when dressing/undressing clothes or half state
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetClothesState))]
+            private static void SetClothesState(ChaControl __instance)
+            {
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene != "CharaCustom") return;
+                MaterialModMonoBehaviour.MakeBodyVisible(__instance);
+                // Set body visible
+            }
+
+
+
+
 
             // ================================================== Accessory Submenu ==================================================
             // Initializing Accessory tab in Chara Maker
@@ -345,8 +475,8 @@ namespace IllusionPlugins
                 characterContent.enableSetTextures = true;
 
                 // If not in chara maker, just set accessories
-                GameObject customControl = GameObject.Find("CustomControl");
-                if (customControl != null)
+                string scene = SceneManager.GetActiveScene().name;
+                if (scene == "CharaCustom")
                 {
                     Toggle accessoryMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglAccessory").GetComponent<Toggle>();
                     Toggle clothesMainToggle = GameObject.Find("tglClothes").GetComponent<Toggle>();
@@ -555,6 +685,59 @@ namespace IllusionPlugins
                     }
                 }
             }
+
+
+            // ================================================== H-Scenes ==================================================
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(HSceneSpriteCoordinatesCard), nameof(HSceneSpriteCoordinatesCard.Start))]
+            private static void HSceneSpriteCoordinatesCard_Start(HSceneSpriteCoordinatesCard __instance)
+            {
+                Debug.Log("== HSceneSpriteCoordinatesCard_Start");
+                Manager.HSceneManager hSceneManager = __instance.hSceneManager;
+                
+
+                Button selectCoordinate = __instance.DecideCoode;
+                selectCoordinate.onClick.AddListener((UnityAction)onClick);
+                void onClick()
+                {
+                    
+                    // Copied from HS2
+                    ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
+                    string characterName = chaControl.name;
+                    CharacterContent characterContent = CharactersLoaded[characterName];
+                    Debug.Log("===== Button selectCoordinate: " + characterName);
+                    ResetCoordinateTextures(characterName);
+                    characterContent.enableSetTextures = false;
+                    characterContent.enableLoadCard = false;
+                    chaControl.Reload();
+                    characterContent.enableSetTextures = true;
+                    characterContent.enableLoadCard = true;
+                }
+
+
+                Button originalCoordinate = __instance.BeforeCoode;
+                originalCoordinate.onClick.AddListener((UnityAction)onClick2);
+                void onClick2()
+                {
+                    
+                    // Copied from HS2
+                    ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
+                    string characterName = chaControl.name;
+                    Debug.Log("===== Button originalCoordinate: " + characterName);
+                    LoadCard(CharactersLoaded[characterName]);
+                }
+
+
+
+
+            }
+
+
+
+
+
+
         }
     }
 }

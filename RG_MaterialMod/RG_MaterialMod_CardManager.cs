@@ -99,6 +99,7 @@ namespace IllusionPlugins
 
         internal static void LoadCard(CharacterContent characterContent)
         {
+            if (characterContent.enableLoadCard == false) return;
             ChaFile chaFile = characterContent.chafile;
             bool hasData;
             object texturesObject;

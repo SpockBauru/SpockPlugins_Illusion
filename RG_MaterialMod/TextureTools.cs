@@ -27,6 +27,7 @@ using Chara;
 using CharaCustom;
 
 using System.Linq;
+using UnityEngine.Rendering;
 
 namespace IllusionPlugins
 {
@@ -91,6 +92,19 @@ namespace IllusionPlugins
         // Was so slow that deserved a specialized method
         public static Dictionary<string, (Vector2, Texture2D)> GetTexNamesAndMiniatures(Material material, int maxSize)
         {
+            //Shader shader = material.shader;
+
+            //int propertyCount = shader.GetPropertyCount();
+            //for (int i = 0; i < propertyCount; i++)
+            //{
+            //    if (shader.GetPropertyType(i) == ShaderPropertyType.Float)
+            //    {
+            //        string name = shader.GetPropertyName(i);
+            //        float value = material.GetFloat(name);
+            //        Debug.Log("Property: " + name + " value: " + value);
+            //    }
+            //}
+
             Dictionary<string, (Vector2, Texture2D)> dicTexture = new Dictionary<string, (Vector2, Texture2D)>();
             string[] textureaNames = material.GetTexturePropertyNames();
 
