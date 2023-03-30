@@ -65,11 +65,11 @@ namespace IllusionPlugins
         internal static UI_ToggleEx bodySkinTab;
         internal static GameObject bodySkinSettingsGroup;
         internal static GameObject bodySkinTabContent;
-        // Maker Objects: Head skin Tab - Initialized in Hooks
-        internal static GameObject headSkinSelectMenu;
-        internal static UI_ToggleEx headSkinTab;
-        internal static GameObject headSkinSettingsGroup;
-        internal static GameObject headSkinTabContent;
+        // Maker Objects: Face skin Tab - Initialized in Hooks
+        internal static GameObject faceSkinSelectMenu;
+        internal static UI_ToggleEx faceSkinTab;
+        internal static GameObject faceSkinSettingsGroup;
+        internal static GameObject faceSkinTabContent;
 
         // Unity don't destroy textures automatically, need to do manually
         internal static List<Texture2D> GarbageTextures = new List<Texture2D>();
@@ -115,13 +115,12 @@ namespace IllusionPlugins
         [Serializable]
         internal class CharacterContent
         {
-            // IMPORTANT: KEEP TRACK OF THIS ACCROSS FILES
-            public bool enableSetTextures = true;
-            public bool enableLoadCard = true;
             public GameObject gameObject;
             public string name;
             public ChaControl chaControl;
             public ChaFile chafile;
+            public bool enableSetKind = true;
+            public bool enableLoadCard = true;
             public ChaFileDefine.CoordinateType currentCoordinate = ChaFileDefine.CoordinateType.Outer;
 
             /// <summary>
@@ -149,10 +148,10 @@ namespace IllusionPlugins
             public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> bodySkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
             /// <summary>
-            /// <br> TextureByte = headSkinTextures[coordinate][kind][renderIndex][TextureName]</br>
+            /// <br> TextureByte = faceSkinTextures[coordinate][kind][renderIndex][TextureName]</br>
             /// <br> TextureByte is an PNG encoded byte[]</br>
             /// </summary>
-            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> headSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
+            public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> faceSkinTextures = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>();
 
         }
 
@@ -162,12 +161,11 @@ namespace IllusionPlugins
             accessoryTextures,
             hairTextures,
             bodySkinTextures,
-            headSkinTextures,
+            faceSkinTextures,
         }
 
         internal static void SetAllTextures(CharacterContent characterContent)
         {
-            if (!characterContent.enableSetTextures) return;
             ChaControl chaControl = characterContent.chaControl;
 
             var objects = chaControl.ObjClothes.ToList();
@@ -209,7 +207,7 @@ namespace IllusionPlugins
                     break;
                 }
             }
-            if (objects != null) SetAllDictionary(characterContent, objects, characterContent.headSkinTextures, "Head");
+            if (objects != null) SetAllDictionary(characterContent, objects, characterContent.faceSkinTextures, "Face");
 
             // Fixing missing body parts bug
             MaterialModMonoBehaviour.MakeBodyVisible(chaControl);
@@ -259,7 +257,7 @@ namespace IllusionPlugins
 
         internal static void SetKind(CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
         {
-            if (!characterContent.enableSetTextures) return;
+            if (!characterContent.enableSetKind) return;
             Debug.Log("SetKind: char " + characterContent.name + " kindIndex " + kindIndex);
             GameObject characterObject = characterContent.gameObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
@@ -300,9 +298,9 @@ namespace IllusionPlugins
                     }
                 }
             }
-            else if (texDictionary == TextureDictionaries.headSkinTextures)
+            else if (texDictionary == TextureDictionaries.faceSkinTextures)
             {
-                dicTextures = characterContent.headSkinTextures;
+                dicTextures = characterContent.faceSkinTextures;
                 GameObject head = chaControl.ObjHead;
                 // Search for skin object
                 SkinnedMeshRenderer[] meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -354,27 +352,28 @@ namespace IllusionPlugins
 
         internal static void ResetCoordinateTextures(CharacterContent characterContent)
         {
-            ResetAllDictionary(characterContent.clothesTextures, "clothes");
-            ResetAllDictionary(characterContent.accessoryTextures, "accessory");
-            ResetAllDictionary(characterContent.hairTextures, "hair");
+            ResetAllDictionary(characterContent.clothesTextures, "Clothes Coordinate");
+            ResetAllDictionary(characterContent.accessoryTextures, "Accessory Coordinate");
+            ResetAllDictionary(characterContent.hairTextures, "Hair Coordinate");
         }
 
         internal static void ResetAllTextures(CharacterContent characterContent)
         {
             ChaControl chaControl = characterContent.chaControl;
-            ResetAllDictionary(characterContent.clothesTextures, "clothes");
-            ResetAllDictionary(characterContent.accessoryTextures, "accessory");
-            ResetAllDictionary(characterContent.hairTextures, "hair");
+            ResetAllDictionary(characterContent.clothesTextures, "Clothes All");
+            ResetAllDictionary(characterContent.accessoryTextures, "Accessory All");
+            ResetAllDictionary(characterContent.hairTextures, "Hair All");
 
             chaControl.SetBodyBaseMaterial();
-            ResetAllDictionary(characterContent.bodySkinTextures, "BodySkin");
+            ResetAllDictionary(characterContent.bodySkinTextures, "BodySkin All");
 
             chaControl.SetFaceBaseMaterial();
-            ResetAllDictionary(characterContent.headSkinTextures, "HeadSkin");
+            ResetAllDictionary(characterContent.faceSkinTextures, "FaceSkin All");
         }
 
         private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
+            Debug.Log("ResetAllDictionary: " + origin);
             for (int i = 0; i < dicTextures.Count; i++)
             {
                 int coordinateIndex = dicTextures.ElementAt(i).Key;
@@ -414,7 +413,7 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
             else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
             else if (texDictionary == TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
-            else if (texDictionary == TextureDictionaries.headSkinTextures) dicTextures = characterContent.headSkinTextures;
+            else if (texDictionary == TextureDictionaries.faceSkinTextures) dicTextures = characterContent.faceSkinTextures;
             else
             {
                 Log.LogMessage("Character piece not recognized");

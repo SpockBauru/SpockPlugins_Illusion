@@ -72,11 +72,11 @@ namespace IllusionPlugins
                 SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.bodySkinTextures.ToString(), bodySkinTextures);
             }
 
-            // Head Skin
-            var headSkinTextures = characterContent.headSkinTextures;
-            if (headSkinTextures.Count >= 0)
+            // Face Skin
+            var faceSkinTextures = characterContent.faceSkinTextures;
+            if (faceSkinTextures.Count >= 0)
             {
-                SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.headSkinTextures.ToString(), headSkinTextures);
+                SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.faceSkinTextures.ToString(), faceSkinTextures);
             }
         }
 
@@ -141,7 +141,7 @@ namespace IllusionPlugins
                 characterContent.hairTextures = dicTextures;
             }
 
-            // body Skin
+            // Vody Skin
             hasData = pluginData.data.TryGetValue(TextureDictionaries.bodySkinTextures.ToString(), out texturesObject);
             if (hasData)
             {
@@ -150,13 +150,13 @@ namespace IllusionPlugins
                 characterContent.bodySkinTextures = dicTextures;
             }
 
-            // head Skin
-            hasData = pluginData.data.TryGetValue(TextureDictionaries.headSkinTextures.ToString(), out texturesObject);
+            // Face Skin
+            hasData = pluginData.data.TryGetValue(TextureDictionaries.faceSkinTextures.ToString(), out texturesObject);
             if (hasData)
             {
                 byteString = (string)texturesObject;
                 dicTextures = LoadTexturesDictionary(byteString);
-                characterContent.headSkinTextures = dicTextures;
+                characterContent.faceSkinTextures = dicTextures;
             }
         }
 

@@ -66,6 +66,25 @@ namespace IllusionPlugins
 
             yield return new WaitForEndOfFrame();
 
+            //// Set body visible in material
+            //chaControl.CustomMatBody.SetFloat(ChaShader.alpha_c, 1f);
+            //for (int i = 0; i < chaControl.RendBra.Count; i++)
+            //{
+            //    if (chaControl.RendBra != null && chaControl.RendBra[i] != null && chaControl.RendBra[i].material != null) chaControl.RendBra[i].material.SetFloat(ChaShader.alpha_c, 1f);
+            //}
+
+            //chaControl.CustomMatBody.SetFloat(ChaShader.alpha_d, 0f);
+            //if (chaControl.RendInnerTB != null) chaControl.RendInnerTB.material.SetFloat(ChaShader.alpha_d, 0f);
+            //if (chaControl.RendInnerB != null) chaControl.RendInnerB.material.SetFloat(ChaShader.alpha_d, 0f);
+            //if (chaControl.RendPanst != null) chaControl.RendPanst.material.SetFloat(ChaShader.alpha_d, 0f);
+            SetMaterialAlphas(chaControl);
+
+            coroutineIsRunning = false;
+            Debug.Log("= MakeBodyVisibleCoroutine: " + chaControl.name);
+        }
+
+        internal static void SetMaterialAlphas(ChaControl chaControl)
+        {
             // Set body visible in material
             chaControl.CustomMatBody.SetFloat(ChaShader.alpha_c, 1f);
             for (int i = 0; i < chaControl.RendBra.Count; i++)
@@ -77,75 +96,42 @@ namespace IllusionPlugins
             if (chaControl.RendInnerTB != null) chaControl.RendInnerTB.material.SetFloat(ChaShader.alpha_d, 0f);
             if (chaControl.RendInnerB != null) chaControl.RendInnerB.material.SetFloat(ChaShader.alpha_d, 0f);
             if (chaControl.RendPanst != null) chaControl.RendPanst.material.SetFloat(ChaShader.alpha_d, 0f);
-
-            coroutineIsRunning = false;
-            Debug.Log("= MakeBodyVisibleCoroutine: " + chaControl.name);
         }
 
         /// <summary>
-        /// Make character naked, reset skin and put clothes again
+        /// Set all textures type by type on different frames. The frame separation solves many issues
         /// </summary>
-        /// <param name="chaControl"></param>
-        internal static void ResetSkin(ChaControl chaControl)
-        {
-            instance.StartCoroutine(instance.ResetSkinCoroutine(chaControl).WrapToIl2Cpp());
-        }
-        private IEnumerator ResetSkinCoroutine(ChaControl chaControl)
-        {
-            List<byte> oldClothesState = new List<byte>();
-            var clothesStatus = chaControl.FileStatus.clothesState;
-
-            // Save current clothes state and take off
-            for (int i = 0; i < clothesStatus.Count; i++)
-            {
-                oldClothesState.Add(clothesStatus[i]);
-                clothesStatus[i] = (byte)3;
-            }
-            yield return null;
-
-            // Actually resset the body skin
-            chaControl.SetBodyBaseMaterial();
-            yield return null;
-
-            // put clothes on again
-            for (int i = 0; i < clothesStatus.Count; i++)
-            {
-                clothesStatus[i] = oldClothesState[i];
-            }
-
-            Debug.Log("== ResetSkin: " + chaControl.name);
-            // Fix invisible bug in clothes
-            MakeBodyVisible(chaControl);
-        }
-
+        /// <param name="characterContent"></param>
         internal static void SetAllTexturesDelayed(RG_MaterialMod.CharacterContent characterContent)
         {
             instance.StartCoroutine(instance.SetAllTexturesCoroutine(characterContent).WrapToIl2Cpp());
         }
-
         private IEnumerator SetAllTexturesCoroutine(RG_MaterialMod.CharacterContent characterContent)
         {
-            if (!characterContent.enableSetTextures) yield break;
-            
             ChaControl chaControl = characterContent.chaControl;
-
-            yield return null;
+            characterContent.enableSetKind = false;
+            
             var objects = chaControl.ObjClothes.ToList();
             RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.clothesTextures, characterContent.name + " Clothes Delayed");
-
             yield return null;
+
             objects = chaControl.ObjAccessory.ToList();
             RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.accessoryTextures, characterContent.name + " Accessory Delayed");
-
             yield return null;
+
             objects = chaControl.ObjHair.ToList();
             RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.hairTextures, characterContent.name + " Hair Delayed");
-
-            // Reseting skin before update
             yield return null;
+
+            // Fixing missing body parts bug. This must be after clothes and before skin
+            SetMaterialAlphas(chaControl);
+            yield return null;
+
+            // ============== Body Skin Section ================
+            // Rest body skin
             chaControl.SetBodyBaseMaterial();
             yield return null;
-            
+
             GameObject body = chaControl.ObjBody;
             // Search for skin object
             SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -160,13 +146,13 @@ namespace IllusionPlugins
                 }
             }
             if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.bodySkinTextures, characterContent.name + " Skin Delayed");
-
-            // Reseting skin before update
             yield return null;
+
+            // ============== Face Skin Section ================
+            // Rest face skin
             chaControl.SetFaceBaseMaterial();
             yield return null;
 
-            // Head Skin
             GameObject head = chaControl.ObjHead;
             // Search for skin object
             meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -180,10 +166,9 @@ namespace IllusionPlugins
                     break;
                 }
             }
-            if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.headSkinTextures, characterContent.name + " Head Delayed");
+            if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.faceSkinTextures, characterContent.name + " Face Delayed");
 
-            // Fixing missing body parts bug
-            MakeBodyVisible(chaControl);
+            characterContent.enableSetKind = true;
         }
     }
 }

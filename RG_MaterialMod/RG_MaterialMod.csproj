@@ -137,6 +137,7 @@
     <EmbeddedResource Include="MaterialModResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MaterialModResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

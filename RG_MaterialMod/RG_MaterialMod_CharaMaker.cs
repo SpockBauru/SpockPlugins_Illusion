@@ -109,7 +109,9 @@ namespace IllusionPlugins
                 void ResetSkin()
                 {
                     ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
-                    MaterialModMonoBehaviour.ResetSkin(chaControl);
+                    //MaterialModMonoBehaviour.ResetSkin(chaControl);
+                    MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
+                    chaControl.SetBodyBaseMaterial();
                     MakeBodySkinDropdown(characterContent, kindIndex);
                 }
 
@@ -147,12 +149,12 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
 
-        internal static void MakeHeadSkinDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeFaceSkinDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject head = chaControl.ObjHead;
 
-            Transform buttonParent = headSkinTabContent.transform.parent.parent.parent;
+            Transform buttonParent = faceSkinTabContent.transform.parent.parent.parent;
             Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
             if (resetSkinObject == null)
             {
@@ -166,9 +168,10 @@ namespace IllusionPlugins
                 resetSkin.onClick.AddListener((UnityAction)ResetSkin);
                 void ResetSkin()
                 {
-                    ResetKind(characterContent, TextureDictionaries.headSkinTextures, kindIndex);
+                    ResetKind(characterContent, TextureDictionaries.faceSkinTextures, kindIndex);
+                    MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
                     chaControl.SetFaceBaseMaterial();
-                    MakeHeadSkinDropdown(characterContent, kindIndex);
+                    MakeFaceSkinDropdown(characterContent, kindIndex);
                 }
             }
 
@@ -186,9 +189,9 @@ namespace IllusionPlugins
 
             if (skin == null) return;
 
-            GameObject settingsGroup = headSkinSettingsGroup;
-            GameObject tabContent = headSkinTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.headSkinTextures;
+            GameObject settingsGroup = faceSkinSettingsGroup;
+            GameObject tabContent = faceSkinTabContent;
+            TextureDictionaries texDictionary = TextureDictionaries.faceSkinTextures;
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
@@ -509,7 +512,7 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
             else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
             else if (texDictionary == TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
-            else if (texDictionary == TextureDictionaries.headSkinTextures) dicTextures = characterContent.headSkinTextures;
+            else if (texDictionary == TextureDictionaries.faceSkinTextures) dicTextures = characterContent.faceSkinTextures;
             else return;
 
             // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]

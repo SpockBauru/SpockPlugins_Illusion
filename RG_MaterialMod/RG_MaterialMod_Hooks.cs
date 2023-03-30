@@ -45,12 +45,15 @@ namespace IllusionPlugins
                 characterContent.name = characterName;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
-                characterContent.enableSetTextures = true;
+                characterContent.enableSetKind = false;
+                characterContent.enableLoadCard = true;
+                characterContent.currentCoordinate = ChaFileDefine.CoordinateType.Outer;
                 ResetAllTextures(characterContent);
 
                 // Chara Maker stuff
                 string scene = SceneManager.GetActiveScene().name;
                 if (scene != "CharaCustom") return;
+                characterContent.enableSetKind = true;
 
                 // Save when click on options toggle
                 GameObject optionsToggleObject = GameObject.Find("tglOption");
@@ -85,9 +88,8 @@ namespace IllusionPlugins
                 characterContent.name = characterName;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
-
-                // Something bad happens between the ChaControlReloadPre and the ChaControlReloadPost
-                characterContent.enableSetTextures = false;
+                characterContent.enableSetKind = false;
+                //characterContent.currentCoordinate = ChaFileDefine.CoordinateType.Outer;
 
                 // if not in chara maker, just reset textures
                 string scene = SceneManager.GetActiveScene().name;
@@ -118,7 +120,8 @@ namespace IllusionPlugins
                 characterContent.name = characterName;
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
-                characterContent.enableSetTextures = true;
+                characterContent.enableSetKind = false;
+                //characterContent.currentCoordinate = ChaFileDefine.CoordinateType.Outer;
 
                 // If not in the chara maker, just load card and set textures
                 string scene = SceneManager.GetActiveScene().name;
@@ -262,7 +265,6 @@ namespace IllusionPlugins
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
                 ChaControl chaControl = characterContent.chaControl;
-                characterContent.enableSetTextures = true;
                 int kindIndex = __instance.SNo;
 
                 if (winClothes.enabled) SetKind(characterContent, TextureDictionaries.clothesTextures, kindIndex);
@@ -286,7 +288,6 @@ namespace IllusionPlugins
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
-                characterContent.enableSetTextures = true;
 
                 ResetKind(characterContent, TextureDictionaries.clothesTextures, kind);
 
@@ -301,7 +302,7 @@ namespace IllusionPlugins
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
 
-                if (!characterContent.enableSetTextures) return;
+                //if (!characterContent.enableSetKind) return;
 
                 //SetAllClothesTextures(characterName);
                 SetKind(characterContent, TextureDictionaries.clothesTextures, kind);
@@ -377,7 +378,7 @@ namespace IllusionPlugins
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
 
-                if (!characterContent.enableSetTextures) return;
+                //if (!characterContent.enableSetKind) return;
 
                 //SetAllClothesTextures(characterName);
                 SetKind(characterContent, TextureDictionaries.accessoryTextures, slotNo);
@@ -390,7 +391,6 @@ namespace IllusionPlugins
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
-                characterContent.enableSetTextures = true;
 
                 // If not in chara maker, just set accessories
                 string scene = SceneManager.GetActiveScene().name;
@@ -453,7 +453,6 @@ namespace IllusionPlugins
                 GameObject characterObject = __instance.chaCtrl.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
-                characterContent.enableSetTextures = true;
                 int kindIndex = __instance.SNo;
 
                 MakeHairDropdown(characterContent, kindIndex);
@@ -540,23 +539,23 @@ namespace IllusionPlugins
                 int kindIndex = cvsF_FaceType.SNo;
 
                 // Skin clothes Tab in chara maker: GET TAB TOGGLE AND WINDOW CONTENT!
-                headSkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/SelectMenu");
-                headSkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/Setting");
-                (headSkinTab, headSkinTabContent) = UITools.CreateMakerTab(headSkinSelectMenu, headSkinSettingsGroup);
+                faceSkinSelectMenu = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/SelectMenu");
+                faceSkinSettingsGroup = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/F_FaceType/Setting");
+                (faceSkinTab, faceSkinTabContent) = UITools.CreateMakerTab(faceSkinSelectMenu, faceSkinSettingsGroup);
 
-                headSkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
+                faceSkinTab.onValueChanged.AddListener((UnityAction<bool>)Make);
                 void Make(bool isOn)
                 {
                     kindIndex = cvsF_FaceType.SNo;
-                    if (isOn) MakeHeadSkinDropdown(characterContent, kindIndex);
+                    if (isOn) MakeFaceSkinDropdown(characterContent, kindIndex);
                 }
 
                 // Make when entering Face Type section
-                UI_ButtonEx headSkinButton = GameObject.Find("CharaCustom/CustomControl/CanvasMain/SubMenu/SubMenuFace/Scroll View/Viewport/Content/Category/CategoryTop/FaceType").GetComponent<UI_ButtonEx>();
-                headSkinButton.onClick.AddListener((UnityAction)onClick);
+                UI_ButtonEx faceSkinButton = GameObject.Find("CharaCustom/CustomControl/CanvasMain/SubMenu/SubMenuFace/Scroll View/Viewport/Content/Category/CategoryTop/FaceType").GetComponent<UI_ButtonEx>();
+                faceSkinButton.onClick.AddListener((UnityAction)onClick);
                 void onClick()
                 {
-                    MakeHeadSkinDropdown(characterContent, kindIndex);
+                    MakeFaceSkinDropdown(characterContent, kindIndex);
                 }
 
                 // Make when entering Face section
@@ -566,9 +565,9 @@ namespace IllusionPlugins
                 void valueChanged(bool isOn)
                 {
                     if (isOn) UITools.ChangeWindowSize(428f, settingWindow);
-                    if (isOn && headSkinTab.isOn)
+                    if (isOn && faceSkinTab.isOn)
                     {
-                        MakeHeadSkinDropdown(characterContent, kindIndex);
+                        MakeFaceSkinDropdown(characterContent, kindIndex);
                     }
                 }
             }
@@ -591,10 +590,8 @@ namespace IllusionPlugins
                     string characterName = chaControl.name;
                     CharacterContent characterContent = CharactersLoaded[characterName];
                     ResetCoordinateTextures(characterContent);
-                    characterContent.enableSetTextures = false;
                     characterContent.enableLoadCard = false;
                     chaControl.Reload();
-                    characterContent.enableSetTextures = true;
                     characterContent.enableLoadCard = true;
                 }
 
