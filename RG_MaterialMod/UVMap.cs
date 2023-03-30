@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
+// Unity
 using UnityEngine;
 using UnityEngine.Rendering;
+
 
 namespace IllusionPlugins
 {

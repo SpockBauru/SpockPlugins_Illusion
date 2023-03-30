@@ -32,6 +32,7 @@ using Chara;
 using CharaCustom;
 using UniRx.Triggers;
 
+
 namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
@@ -107,7 +108,7 @@ namespace IllusionPlugins
                 resetSkin.onClick.AddListener((UnityAction)ResetSkin);
                 void ResetSkin()
                 {
-                    ResetKind(characterContent.gameObject.name, TextureDictionaries.bodySkinTextures, kindIndex);
+                    ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
                     MaterialModMonoBehaviour.ResetSkin(chaControl);
                     MakeBodySkinDropdown(characterContent, kindIndex);
                 }
@@ -165,22 +166,10 @@ namespace IllusionPlugins
                 resetSkin.onClick.AddListener((UnityAction)ResetSkin);
                 void ResetSkin()
                 {
-                    ResetKind(characterContent.gameObject.name, TextureDictionaries.headSkinTextures, kindIndex);
+                    ResetKind(characterContent, TextureDictionaries.headSkinTextures, kindIndex);
                     chaControl.SetFaceBaseMaterial();
                     MakeHeadSkinDropdown(characterContent, kindIndex);
                 }
-
-                // Warning to not set when clothed
-                //Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
-                //text.gameObject.name = "ClothesWarning";
-                //text.transform.SetParent(buttonParent, false);
-                //text.color = Color.red;
-                //Outline outline = text.gameObject.AddComponent<Outline>();
-                //outline.effectDistance = new Vector2(1.3f, 1.3f);
-                //outline.effectColor = new Color(1, 1, 1, 0.5f);
-                //RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
-                //textRect.anchorMin = new Vector3(0.5f, -0.16f);
-                //textRect.anchorMax = new Vector3(0.5f, -0.16f);
             }
 
             // Search for skin object
@@ -268,8 +257,7 @@ namespace IllusionPlugins
             // Getting Texture list from material
             Material material = rendererList[renderIndex].material;
             string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
-            Debug.Log("Material: " + materialName);
-
+            
             // Creating UV Maps blocks
             List<Texture2D> UVRenderers = new List<Texture2D>();
 
@@ -394,33 +382,9 @@ namespace IllusionPlugins
             Image background = textureGroup.AddComponent<Image>();
             background.color = new Color(0, 0, 0, 0);
 
-
-
-
-
-
-
-            // Texture Image
-
-            try
-            {
-                if (textureName == "_MainTex")
-                {
-                    Texture2D TESTTEST = new Texture2D(2, 2);
-                    TESTTEST.LoadImage(characterContent.clothesTextures[0][0][0][textureName]);
-                    miniatureTexture = TextureTools.Resize(TESTTEST, miniatureTexture.width, miniatureTexture.height, false);
-                }
-            }
-            catch { }
-
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
             UpdateMiniature(miniature, miniatureTexture, textureName);
-
-
-
-
-
 
             // Text with name
             string textContent = textureName.Replace("_", "");
@@ -554,11 +518,7 @@ namespace IllusionPlugins
             if (!dicTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) dicTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, byte[]>());
             if (!dicTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) dicTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
 
-            // Reset old texture
-            //if (!(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName] == null)) GarbageTextures.Add(characterContent.clothesTextures[coordinateType][kindIndex][renderIndex][textureName]);
-
-            // Update Texture
-            //texture.Compress(false);
+            // Update Texture dictionary
             // From normal maps to Illusion pre-processed pink maps
             if (textureName.Contains("Bump")) texture = TextureTools.NormalToPink(texture);
             // Weatering mask must have the same dimensions
@@ -579,12 +539,7 @@ namespace IllusionPlugins
 
 
             // ======================================= Texture is set here ===========================================
-            //material.SetTexture(textureName, texture);
-            ChaControl chaControl = characterContent.chaControl;
-            SetKind(chaControl.name, texDictionary, kindIndex);
-            Debug.Log("Button Load: dictionary " + texDictionary.ToString() + " Coordinate " + coordinateType + " kind " + kindIndex + " renderer " + renderIndex + " texture " + textureName);
-
-
+            SetKind(characterContent, texDictionary, kindIndex);
             UpdateMiniature(miniature, texture, textureName);
 
             //DestroyGarbage();

@@ -22,7 +22,6 @@ using UnhollowerRuntimeLib;
 using UnhollowerBaseLib;
 using UnhollowerBaseLib.Attributes;
 
-
 // Unity
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,13 +38,13 @@ using RG;
 using Chara;
 using CharaCustom;
 
+
 namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
         internal static void SaveCard(CharacterContent characterContent)
         {
-            Debug.Log("!!!!!!!!!======================================== SAVE CARD =====================================!!!!!!");
             ChaFile chaFile = characterContent.chafile;
 
             // Cleaning previews plugin data
@@ -92,7 +91,7 @@ namespace IllusionPlugins
 
             // Encoding to string
             string bytesString = Encoding.Latin1.GetString(outputByte);
-            
+
             // Saving
             pluginData.data.Add(dicName, bytesString);
             ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
@@ -122,8 +121,6 @@ namespace IllusionPlugins
                 byteString = (string)texturesObject;
                 dicTextures = LoadTexturesDictionary(byteString);
                 characterContent.clothesTextures = dicTextures;
-                try { Debug.Log("======================Top Loaded: " + characterContent.clothesTextures[0][0][0].ElementAt(0).Key); } 
-                catch { }
             }
 
             // Accessories
@@ -161,8 +158,6 @@ namespace IllusionPlugins
                 dicTextures = LoadTexturesDictionary(byteString);
                 characterContent.headSkinTextures = dicTextures;
             }
-
-            Debug.Log("====== Card Loaded: " + chaFile.CharaFileName);
         }
 
         private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)

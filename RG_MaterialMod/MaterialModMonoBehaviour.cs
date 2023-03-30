@@ -11,6 +11,7 @@ using BepInEx.Configuration;
 using BepInEx.IL2CPP;
 using BepInEx.IL2CPP.Utils;
 using BepInEx.IL2CPP.Utils.Collections;
+using BepInEx.Logging;
 using HarmonyLib;
 using UnhollowerRuntimeLib;
 
@@ -29,7 +30,8 @@ using RGExtendedSave;
 using RG;
 using Chara;
 using CharaCustom;
-using BepInEx.Logging;
+
+
 namespace IllusionPlugins
 {
     public class MaterialModMonoBehaviour : MonoBehaviour
@@ -40,6 +42,8 @@ namespace IllusionPlugins
         private static MaterialModMonoBehaviour instance;
 
         static bool coroutineIsRunning = false;
+        static string oldCharacter = "";
+        static string newCharacter = "";
 
         private void Awake() 
         {
@@ -51,7 +55,10 @@ namespace IllusionPlugins
         /// </summary>
         internal static void MakeBodyVisible(ChaControl chaControl)
         {
-            if (!coroutineIsRunning) instance.StartCoroutine(instance.MakeBodyVisibleCoroutine(chaControl).WrapToIl2Cpp());
+            newCharacter = chaControl.name;
+            if (newCharacter == oldCharacter && coroutineIsRunning) return;
+            oldCharacter = newCharacter;
+            instance.StartCoroutine(instance.MakeBodyVisibleCoroutine(chaControl).WrapToIl2Cpp());
         }
         private IEnumerator MakeBodyVisibleCoroutine(ChaControl chaControl)
         {
@@ -61,14 +68,18 @@ namespace IllusionPlugins
 
             // Set body visible in material
             chaControl.CustomMatBody.SetFloat(ChaShader.alpha_c, 1f);
-            if (chaControl.RendBra != null && chaControl.RendBra[0] != null && chaControl.RendBra[0].material != null) chaControl.RendBra[0].material.SetFloat(ChaShader.alpha_c, 1f);
-            
+            for (int i = 0; i < chaControl.RendBra.Count; i++)
+            {
+                if (chaControl.RendBra != null && chaControl.RendBra[i] != null && chaControl.RendBra[i].material != null) chaControl.RendBra[i].material.SetFloat(ChaShader.alpha_c, 1f);
+            }
+
             chaControl.CustomMatBody.SetFloat(ChaShader.alpha_d, 0f);
             if (chaControl.RendInnerTB != null) chaControl.RendInnerTB.material.SetFloat(ChaShader.alpha_d, 0f);
             if (chaControl.RendInnerB != null) chaControl.RendInnerB.material.SetFloat(ChaShader.alpha_d, 0f);
             if (chaControl.RendPanst != null) chaControl.RendPanst.material.SetFloat(ChaShader.alpha_d, 0f);
 
             coroutineIsRunning = false;
+            Debug.Log("= MakeBodyVisibleCoroutine: " + chaControl.name);
         }
 
         /// <summary>
@@ -102,20 +113,77 @@ namespace IllusionPlugins
                 clothesStatus[i] = oldClothesState[i];
             }
 
+            Debug.Log("== ResetSkin: " + chaControl.name);
             // Fix invisible bug in clothes
             MakeBodyVisible(chaControl);
         }
 
-        internal static void SetAllTexturesDelayed(string characterName)
+        internal static void SetAllTexturesDelayed(RG_MaterialMod.CharacterContent characterContent)
         {
-            instance.StartCoroutine(instance.SetAllTexturesCoroutine(characterName).WrapToIl2Cpp());
+            instance.StartCoroutine(instance.SetAllTexturesCoroutine(characterContent).WrapToIl2Cpp());
         }
 
-        private IEnumerator SetAllTexturesCoroutine(string characterName)
+        private IEnumerator SetAllTexturesCoroutine(RG_MaterialMod.CharacterContent characterContent)
         {
-            yield return new WaitForEndOfFrame();
-            RG_MaterialMod.SetAllTextures(characterName);
+            if (!characterContent.enableSetTextures) yield break;
+            
+            ChaControl chaControl = characterContent.chaControl;
 
+            yield return null;
+            var objects = chaControl.ObjClothes.ToList();
+            RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.clothesTextures, characterContent.name + " Clothes Delayed");
+
+            yield return null;
+            objects = chaControl.ObjAccessory.ToList();
+            RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.accessoryTextures, characterContent.name + " Accessory Delayed");
+
+            yield return null;
+            objects = chaControl.ObjHair.ToList();
+            RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.hairTextures, characterContent.name + " Hair Delayed");
+
+            // Reseting skin before update
+            yield return null;
+            chaControl.SetBodyBaseMaterial();
+            yield return null;
+            
+            GameObject body = chaControl.ObjBody;
+            // Search for skin object
+            SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
+            objects.Clear();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                GameObject thisObject = meshRenderers[i].gameObject;
+                if (thisObject.name.StartsWith("o_body_c"))
+                {
+                    objects.Add(thisObject);
+                    break;
+                }
+            }
+            if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.bodySkinTextures, characterContent.name + " Skin Delayed");
+
+            // Reseting skin before update
+            yield return null;
+            chaControl.SetFaceBaseMaterial();
+            yield return null;
+
+            // Head Skin
+            GameObject head = chaControl.ObjHead;
+            // Search for skin object
+            meshRenderers = head.GetComponentsInChildren<SkinnedMeshRenderer>();
+            objects.Clear();
+            for (int i = 0; i < meshRenderers.Length; i++)
+            {
+                GameObject thisObject = meshRenderers[i].gameObject;
+                if (thisObject.name.StartsWith("o_head"))
+                {
+                    objects.Add(thisObject);
+                    break;
+                }
+            }
+            if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.headSkinTextures, characterContent.name + " Head Delayed");
+
+            // Fixing missing body parts bug
+            MakeBodyVisible(chaControl);
         }
     }
 }

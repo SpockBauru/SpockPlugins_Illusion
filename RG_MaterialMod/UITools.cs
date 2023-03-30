@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,12 +15,12 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 // Room Girl
 using RG;
 using CharaCustom;
-using System.IO;
-using UnityEngine.EventSystems;
+
 
 namespace IllusionPlugins
 {

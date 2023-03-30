@@ -1,6 +1,9 @@
-﻿// BepInEx
+﻿using System.Linq;
+
+// BepInEx
 using HarmonyLib;
 using Il2CppSystem;
+using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.IO;
 using UnhollowerBaseLib;
 using UnhollowerRuntimeLib;
@@ -14,8 +17,7 @@ using UnityEngine.SceneManagement;
 // Game Specific
 using Chara;
 using CharaCustom;
-using Il2CppSystem.Collections.Generic;
-using System.Linq;
+
 
 namespace IllusionPlugins
 {
@@ -44,7 +46,7 @@ namespace IllusionPlugins
                 characterContent.chaControl = chaControl;
                 characterContent.chafile = chaFile;
                 characterContent.enableSetTextures = true;
-                ResetAllTextures(characterName);
+                ResetAllTextures(characterContent);
 
                 // Chara Maker stuff
                 string scene = SceneManager.GetActiveScene().name;
@@ -70,7 +72,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPre(ChaControl __instance)
             {
-                Debug.Log("== ChaControlReloadPre ==");
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
@@ -92,13 +93,13 @@ namespace IllusionPlugins
                 string scene = SceneManager.GetActiveScene().name;
                 if (scene != "CharaCustom")
                 {
-                    ResetAllTextures(characterName);
+                    ResetAllTextures(characterContent);
                 }
                 else
                 {
                     // Don't reset clothes when in clothes menu
                     Canvas clothesDefaultWin = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/").GetComponent<Canvas>();
-                    if (!clothesDefaultWin.enabled) ResetAllTextures(characterName);
+                    if (!clothesDefaultWin.enabled) ResetAllTextures(characterContent);
                 }
             }
 
@@ -107,8 +108,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPost(ChaControl __instance)
             {
-                Debug.Log("== ChaControlReloadPost ==");
-                ChaControl chaControl = __instance;                
+                ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
                 ChaFile chaFile = chaControl.ChaFile;
@@ -120,16 +120,12 @@ namespace IllusionPlugins
                 characterContent.chafile = chaFile;
                 characterContent.enableSetTextures = true;
 
-                // Reset all skin before load
-                chaControl.SetBodyBaseMaterial();
-                chaControl.SetFaceBaseMaterial();
-
                 // If not in the chara maker, just load card and set textures
                 string scene = SceneManager.GetActiveScene().name;
                 if (scene != "CharaCustom")
                 {
                     LoadCard(characterContent);
-                    SetAllTextures(characterName);
+                    MaterialModMonoBehaviour.SetAllTexturesDelayed(characterContent);
                 }
                 else
                 {
@@ -144,11 +140,10 @@ namespace IllusionPlugins
                     if (!clothesMainToggle.isOn)
                     {
                         LoadCard(characterContent);
-                        SetAllTextures(characterName);
+                        MaterialModMonoBehaviour.SetAllTexturesDelayed(characterContent);
                     }
                 }
 
-                Debug.Log("Coordinate File Name: " + __instance.NowCoordinate.coordinateFileName + " enableLoadCard " + characterContent.enableLoadCard);
                 characterContent.enableLoadCard = true;
             }
 
@@ -157,7 +152,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
             private static void ChangeCoordinateTypePre(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
-                Debug.Log("== ChangeCoordinateTypePre");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -177,10 +171,10 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
             private static void ChangeCoordinateTypePost(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
-                Debug.Log("== ChangeCoordinateTypePost");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
-                SetAllTextures(characterName);
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                MaterialModMonoBehaviour.SetAllTexturesDelayed(characterContent);
             }
 
 
@@ -189,76 +183,16 @@ namespace IllusionPlugins
             private static void ChaControlOnDestroy(ChaControl __instance)
             {
                 ChaControl chaControl = __instance;
-                Debug.Log("== ChaControlOnDestroy: " + chaControl.name);
-                for (int i = CharactersLoaded.Count -1; i >= 0; i--)
+                for (int i = CharactersLoaded.Count - 1; i >= 0; i--)
                 {
                     CharacterContent characterContent = CharactersLoaded.ElementAt(i).Value;
                     if (characterContent.chaControl.name == "Delete_Reserve : DeleteChara")
                     {
-                        ResetAllTextures(characterContent.name);
+                        ResetAllTextures(characterContent);
                         CharactersLoaded.Remove(characterContent.name);
                     }
                 }
             }
-
-            //[HarmonyPrefix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
-            //private static void AssignCoordinate3(ChaControl __instance)
-            //{
-            //    Debug.Log("== AssignCoordinate3");
-            //    //ResetCoordinateTextures(__instance.gameObject.name);
-            //}
-
-
-            //[HarmonyPrefix]
-            //[HarmonyPatch(typeof(ChaFile), nameof(ChaFile.AssignCoordinate))]
-            //private static void ChaFile_AssignCoordinate()
-            //{
-            //    Debug.Log("== ChaFile_AssignCoordinate");
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate))]
-            //private static void SetNowCoordinate(ChaControl __instance)
-            //{
-            //    Debug.Log("== SetNowCoordinate");
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), typeof(bool), typeof(bool))]
-            //private static void ChangeNowCoordinate1(ChaControl __instance)
-            //{
-            //    Debug.Log("== ChangeNowCoordinate1");
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadFile), typeof(string), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
-            //private static void LoadFile2(ChaFileCoordinate __instance, string path)
-            //{
-            //    Debug.Log("==== LoadFile2 Path: " + path);
-            //    ChaFileCoordinate chaFileCoordinate = __instance;
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadFile), typeof(Stream), typeof(int), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
-            //private static void LoadFile3()
-            //{
-            //    Debug.Log("==== LoadFile3");
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveBytes))]
-            //private static void SaveBytes()
-            //{
-            //    Debug.Log("==== SaveBytes");
-            //}
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
-            //private static void SaveFile()
-            //{
-            //    Debug.Log("==== SaveFile");
-            //}
-
 
             // ================================================== Clothes Submenu ==================================================
             // Initializing clothes tab in Chara Maker
@@ -331,7 +265,7 @@ namespace IllusionPlugins
                 characterContent.enableSetTextures = true;
                 int kindIndex = __instance.SNo;
 
-                if (winClothes.enabled) SetKind(characterName, TextureDictionaries.clothesTextures, kindIndex);
+                if (winClothes.enabled) SetKind(characterContent, TextureDictionaries.clothesTextures, kindIndex);
                 if (clothesTab.isOn && winClothes.enabled)
                 {
                     MakeClothesDropdown(characterContent, kindIndex);
@@ -344,25 +278,17 @@ namespace IllusionPlugins
                 if (winAccessory.enabled) MakeAccessoryDropdown(characterContent, kindIndex);
             }
 
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.UpdateClothesList))]
-            //private static void UpdateClothesList(CvsC_Clothes __instance)
-            //{
-            //    Debug.Log("UpdateClothesList");
-            //}
-
             // Get when change the clothes in right submenu
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
             private static void ClothesChangedPre(ChaControl __instance, int id, int kind)
             {
-                Debug.Log("ClothesChangedPre");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
                 characterContent.enableSetTextures = true;
 
-                ResetKind(characterName, TextureDictionaries.clothesTextures, kind);
+                ResetKind(characterContent, TextureDictionaries.clothesTextures, kind);
 
             }
 
@@ -371,7 +297,6 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCustomClothes))]
             private static void ChangeCustomClothesPost(ChaControl __instance, int kind)
             {
-                //Debug.Log("ChangeCustomClothesPost: " + kind);
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -379,17 +304,8 @@ namespace IllusionPlugins
                 if (!characterContent.enableSetTextures) return;
 
                 //SetAllClothesTextures(characterName);
-                SetKind(characterName, TextureDictionaries.clothesTextures, kind);
+                SetKind(characterContent, TextureDictionaries.clothesTextures, kind);
             }
-
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetCreateTexture))]
-            //private static void SetCreateTexture(ChaControl __instance)
-            //{
-            //    Debug.Log("== SetCreateTexture");
-            //    // Set body visible
-            //}
 
             // Used when dressing/undressing clothes or half state
             [HarmonyPostfix]
@@ -399,12 +315,7 @@ namespace IllusionPlugins
                 string scene = SceneManager.GetActiveScene().name;
                 if (scene != "CharaCustom") return;
                 MaterialModMonoBehaviour.MakeBodyVisible(__instance);
-                // Set body visible
             }
-
-
-
-
 
             // ================================================== Accessory Submenu ==================================================
             // Initializing Accessory tab in Chara Maker
@@ -439,7 +350,7 @@ namespace IllusionPlugins
                     if (isOn)
                     {
                         if (accessorySelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
-                             UITools.ChangeWindowSize(502f, settingWindow);
+                            UITools.ChangeWindowSize(502f, settingWindow);
                         else UITools.ChangeWindowSize(428, settingWindow);
                         MakeAccessoryDropdown(characterContent, kindIndex);
                     }
@@ -469,7 +380,7 @@ namespace IllusionPlugins
                 if (!characterContent.enableSetTextures) return;
 
                 //SetAllClothesTextures(characterName);
-                SetKind(characterName, TextureDictionaries.accessoryTextures, slotNo);
+                SetKind(characterContent, TextureDictionaries.accessoryTextures, slotNo);
             }
 
             [HarmonyPostfix]
@@ -489,11 +400,11 @@ namespace IllusionPlugins
                     Toggle clothesMainToggle = GameObject.Find("tglClothes").GetComponent<Toggle>();
                     if (accessoryMainToggle.isOn && !clothesMainToggle.isOn)
                     {
-                        ResetKind(characterName, TextureDictionaries.accessoryTextures, slotNo);
+                        ResetKind(characterContent, TextureDictionaries.accessoryTextures, slotNo);
                     }
-                    else SetKind(characterName, TextureDictionaries.accessoryTextures, slotNo);
+                    else SetKind(characterContent, TextureDictionaries.accessoryTextures, slotNo);
                 }
-                else SetKind(characterName, TextureDictionaries.accessoryTextures, slotNo);
+                else SetKind(characterContent, TextureDictionaries.accessoryTextures, slotNo);
             }
 
             // ================================================== Hair Submenu ==================================================
@@ -528,7 +439,7 @@ namespace IllusionPlugins
                     if (isOn)
                     {
                         if (hairSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
-                             UITools.ChangeWindowSize(502f, settingWindow);
+                            UITools.ChangeWindowSize(502f, settingWindow);
                         else UITools.ChangeWindowSize(428, settingWindow);
                         MakeHairDropdown(characterContent, kindIndex);
                     }
@@ -542,7 +453,6 @@ namespace IllusionPlugins
                 GameObject characterObject = __instance.chaCtrl.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
-                ChaControl chaControl = characterContent.chaControl;
                 characterContent.enableSetTextures = true;
                 int kindIndex = __instance.SNo;
 
@@ -551,7 +461,7 @@ namespace IllusionPlugins
                 // Change setting window size
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
                 Toggle hairMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglHair").GetComponent<Toggle>();
-                if (hairMainToggle.isOn && hairSelectMenu.GetComponentsInChildren< UI_ToggleEx>(false).Count > 5)
+                if (hairMainToggle.isOn && hairSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5)
                 {
                     UITools.ChangeWindowSize(502f, settingWindow);
                 }
@@ -561,7 +471,7 @@ namespace IllusionPlugins
                 }
 
                 //SetAllTextures(characterName);
-                for (int i = 0; i < 4; i++) SetKind(characterName, TextureDictionaries.hairTextures, i);
+                for (int i = 0; i < 4; i++) SetKind(characterContent, TextureDictionaries.hairTextures, i);
             }
 
             [HarmonyPrefix]
@@ -569,24 +479,9 @@ namespace IllusionPlugins
             private static void ChangeHair1(ChaControl __instance, int kind, int id)
             {
                 string characterName = __instance.gameObject.name;
-                ResetKind(characterName, TextureDictionaries.hairTextures, kind);
+                CharacterContent characterContent = CharactersLoaded[characterName];
+                ResetKind(characterContent, TextureDictionaries.hairTextures, kind);
             }
-
-            //[HarmonyPrefix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeSettingHairColor))]
-            //private static void ChangeSettingHairColor(ChaControl __instance, int parts)
-            //{
-            //    Debug.Log("ChangeSettingHairColor: " + parts);
-            //}
-
-            //[HarmonyPostfix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeHairAll))]
-            //private static void ChangeHairAll()
-            //{
-            //    Debug.Log("ChangeHairAll");
-            //}
-
-
 
             // ================================================== Body Skin Submenu ==================================================
             [HarmonyPrefix]
@@ -632,21 +527,6 @@ namespace IllusionPlugins
                     }
                 }
             }
-
-            //[HarmonyPrefix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.CreateBodyTexture))]
-            //private static void CreateBodyTexture(ChaControl __instance)
-            //{
-            //    Debug.Log("=== Skin CreateBodyTexture");
-            //    //__instance.SetBodyBaseMaterial();
-            //}
-
-            //[HarmonyPrefix]
-            //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetBodyBaseMaterial))]
-            //private static void SetBodyBaseMaterial(ChaControl __instance)
-            //{
-            //    Debug.Log("Skin SetBodyBaseMaterial");
-            //}
 
             // ================================================== Facial Type  Submenu ==================================================
             [HarmonyPrefix]
@@ -699,9 +579,8 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(HSceneSpriteCoordinatesCard), nameof(HSceneSpriteCoordinatesCard.Start))]
             private static void HSceneSpriteCoordinatesCard_Start(HSceneSpriteCoordinatesCard __instance)
             {
-                Debug.Log("== HSceneSpriteCoordinatesCard_Start");
                 Manager.HSceneManager hSceneManager = __instance.hSceneManager;
-                
+
 
                 Button selectCoordinate = __instance.DecideCoode;
                 selectCoordinate.onClick.AddListener((UnityAction)onClick);
@@ -711,8 +590,7 @@ namespace IllusionPlugins
                     ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
                     string characterName = chaControl.name;
                     CharacterContent characterContent = CharactersLoaded[characterName];
-                    Debug.Log("===== Button selectCoordinate: " + characterName);
-                    ResetCoordinateTextures(characterName);
+                    ResetCoordinateTextures(characterContent);
                     characterContent.enableSetTextures = false;
                     characterContent.enableLoadCard = false;
                     chaControl.Reload();
@@ -728,7 +606,6 @@ namespace IllusionPlugins
                     // Copied from HS2
                     ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
                     string characterName = chaControl.name;
-                    Debug.Log("===== Button originalCoordinate: " + characterName);
                     LoadCard(CharactersLoaded[characterName]);
                     chaControl.Reload();
                 }

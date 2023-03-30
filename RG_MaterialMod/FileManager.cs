@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+
 namespace IllusionPlugins
 {
     // Shamelessly stolen from KKPlugins MaterialEditor: https://github.com/IllusionMods/KK_Plugins/blob/master/src/MaterialEditor.Base/Utilities.cs
@@ -206,8 +207,6 @@ namespace IllusionPlugins
             // "Cancel" pressed
             return null;
         }
-
-
 
         internal static class NativeMethods
         {

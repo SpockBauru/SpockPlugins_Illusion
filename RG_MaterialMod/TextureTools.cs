@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -19,6 +20,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.Networking;
+using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
 
 // Game Specific
@@ -26,8 +28,6 @@ using RG;
 using Chara;
 using CharaCustom;
 
-using System.Linq;
-using UnityEngine.Rendering;
 
 namespace IllusionPlugins
 {
@@ -93,7 +93,6 @@ namespace IllusionPlugins
         public static Dictionary<string, (Vector2, Texture2D)> GetTexNamesAndMiniatures(Material material, int maxSize)
         {
             //Shader shader = material.shader;
-
             //int propertyCount = shader.GetPropertyCount();
             //for (int i = 0; i < propertyCount; i++)
             //{
