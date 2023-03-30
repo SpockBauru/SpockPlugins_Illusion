@@ -15,6 +15,7 @@ using UnityEngine.SceneManagement;
 using Chara;
 using CharaCustom;
 using Il2CppSystem.Collections.Generic;
+using System.Linq;
 
 namespace IllusionPlugins
 {
@@ -107,11 +108,21 @@ namespace IllusionPlugins
             private static void ChaControlReloadPost(ChaControl __instance)
             {
                 Debug.Log("== ChaControlReloadPost ==");
-                ChaControl chaControl = __instance;
+                ChaControl chaControl = __instance;                
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
+                ChaFile chaFile = chaControl.ChaFile;
+
                 CharacterContent characterContent = CharactersLoaded[characterName];
+                characterContent.gameObject = characterObject;
+                characterContent.name = characterName;
+                characterContent.chaControl = chaControl;
+                characterContent.chafile = chaFile;
                 characterContent.enableSetTextures = true;
+
+                // Reset all skin before load
+                chaControl.SetBodyBaseMaterial();
+                chaControl.SetFaceBaseMaterial();
 
                 // If not in the chara maker, just load card and set textures
                 string scene = SceneManager.GetActiveScene().name;
@@ -137,7 +148,8 @@ namespace IllusionPlugins
                     }
                 }
 
-                Debug.Log("Coordinate File Name: " + __instance.NowCoordinate.coordinateFileName);
+                Debug.Log("Coordinate File Name: " + __instance.NowCoordinate.coordinateFileName + " enableLoadCard " + characterContent.enableLoadCard);
+                characterContent.enableLoadCard = true;
             }
 
             // Get when change the coordinate type (outer, house, bath)
@@ -171,6 +183,24 @@ namespace IllusionPlugins
                 SetAllTextures(characterName);
             }
 
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.OnDestroy))]
+            private static void ChaControlOnDestroy(ChaControl __instance)
+            {
+                ChaControl chaControl = __instance;
+                Debug.Log("== ChaControlOnDestroy: " + chaControl.name);
+                for (int i = CharactersLoaded.Count -1; i >= 0; i--)
+                {
+                    CharacterContent characterContent = CharactersLoaded.ElementAt(i).Value;
+                    if (characterContent.chaControl.name == "Delete_Reserve : DeleteChara")
+                    {
+                        ResetAllTextures(characterContent.name);
+                        CharactersLoaded.Remove(characterContent.name);
+                    }
+                }
+            }
+
             //[HarmonyPrefix]
             //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
             //private static void AssignCoordinate3(ChaControl __instance)
@@ -187,8 +217,6 @@ namespace IllusionPlugins
             //    Debug.Log("== ChaFile_AssignCoordinate");
             //}
 
-
-
             //[HarmonyPostfix]
             //[HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate))]
             //private static void SetNowCoordinate(ChaControl __instance)
@@ -202,9 +230,6 @@ namespace IllusionPlugins
             //{
             //    Debug.Log("== ChangeNowCoordinate1");
             //}
-
-
-
 
             //[HarmonyPostfix]
             //[HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadFile), typeof(string), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
@@ -233,24 +258,6 @@ namespace IllusionPlugins
             //{
             //    Debug.Log("==== SaveFile");
             //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
             // ================================================== Clothes Submenu ==================================================
@@ -364,7 +371,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCustomClothes))]
             private static void ChangeCustomClothesPost(ChaControl __instance, int kind)
             {
-                Debug.Log("ChangeCustomClothesPost: " + kind);
+                //Debug.Log("ChangeCustomClothesPost: " + kind);
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -688,7 +695,6 @@ namespace IllusionPlugins
 
 
             // ================================================== H-Scenes ==================================================
-
             [HarmonyPostfix]
             [HarmonyPatch(typeof(HSceneSpriteCoordinatesCard), nameof(HSceneSpriteCoordinatesCard.Start))]
             private static void HSceneSpriteCoordinatesCard_Start(HSceneSpriteCoordinatesCard __instance)
@@ -701,7 +707,6 @@ namespace IllusionPlugins
                 selectCoordinate.onClick.AddListener((UnityAction)onClick);
                 void onClick()
                 {
-                    
                     // Copied from HS2
                     ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
                     string characterName = chaControl.name;
@@ -720,24 +725,35 @@ namespace IllusionPlugins
                 originalCoordinate.onClick.AddListener((UnityAction)onClick2);
                 void onClick2()
                 {
-                    
                     // Copied from HS2
                     ChaControl chaControl = (hSceneManager.NumFemaleClothCustom < 2) ? __instance.females[hSceneManager.NumFemaleClothCustom] : __instance.males[hSceneManager.NumFemaleClothCustom - 2];
                     string characterName = chaControl.name;
                     Debug.Log("===== Button originalCoordinate: " + characterName);
                     LoadCard(CharactersLoaded[characterName]);
+                    chaControl.Reload();
                 }
-
-
-
-
             }
 
+            // ================================================== Action Scene ==================================================
+            static string currentCharacter = "";
 
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(RG.Scene.Action.UI.ActionUI), nameof(RG.Scene.Action.UI.ActionUI.OpenCoordinateSelectUI))]
+            private static void OpenCoordinateSelectUI(RG.Scene.Action.UI.ActionUI __instance)
+            {
+                CharacterContent characterContent = CharactersLoaded[currentCharacter];
+                characterContent.enableLoadCard = false;
+            }
 
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(RG.Scene.Action.UI.CharaSelectOption), nameof(RG.Scene.Action.UI.CharaSelectOption.ChangeButtonState))]
+            private static void UpdateUI(RG.Scene.Action.UI.CharaSelectOption.ButtonState btnState, RG.Scene.Action.UI.CharaSelectOption __instance)
+            {
+                if (__instance.Owner == null) return;
+                if (btnState != RG.Scene.Action.UI.CharaSelectOption.ButtonState.Select) return;
 
-
-
+                currentCharacter = __instance.Owner.Chara.name;
+            }
         }
     }
 }

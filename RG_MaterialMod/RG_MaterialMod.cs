@@ -259,7 +259,7 @@ namespace IllusionPlugins
 
         internal static void SetKind(string characterName, TextureDictionaries texDictionary, int kindIndex)
         {
-            //Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
+            Debug.Log("SetKind: " + texDictionary.ToString() + " kind " + kindIndex);
             CharacterContent characterContent = CharactersLoaded[characterName];
             if (!characterContent.enableSetTextures) return;
             GameObject characterObject = characterContent.gameObject;

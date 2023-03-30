@@ -105,5 +105,17 @@ namespace IllusionPlugins
             // Fix invisible bug in clothes
             MakeBodyVisible(chaControl);
         }
+
+        internal static void SetAllTexturesDelayed(string characterName)
+        {
+            instance.StartCoroutine(instance.SetAllTexturesCoroutine(characterName).WrapToIl2Cpp());
+        }
+
+        private IEnumerator SetAllTexturesCoroutine(string characterName)
+        {
+            yield return new WaitForEndOfFrame();
+            RG_MaterialMod.SetAllTextures(characterName);
+
+        }
     }
 }

@@ -394,10 +394,33 @@ namespace IllusionPlugins
             Image background = textureGroup.AddComponent<Image>();
             background.color = new Color(0, 0, 0, 0);
 
+
+
+
+
+
+
             // Texture Image
+
+            try
+            {
+                if (textureName == "_MainTex")
+                {
+                    Texture2D TESTTEST = new Texture2D(2, 2);
+                    TESTTEST.LoadImage(characterContent.clothesTextures[0][0][0][textureName]);
+                    miniatureTexture = TextureTools.Resize(TESTTEST, miniatureTexture.width, miniatureTexture.height, false);
+                }
+            }
+            catch { }
+
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
             UpdateMiniature(miniature, miniatureTexture, textureName);
+
+
+
+
+
 
             // Text with name
             string textContent = textureName.Replace("_", "");

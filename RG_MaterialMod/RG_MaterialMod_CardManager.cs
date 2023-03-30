@@ -45,6 +45,7 @@ namespace IllusionPlugins
     {
         internal static void SaveCard(CharacterContent characterContent)
         {
+            Debug.Log("!!!!!!!!!======================================== SAVE CARD =====================================!!!!!!");
             ChaFile chaFile = characterContent.chafile;
 
             // Cleaning previews plugin data
@@ -101,6 +102,7 @@ namespace IllusionPlugins
         {
             if (characterContent.enableLoadCard == false) return;
             ChaFile chaFile = characterContent.chafile;
+
             bool hasData;
             object texturesObject;
             string byteString;
@@ -120,6 +122,8 @@ namespace IllusionPlugins
                 byteString = (string)texturesObject;
                 dicTextures = LoadTexturesDictionary(byteString);
                 characterContent.clothesTextures = dicTextures;
+                try { Debug.Log("======================Top Loaded: " + characterContent.clothesTextures[0][0][0].ElementAt(0).Key); } 
+                catch { }
             }
 
             // Accessories
@@ -157,6 +161,8 @@ namespace IllusionPlugins
                 dicTextures = LoadTexturesDictionary(byteString);
                 characterContent.headSkinTextures = dicTextures;
             }
+
+            Debug.Log("====== Card Loaded: " + chaFile.CharaFileName);
         }
 
         private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)
