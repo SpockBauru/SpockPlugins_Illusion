@@ -94,6 +94,7 @@ namespace IllusionPlugins
             ChaControl chaControl = characterContent.chaControl;
             GameObject body = chaControl.ObjBody;
 
+            // Make Rest Skin Button
             Transform buttonParent = bodySkinTabContent.transform.parent.parent.parent;
             Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
             if (resetSkinObject == null)
@@ -109,7 +110,8 @@ namespace IllusionPlugins
                 void ResetSkin()
                 {
                     ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
-                    //MaterialModMonoBehaviour.ResetSkin(chaControl);
+
+                    // Reset body to defaults
                     MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
                     chaControl.SetBodyBaseMaterial();
                     MakeBodySkinDropdown(characterContent, kindIndex);
@@ -541,8 +543,14 @@ namespace IllusionPlugins
 
 
             // ======================================= Texture is set here ===========================================
-            // cleaning old texture
-            if (texture != material.GetTexture(textureName)) GarbageTextures.Add(material.GetTexture(textureName));
+            // Cleaning old textures. Not for skin, they need further investigation
+            if (texture != material.GetTexture(textureName) &&
+                texDictionary != TextureDictionaries.bodySkinTextures &&
+                texDictionary != TextureDictionaries.faceSkinTextures)
+            {
+                GarbageTextures.Add(material.GetTexture(textureName));
+            }
+
 
             material.SetTexture(textureName, texture);
             UpdateMiniature(miniature, texture, textureName);

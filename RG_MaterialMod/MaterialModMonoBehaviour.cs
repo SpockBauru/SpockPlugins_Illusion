@@ -82,6 +82,37 @@ namespace IllusionPlugins
             coroutineIsRunning = false;
         }
 
+        ///// <summary>
+        ///// Make character naked, reset skin and put clothes again
+        ///// </summary>
+        ///// <param name="chaControl"></param>
+        //internal static void ResetSkin(ChaControl chaControl)
+        //{
+        //    instance.StartCoroutine(instance.ResetSkinCoroutine(chaControl).WrapToIl2Cpp());
+        //}
+        //private IEnumerator ResetSkinCoroutine(ChaControl chaControl)
+        //{
+        //    List<byte> oldClothesState = new List<byte>();
+        //    var clothesStatus = chaControl.FileStatus.clothesState;
+        //    // Save current clothes state and take off
+        //    for (int i = 0; i < clothesStatus.Count; i++)
+        //    {
+        //        oldClothesState.Add(clothesStatus[i]);
+        //        clothesStatus[i] = (byte)3;
+        //    }
+        //    yield return null;
+        //    // Actually resset the body skin
+        //    chaControl.SetBodyBaseMaterial();
+        //    yield return null;
+        //    // put clothes on again
+        //    for (int i = 0; i < clothesStatus.Count; i++)
+        //    {
+        //        clothesStatus[i] = oldClothesState[i];
+        //    }
+        //    // Fix invisible bug in clothes
+        //    MakeBodyVisible(chaControl);
+        //}
+
         internal static void SetMaterialAlphas(ChaControl chaControl)
         {
             // Set body visible in material
