@@ -72,13 +72,12 @@ namespace IllusionPlugins
         internal static GameObject faceSkinTabContent;
 
         // Unity don't destroy textures automatically, need to do manually
-        internal static List<Texture2D> GarbageTextures = new List<Texture2D>();
-        internal static List<Image> GarbageImages = new List<Image>();
+        internal static List<Texture> GarbageTextures = new List<Texture>();
+        //internal static List<Image> GarbageImages = new List<Image>();
 
         // Miniatures
         internal static int miniatureSize = 180;
-        internal static List<Texture2D> miniatureTextures = new List<Texture2D>();
-        internal static List<Image> miniatureImages = new List<Image>();
+        internal static List<Texture2D> dropdownTextures = new List<Texture2D>();
 
         /// <summary>
         /// Key: Name of Character's GameObject, Value: class CharacterContent
@@ -215,7 +214,6 @@ namespace IllusionPlugins
 
         internal static void SetAllDictionary(CharacterContent characterContent, List<GameObject> objects, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
-            Debug.Log("SetAllDictionary: " + origin);
             if (dicTextures == null) return;
 
             int currentCoordinate = (int)characterContent.currentCoordinate;
@@ -258,7 +256,6 @@ namespace IllusionPlugins
         internal static void SetKind(CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
         {
             if (!characterContent.enableSetKind) return;
-            Debug.Log("SetKind: char " + characterContent.name + " kindIndex " + kindIndex);
             GameObject characterObject = characterContent.gameObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
             int coordinateIndex = (int)characterContent.currentCoordinate;
@@ -315,7 +312,7 @@ namespace IllusionPlugins
             }
             else
             {
-                Log.LogMessage("Character piece not recognized");
+                Log.LogMessage("MaterialMod: ERROR! Character piece not recognized");
                 return;
             }
 
@@ -373,7 +370,6 @@ namespace IllusionPlugins
 
         private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
-            Debug.Log("ResetAllDictionary: " + origin);
             for (int i = 0; i < dicTextures.Count; i++)
             {
                 int coordinateIndex = dicTextures.ElementAt(i).Key;
@@ -392,7 +388,6 @@ namespace IllusionPlugins
                         {
                             string textureIndex = renderer.ElementAt(l).Key;
                             renderer[textureIndex] = null;
-                            //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                         }
                         dicTextures[coordinateIndex][kindIndex][rendererIndex].Clear();
                     }
@@ -401,7 +396,6 @@ namespace IllusionPlugins
                 dicTextures[coordinateIndex].Clear();
             }
             dicTextures.Clear();
-            //DestroyGarbage();
         }
 
         internal static void ResetKind(CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
@@ -416,7 +410,7 @@ namespace IllusionPlugins
             else if (texDictionary == TextureDictionaries.faceSkinTextures) dicTextures = characterContent.faceSkinTextures;
             else
             {
-                Log.LogMessage("Character piece not recognized");
+                Log.LogMessage("MaterialMod: ERROR! Character piece not recognized");
                 return;
             }
 
@@ -436,31 +430,10 @@ namespace IllusionPlugins
                 {
                     string textureIndex = renderer.ElementAt(l).Key;
                     renderer[textureIndex] = null;
-                    //GarbageTextures.Add(characterContent.clothesTextures[coordinateIndex][kindIndex][rendererIndex][textureIndex]);
                 }
                 dicTextures[coordinateIndex][kindIndex][rendererIndex].Clear();
             }
             dicTextures[coordinateIndex][kindIndex].Clear();
-
-            //DestroyGarbage();
         }
-
-        //static void DestroyGarbage()
-        //{
-        //    // Destroy textures, up to 30 per second
-        //    for (int i = 0; i < GarbageTextures.Count; i++)
-        //    {
-        //        UnityEngine.Object.Destroy(GarbageTextures[i], i * 0.034f);
-        //    }
-
-        //    // Destroy images, up to 30 per second
-        //    for (int i = 0; i < GarbageImages.Count; i++)
-        //    {
-        //        UnityEngine.Object.Destroy(GarbageImages[i], i * 0.034f + 0.017f);
-        //    }
-
-        //    GarbageTextures.Clear();
-        //    GarbageImages.Clear();
-        //}
     }
 }

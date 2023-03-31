@@ -45,7 +45,7 @@ namespace IllusionPlugins
         static string oldCharacter = "";
         static string newCharacter = "";
 
-        private void Awake() 
+        private void Awake()
         {
             instance = this;
         }
@@ -80,7 +80,6 @@ namespace IllusionPlugins
             SetMaterialAlphas(chaControl);
 
             coroutineIsRunning = false;
-            Debug.Log("= MakeBodyVisibleCoroutine: " + chaControl.name);
         }
 
         internal static void SetMaterialAlphas(ChaControl chaControl)
@@ -170,6 +169,29 @@ namespace IllusionPlugins
             if (objects != null) RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.faceSkinTextures, characterContent.name + " Face Delayed");
 
             characterContent.enableSetKind = true;
+        }
+
+
+        private static bool garbageBeingCollected = false;
+        /// <summary>
+        /// Destroy GarbageTextures, one per frame 
+        /// </summary>
+        internal static void DestroyGarbage()
+        {
+            if (!garbageBeingCollected) instance.StartCoroutine(instance.DestroyGarbageCoroutine().WrapToIl2Cpp());
+        }
+        private IEnumerator DestroyGarbageCoroutine()
+        {
+            garbageBeingCollected = true;
+            // Destroy textures, one per frame
+            for (int i = 0; i < RG_MaterialMod.GarbageTextures.Count; i++)
+            {
+                UnityEngine.Object.Destroy(RG_MaterialMod.GarbageTextures[i]);
+                yield return null;
+            }
+
+            RG_MaterialMod.GarbageTextures.Clear();
+            garbageBeingCollected = false;
         }
     }
 }

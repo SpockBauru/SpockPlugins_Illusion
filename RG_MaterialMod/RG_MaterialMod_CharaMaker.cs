@@ -45,7 +45,7 @@ namespace IllusionPlugins
             GameObject tabContent = clothesTabContent;
             TextureDictionaries texDictionary = TextureDictionaries.clothesTextures;
 
-            MakeDropdown(characterContent, texDictionary, clothesPiece, settingsGroup, clothesTabContent, kindIndex);
+            MakeDropdown(characterContent, texDictionary, clothesPiece, settingsGroup, tabContent, kindIndex);
         }
 
         internal static void MakeAccessoryDropdown(CharacterContent characterContent, int kindIndex)
@@ -239,17 +239,13 @@ namespace IllusionPlugins
             if (dropdown.value == lastDropdownSetting) return;
             lastDropdownSetting = dropdown.value;
 
+            // Cleaning old miniatures
+            GarbageTextures.AddRange(dropdownTextures);
+            dropdownTextures.Clear();
+
             // Cleaning UI content
             for (int i = tabContent.transform.childCount - 1; i >= 0; i--)
                 GameObject.Destroy(tabContent.transform.GetChild(i).gameObject);
-
-            // Cleaning old miniatures
-            for (int i = 0; i < miniatureTextures.Count; i++)
-            {
-                GarbageTextures.Add(miniatureTextures[i]);
-                GarbageImages.Add(miniatureImages[i]);
-            }
-            miniatureTextures.Clear();
 
             // Don't create texture block on dropdown 0 (empty)
             if (dropdown.value < 1) return;
@@ -260,7 +256,7 @@ namespace IllusionPlugins
             // Getting Texture list from material
             Material material = rendererList[renderIndex].material;
             string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
-            
+
             // Creating UV Maps blocks
             List<Texture2D> UVRenderers = new List<Texture2D>();
 
@@ -282,6 +278,7 @@ namespace IllusionPlugins
             {
                 string mapName = "UV Map " + i + 1;
                 if (UVRenderers[i].isReadable) CreateUVBlock(rendererList[renderIndex], i, UVRenderers[i], mapName, tabContent);
+                dropdownTextures.Add(UVRenderers[i]);
             }
 
             // Creating Textures blocks
@@ -293,9 +290,10 @@ namespace IllusionPlugins
                 string textureName = TexNamesAndMiniatures.ElementAt(i).Key;
                 Vector2 texOriginalSize = TexNamesAndMiniatures[textureName].Item1;
                 Texture2D miniatureTexture = TexNamesAndMiniatures[textureName].Item2;
+                dropdownTextures.Add(miniatureTexture);
                 CreateTextureBlock(material, miniatureTexture, texOriginalSize, tabContent, characterContent, texDictionary, kindIndex, renderIndex, textureName);
             }
-            //DestroyGarbage();
+            MaterialModMonoBehaviour.DestroyGarbage();
         }
 
         private static void CreateUVBlock(Renderer renderer, int index, Texture2D miniatureTexture, string mapName, GameObject parent)
@@ -319,8 +317,6 @@ namespace IllusionPlugins
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(UVGroup.transform, false);
             miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
-            miniatureTextures.Add(miniatureTexture);
-            miniatureImages.Add(miniature);
 
             // Text with name
             Text text = UITools.CreateText(mapName, 17, 180, 20);
@@ -333,6 +329,7 @@ namespace IllusionPlugins
             {
                 ExportUVButton(renderer, index);
             });
+            dropdownTextures.Add(exportButton.gameObject.GetComponentInChildren<Image>().sprite.texture);
         }
 
         private static void ExportUVButton(Renderer renderer, int index)
@@ -361,12 +358,12 @@ namespace IllusionPlugins
 
             Texture2D UVtexture = UVRenderers[index];
             File.WriteAllBytes(files[0], UVtexture.EncodeToPNG());
-            Log.LogMessage("File Saved");
+            Log.LogMessage("MaterialMod: File Saved");
 
             // Cleaning textures
             for (int i = 1; i < UVRenderers.Count; i++)
                 GarbageTextures.Add(UVRenderers[i]);
-            //DestroyGarbage();
+            MaterialModMonoBehaviour.DestroyGarbage();
         }
 
         private static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
@@ -384,6 +381,7 @@ namespace IllusionPlugins
             CanvasRenderer canvasRenderer = textureGroup.AddComponent<CanvasRenderer>();
             Image background = textureGroup.AddComponent<Image>();
             background.color = new Color(0, 0, 0, 0);
+            //dropdownTextures.Add(background.sprite.texture);
 
             Image miniature = UITools.CreateImage(miniatureTexture.width, miniatureTexture.height);
             miniature.transform.SetParent(textureGroup.transform, false);
@@ -396,19 +394,21 @@ namespace IllusionPlugins
 
             // Load Button
             Button buttonSet = UITools.CreateButton("Load new texture", 18, 180, 35);
+            buttonSet.transform.SetParent(textureGroup.transform, false);
             buttonSet.onClick.AddListener((UnityAction)delegate
             {
                 LoadTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
             });
-            buttonSet.transform.SetParent(textureGroup.transform, false);
+            dropdownTextures.Add(buttonSet.gameObject.GetComponentInChildren<Image>().sprite.texture);
 
             // Export Button
             Button buttonReset = UITools.CreateButton("Export current texture", 16, 180, 35);
+            buttonReset.transform.SetParent(textureGroup.transform, false);
             buttonReset.onClick.AddListener((UnityAction)delegate
             {
                 ExportTextureButton(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, text);
             });
-            buttonReset.transform.SetParent(textureGroup.transform, false);
+            dropdownTextures.Add(buttonReset.gameObject.GetComponentInChildren<Image>().sprite.texture);
 
             //// Offset input
             //InputField offsetX, offsetY;
@@ -482,8 +482,7 @@ namespace IllusionPlugins
             }
 
             miniature.sprite = Sprite.Create(miniatureTexture, new Rect(0, 0, miniatureTexture.width, miniatureTexture.height), new Vector2(), 100);
-            miniatureTextures.Add(miniatureTexture);
-            miniatureImages.Add(miniature);
+            dropdownTextures.Add(miniatureTexture);
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
@@ -499,7 +498,7 @@ namespace IllusionPlugins
             texture.LoadImage(bytes);
             if (texture.width > 4096 || texture.height > 4096)
             {
-                Log.LogMessage("WARNING: Max texture size is 4096 x 4096");
+                Log.LogMessage("MaterialMod: WARNING! Max texture size is 4096 x 4096");
                 GarbageTextures.Add(texture);
                 return;
             }
@@ -534,7 +533,7 @@ namespace IllusionPlugins
                 int oldHeight = oldTexture.height;
                 if (newWidth != oldWidth || newHeight != oldHeight)
                 {
-                    Log.LogMessage("ERROR: Texture dimensions must match");
+                    Log.LogMessage("MaterialMod: ERROR! Texture dimensions must match");
                     return;
                 }
             }
@@ -542,10 +541,15 @@ namespace IllusionPlugins
 
 
             // ======================================= Texture is set here ===========================================
-            SetKind(characterContent, texDictionary, kindIndex);
+            // cleaning old texture
+            if (texture != material.GetTexture(textureName)) GarbageTextures.Add(material.GetTexture(textureName));
+
+            material.SetTexture(textureName, texture);
             UpdateMiniature(miniature, texture, textureName);
 
-            //DestroyGarbage();
+            MaterialModMonoBehaviour.DestroyGarbage();
+
+            Log.LogMessage("MaterialMod: File Loaded");
         }
 
         private static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
@@ -560,7 +564,11 @@ namespace IllusionPlugins
             if (textureName.Contains("Bump")) texture = TextureTools.PinkToNormal(texture);
 
             File.WriteAllBytes(files[0], texture.EncodeToPNG());
-            Log.LogMessage("File Saved");
+
+            GarbageTextures.Add(texture);
+            MaterialModMonoBehaviour.DestroyGarbage();
+
+            Log.LogMessage("MaterialMod: File Saved");
         }
     }
 }
