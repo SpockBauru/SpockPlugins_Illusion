@@ -151,6 +151,6 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
 xcopy "$(TargetPath)" "D:\RG\BepInEx\plugins" /s /i /y
-D:\RG\RoomGirl.exe</PostBuildEvent>
+D:\RG\RoomGirl.exe  /makerGirl</PostBuildEvent>
   </PropertyGroup>
 </Project>

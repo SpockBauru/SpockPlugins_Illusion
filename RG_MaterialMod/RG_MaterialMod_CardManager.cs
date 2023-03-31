@@ -97,9 +97,11 @@ namespace IllusionPlugins
             ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
         }
 
+        private static Stopwatch loadDataTime = new Stopwatch();
         internal static void LoadCard(CharacterContent characterContent)
         {
             if (characterContent.enableLoadCard == false) return;
+            loadDataTime.Restart();
             ChaFile chaFile = characterContent.chafile;
 
             bool hasData;
@@ -141,7 +143,7 @@ namespace IllusionPlugins
                 characterContent.hairTextures = dicTextures;
             }
 
-            // Vody Skin
+            // Body Skin
             hasData = pluginData.data.TryGetValue(TextureDictionaries.bodySkinTextures.ToString(), out texturesObject);
             if (hasData)
             {
@@ -158,6 +160,9 @@ namespace IllusionPlugins
                 dicTextures = LoadTexturesDictionary(byteString);
                 characterContent.faceSkinTextures = dicTextures;
             }
+
+            loadDataTime.Stop();
+            Debug.Log("==== Load Data Time: " + loadDataTime.ElapsedMilliseconds);
         }
 
         private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)

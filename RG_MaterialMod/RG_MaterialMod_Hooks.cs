@@ -101,7 +101,8 @@ namespace IllusionPlugins
                 {
                     // Don't reset clothes when in clothes menu
                     Canvas clothesDefaultWin = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes/DefaultWin/").GetComponent<Canvas>();
-                    if (!clothesDefaultWin.enabled) ResetAllTextures(characterContent);
+                    Toggle clothesMainToggle = GameObject.Find("CharaCustom/CustomControl/CanvasMain/MainMenu/tglClothes/").GetComponent<Toggle>();
+                    if (!clothesDefaultWin.enabled || !clothesMainToggle.isOn) ResetAllTextures(characterContent);
                 }
             }
 

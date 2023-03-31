@@ -110,7 +110,8 @@ namespace IllusionPlugins
         {
             ChaControl chaControl = characterContent.chaControl;
             characterContent.enableSetKind = false;
-            
+            yield return null;
+
             var objects = chaControl.ObjClothes.ToList();
             RG_MaterialMod.SetAllDictionary(characterContent, objects, characterContent.clothesTextures, characterContent.name + " Clothes Delayed");
             yield return null;
