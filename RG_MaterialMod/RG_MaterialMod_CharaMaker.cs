@@ -544,12 +544,12 @@ namespace IllusionPlugins
 
             // ======================================= Texture is set here ===========================================
             // Cleaning old textures. Not for skin, they need further investigation
-            if (texture != material.GetTexture(textureName) &&
-                texDictionary != TextureDictionaries.bodySkinTextures &&
-                texDictionary != TextureDictionaries.faceSkinTextures)
-            {
-                GarbageTextures.Add(material.GetTexture(textureName));
-            }
+            //if (texture != material.GetTexture(textureName) &&
+            //    texDictionary != TextureDictionaries.bodySkinTextures &&
+            //    texDictionary != TextureDictionaries.faceSkinTextures)
+            //{
+            //    GarbageTextures.Add(material.GetTexture(textureName));
+            //}
 
 
             material.SetTexture(textureName, texture);
