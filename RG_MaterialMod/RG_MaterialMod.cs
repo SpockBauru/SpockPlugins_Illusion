@@ -165,6 +165,7 @@ namespace IllusionPlugins
 
         internal static void SetAllTextures(CharacterContent characterContent)
         {
+            //Debug.Log("= SetAllTextures");
             ChaControl chaControl = characterContent.chaControl;
 
             var objects = chaControl.ObjClothes.ToList();
@@ -214,6 +215,7 @@ namespace IllusionPlugins
 
         internal static void SetAllDictionary(CharacterContent characterContent, List<GameObject> objects, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
+            //Debug.Log("= SetAllDictionary: " + characterContent.name + " dict " + origin);
             if (dicTextures == null) return;
 
             int currentCoordinate = (int)characterContent.currentCoordinate;
@@ -255,6 +257,7 @@ namespace IllusionPlugins
 
         internal static void SetKind(CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
         {
+            //Debug.Log("SetKind: " + characterContent.name + " dict " + texDictionary.ToString() + " kind " + kindIndex);
             if (!characterContent.enableSetKind) return;
             GameObject characterObject = characterContent.gameObject;
             ChaControl chaControl = characterObject.GetComponent<ChaControl>();
@@ -370,6 +373,7 @@ namespace IllusionPlugins
 
         private static void ResetAllDictionary(Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures, string origin)
         {
+            //Debug.Log("ResetAllDictionary: " + origin);
             for (int i = 0; i < dicTextures.Count; i++)
             {
                 int coordinateIndex = dicTextures.ElementAt(i).Key;
@@ -400,6 +404,7 @@ namespace IllusionPlugins
 
         internal static void ResetKind(CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
         {
+            //Debug.Log("ResetKind: " + characterContent.name + " dict " + texDictionary.ToString() + " kind " + kindIndex);
             int coordinateIndex = (int)characterContent.currentCoordinate;
 
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;

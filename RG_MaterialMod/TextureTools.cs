@@ -100,7 +100,7 @@ namespace IllusionPlugins
             //    {
             //        string name = shader.GetPropertyName(i);
             //        float value = material.GetFloat(name);
-            //        Debug.Log("Property: " + name + " value: " + value);
+            //        //Debug.Log("Property: " + name + " value: " + value);
             //    }
             //}
 

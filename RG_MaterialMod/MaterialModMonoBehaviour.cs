@@ -34,6 +34,9 @@ using CharaCustom;
 
 namespace IllusionPlugins
 {
+    /// <summary>
+    /// Delayed funcions goes here
+    /// </summary>
     public class MaterialModMonoBehaviour : MonoBehaviour
     {
         // Constructor needed to use Start, Update, etc...
@@ -63,22 +66,8 @@ namespace IllusionPlugins
         private IEnumerator MakeBodyVisibleCoroutine(ChaControl chaControl)
         {
             coroutineIsRunning = true;
-
             yield return new WaitForEndOfFrame();
-
-            //// Set body visible in material
-            //chaControl.CustomMatBody.SetFloat(ChaShader.alpha_c, 1f);
-            //for (int i = 0; i < chaControl.RendBra.Count; i++)
-            //{
-            //    if (chaControl.RendBra != null && chaControl.RendBra[i] != null && chaControl.RendBra[i].material != null) chaControl.RendBra[i].material.SetFloat(ChaShader.alpha_c, 1f);
-            //}
-
-            //chaControl.CustomMatBody.SetFloat(ChaShader.alpha_d, 0f);
-            //if (chaControl.RendInnerTB != null) chaControl.RendInnerTB.material.SetFloat(ChaShader.alpha_d, 0f);
-            //if (chaControl.RendInnerB != null) chaControl.RendInnerB.material.SetFloat(ChaShader.alpha_d, 0f);
-            //if (chaControl.RendPanst != null) chaControl.RendPanst.material.SetFloat(ChaShader.alpha_d, 0f);
             SetMaterialAlphas(chaControl);
-
             coroutineIsRunning = false;
         }
 
@@ -113,8 +102,21 @@ namespace IllusionPlugins
         //    MakeBodyVisible(chaControl);
         //}
 
+        internal static void ResetFaceSkin(ChaControl chaControl)
+        {
+            instance.StartCoroutine(instance.ResetFaceSkinCoroutine(chaControl).WrapToIl2Cpp());
+        }
+
+        private IEnumerator ResetFaceSkinCoroutine(ChaControl chaControl)
+        {
+            yield return null;
+            SetMaterialAlphas(chaControl);
+            chaControl.SetFaceBaseMaterial();
+
+        }
         internal static void SetMaterialAlphas(ChaControl chaControl)
         {
+            //Debug.Log("SetMaterialAlphas");
             // Set body visible in material
             chaControl.CustomMatBody.SetFloat(ChaShader.alpha_c, 1f);
             for (int i = 0; i < chaControl.RendBra.Count; i++)

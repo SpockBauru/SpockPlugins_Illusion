@@ -37,6 +37,10 @@ namespace IllusionPlugins
 {
     public partial class RG_MaterialMod
     {
+        private static string faceMaterialName;
+        private static string bodyMaterialName;
+
+
         internal static void MakeClothesDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
@@ -94,42 +98,6 @@ namespace IllusionPlugins
             ChaControl chaControl = characterContent.chaControl;
             GameObject body = chaControl.ObjBody;
 
-            // Make Rest Skin Button
-            Transform buttonParent = bodySkinTabContent.transform.parent.parent.parent;
-            Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
-            if (resetSkinObject == null)
-            {
-                Button resetSkin = UITools.CreateButton("Reset Skin", 19, 400, 40);
-                resetSkin.gameObject.name = "ResetSkinButton";
-                resetSkin.transform.SetParent(buttonParent, false);
-                RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
-                resetRect.anchorMin = new Vector3(0.5f, -0.05f);
-                resetRect.anchorMax = new Vector3(0.5f, -0.05f);
-
-                resetSkin.onClick.AddListener((UnityAction)ResetSkin);
-                void ResetSkin()
-                {
-                    ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
-
-                    // Reset body to defaults
-                    MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
-                    chaControl.SetBodyBaseMaterial();
-                    MakeBodySkinDropdown(characterContent, kindIndex);
-                }
-
-                //// Warning to not set when clothed
-                //Text text = UITools.CreateText("WARNING: Don't use clothes\r\nwhen changing skin textures!", 20, 400, 30);
-                //text.gameObject.name = "ClothesWarning";
-                //text.transform.SetParent(buttonParent, false);
-                //text.color = Color.red;
-                //Outline outline = text.gameObject.AddComponent<Outline>();
-                //outline.effectDistance = new Vector2(1.3f, 1.3f);
-                //outline.effectColor = new Color(1, 1, 1, 0.5f);
-                //RectTransform textRect = text.gameObject.GetComponent<RectTransform>();
-                //textRect.anchorMin = new Vector3(0.5f, -0.16f);
-                //textRect.anchorMax = new Vector3(0.5f, -0.16f);
-            }
-
             // Search for skin object
             GameObject skin = null;
             SkinnedMeshRenderer[] meshRenderers = body.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -148,34 +116,44 @@ namespace IllusionPlugins
             GameObject tabContent = bodySkinTabContent;
             TextureDictionaries texDictionary = TextureDictionaries.bodySkinTextures;
 
+            // Search for reset button, if doesn't exists find for the skin material and make the button
+            Transform buttonParent = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/").transform;
+            Transform resetSkinObject = buttonParent.FindChild("ResetBodySkinButton");
+            if (resetSkinObject == null)
+            {
+                bodyMaterialName = chaControl.CustomMatBody.name;
+                ResetBodySkinButton(buttonParent, characterContent, kindIndex);
+            }
+
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
+        }
+        private static void ResetBodySkinButton(Transform buttonParent, CharacterContent characterContent, int kindIndex)
+        {
+            ChaControl chaControl = characterContent.chaControl;
+            Button resetSkin = UITools.CreateButton("Reset MaterialMod on Body", 19, 400, 40);
+            resetSkin.gameObject.name = "ResetBodySkinButton";
+            resetSkin.transform.SetParent(buttonParent, false);
+            RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
+            resetRect.anchorMin = new Vector3(0.5f, -0.05f);
+            resetRect.anchorMax = new Vector3(0.5f, -0.05f);
+
+            resetSkin.onClick.AddListener((UnityAction)ResetBodySkin);
+            void ResetBodySkin()
+            {
+                ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
+                MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
+                chaControl.SetBodyBaseMaterial();
+                MakeBodySkinDropdown(characterContent, kindIndex);
+
+                // Second time to enable body settings
+                chaControl.SetBodyBaseMaterial();
+            }
         }
 
         internal static void MakeFaceSkinDropdown(CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject head = chaControl.ObjHead;
-
-            Transform buttonParent = faceSkinTabContent.transform.parent.parent.parent;
-            Transform resetSkinObject = buttonParent.FindChild("ResetSkinButton");
-            if (resetSkinObject == null)
-            {
-                Button resetSkin = UITools.CreateButton("Reset Skin", 19, 400, 40);
-                resetSkin.gameObject.name = "ResetSkinButton";
-                resetSkin.transform.SetParent(buttonParent, false);
-                RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
-                resetRect.anchorMin = new Vector3(0.5f, -0.05f);
-                resetRect.anchorMax = new Vector3(0.5f, -0.05f);
-
-                resetSkin.onClick.AddListener((UnityAction)ResetSkin);
-                void ResetSkin()
-                {
-                    ResetKind(characterContent, TextureDictionaries.faceSkinTextures, kindIndex);
-                    MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
-                    chaControl.SetFaceBaseMaterial();
-                    MakeFaceSkinDropdown(characterContent, kindIndex);
-                }
-            }
 
             // Search for skin object
             GameObject skin = null;
@@ -191,15 +169,47 @@ namespace IllusionPlugins
 
             if (skin == null) return;
 
+            // Search for reset button, if doesn't exists find for the skin material and make the button
+            Transform buttonParent = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinFace/").transform;
+            Transform resetSkinObject = buttonParent.FindChild("ResetFaceSkinButton");
+            if (resetSkinObject == null)
+            {
+                faceMaterialName = chaControl.CustomMatFace.name;
+                ResetFaceSkinButton(buttonParent, characterContent, kindIndex);
+            }
+
             GameObject settingsGroup = faceSkinSettingsGroup;
             GameObject tabContent = faceSkinTabContent;
             TextureDictionaries texDictionary = TextureDictionaries.faceSkinTextures;
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
+        private static void ResetFaceSkinButton(Transform buttonParent, CharacterContent characterContent, int kindIndex)
+        {
+            ChaControl chaControl = characterContent.chaControl;
+            Button resetSkin = UITools.CreateButton("Reset MaterialMod on Face", 19, 400, 40);
+            resetSkin.gameObject.name = "ResetFaceSkinButton";
+            resetSkin.transform.SetParent(buttonParent, false);
+            RectTransform resetRect = resetSkin.gameObject.GetComponent<RectTransform>();
+            resetRect.anchorMin = new Vector3(0.5f, -0.05f);
+            resetRect.anchorMax = new Vector3(0.5f, -0.05f);
+
+            resetSkin.onClick.AddListener((UnityAction)ResetFaceSkin);
+            void ResetFaceSkin()
+            {
+                ResetKind(characterContent, TextureDictionaries.faceSkinTextures, kindIndex);
+                MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
+                chaControl.SetFaceBaseMaterial();
+                MakeFaceSkinDropdown(characterContent, kindIndex);
+
+                // Second time to enable wrinkles and eyebrow set
+                chaControl.SetFaceBaseMaterial();
+            }
+        }
 
         private static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
         {
+            //Debug.Log("== MakeDropdown: " + texDictionary.ToString());
             // Create one button for each material
             rendererList = clothesPiece.GetComponentsInChildren<Renderer>(true);
 
@@ -212,15 +222,28 @@ namespace IllusionPlugins
             dropdownOptions.Clear();
             dropdownOptions.Add("Select Texture");
 
-            // Getting Texture list from material
-            for (int i = 0; i < rendererList.Length; i++)
+            //return;
+
+            if (texDictionary == TextureDictionaries.faceSkinTextures)
             {
-                Material material = rendererList[i].material;
-                string piecePartName = rendererList[i].transform.parent.name;
-                if (piecePartName.EndsWith("_a")) piecePartName = piecePartName.Replace("_a", " (On)");
-                if (piecePartName.EndsWith("_b")) piecePartName = piecePartName.Remove(piecePartName.Length - 2, 2) + " (Half)";
-                string materialName = "<b>Material: </b>" + material.name.Replace("(Instance)", "").Trim() + "<b> Piece: </b>" + piecePartName;
-                dropdownOptions.Add(materialName);
+                dropdownOptions.Add(faceMaterialName);
+            }
+            else if (texDictionary == TextureDictionaries.bodySkinTextures)
+            {
+                dropdownOptions.Add(bodyMaterialName);
+            }
+            // Getting Texture list from material
+            else
+            {
+                for (int i = 0; i < rendererList.Length; i++)
+                {
+                    Material material = rendererList[i].materials[0];
+                    string piecePartName = rendererList[i].transform.parent.name;
+                    if (piecePartName.EndsWith("_a")) piecePartName = piecePartName.Replace("_a", " (On)");
+                    if (piecePartName.EndsWith("_b")) piecePartName = piecePartName.Remove(piecePartName.Length - 2, 2) + " (Half)";
+                    string materialName = "<b>Material: </b>" + material.name.Replace("(Instance)", "").Trim() + "<b> Piece: </b>" + piecePartName;
+                    dropdownOptions.Add(materialName);
+                }
             }
 
             clothesDropdown.AddOptions(dropdownOptions);
@@ -257,7 +280,7 @@ namespace IllusionPlugins
 
             // Getting Texture list from material
             Material material = rendererList[renderIndex].material;
-            string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
+            //string materialName = material.name.Replace("(Instance)", "").Trim() + "-" + rendererList[renderIndex].transform.parent.name;
 
             // Creating UV Maps blocks
             List<Texture2D> UVRenderers = new List<Texture2D>();

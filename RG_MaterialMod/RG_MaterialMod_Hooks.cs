@@ -31,6 +31,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Initialize))]
             private static void ChaControlInitialize(ChaControl __instance)
             {
+                //Debug.Log("ChaControlInitialize");
                 // Initialize Character
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
@@ -63,7 +64,6 @@ namespace IllusionPlugins
                     SavePluginData(characterContent, optionsToggle);
                 });
             }
-
             private static void SavePluginData(CharacterContent characterContent, Toggle toggle)
             {
                 if (!toggle.isOn) return;
@@ -75,6 +75,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPre(ChaControl __instance)
             {
+                //Debug.Log("ChaControlReloadPre");
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
@@ -111,6 +112,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Reload))]
             private static void ChaControlReloadPost(ChaControl __instance)
             {
+                //Debug.Log("ChaControlReloadPost");
                 ChaControl chaControl = __instance;
                 GameObject characterObject = chaControl.gameObject;
                 string characterName = characterObject.name;
@@ -156,6 +158,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
             private static void ChangeCoordinateTypePre(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
+                //Debug.Log("ChangeCoordinateTypePre");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -175,6 +178,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), typeof(ChaFileDefine.CoordinateType), typeof(bool), typeof(bool))]
             private static void ChangeCoordinateTypePost(ChaControl __instance, ChaFileDefine.CoordinateType type)
             {
+                //Debug.Log("ChangeCoordinateTypePost");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -186,6 +190,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.OnDestroy))]
             private static void ChaControlOnDestroy(ChaControl __instance)
             {
+                //Debug.Log("ChaControlOnDestroy");
                 ChaControl chaControl = __instance;
                 for (int i = CharactersLoaded.Count - 1; i >= 0; i--)
                 {
@@ -204,6 +209,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.Initialize))]
             private static void StartClothesMenu(CvsC_Clothes __instance)
             {
+                //Debug.Log("StartClothesMenu");
                 CvsC_Clothes cvsC_Clothes = __instance;
                 GameObject characterObject = cvsC_Clothes.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -248,6 +254,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.RestrictClothesMenu))]
             private static void ResizeClothesWindow(CvsC_Clothes __instance)
             {
+                //Debug.Log("ResizeClothesWindow");
                 // Make settings size bigger if there's more than 5 tabs
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
                 if (clothesSelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) UITools.ChangeWindowSize(502f, settingWindow);
@@ -259,6 +266,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsC_Clothes), nameof(CvsC_Clothes.ChangeMenuFunc))]
             private static void PieceUpdated(CvsC_Clothes __instance)
             {
+                //Debug.Log("PieceUpdated");
                 Canvas winClothes = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinClothes").GetComponent<Canvas>();
                 //if (!winClothes.enabled) return;
 
@@ -286,6 +294,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeClothes), typeof(int), typeof(int), typeof(bool))]
             private static void ClothesChangedPre(ChaControl __instance, int id, int kind)
             {
+                //Debug.Log("ClothesChangedPre");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -299,6 +308,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCustomClothes))]
             private static void ChangeCustomClothesPost(ChaControl __instance, int kind)
             {
+                //Debug.Log("ChangeCustomClothesPost");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -314,6 +324,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetClothesState))]
             private static void SetClothesState(ChaControl __instance)
             {
+                //Debug.Log("SetClothesState");
                 string scene = SceneManager.GetActiveScene().name;
                 if (scene != "CharaCustom") return;
                 MaterialModMonoBehaviour.MakeBodyVisible(__instance);
@@ -325,6 +336,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsA_Slot), nameof(CvsA_Slot.Initialize))]
             private static void StartAccessoryMenu(CvsA_Slot __instance)
             {
+                //Debug.Log("StartAccessoryMenu");
                 CvsA_Slot cvsA_Slot = __instance;
                 GameObject characterObject = cvsA_Slot.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -364,6 +376,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsA_Slot), nameof(CvsA_Slot.RestrictAcsMenu))]
             private static void ResizeAccessoryWindow()
             {
+                //Debug.Log("ResizeAccessoryWindow");
                 // Make settings size bigger if there's more than 5 tabs
                 GameObject settingWindow = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow");
                 if (accessorySelectMenu.GetComponentsInChildren<UI_ToggleEx>(false).Count > 5) UITools.ChangeWindowSize(502f, settingWindow);
@@ -375,6 +388,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryColor))]
             private static void AccessoryMaterialChanged(int slotNo, ChaControl __instance)
             {
+                //Debug.Log("AccessoryMaterialChanged");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -389,6 +403,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryParent))]
             private static void AccessoryChanged(int slotNo, ChaControl __instance)
             {
+                //Debug.Log("AccessoryChanged");
                 GameObject characterObject = __instance.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -413,6 +428,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsH_Hair), nameof(CvsH_Hair.Initialize))]
             private static void StartHairMenu(CvsH_Hair __instance)
             {
+                //Debug.Log("StartHairMenu");
                 CvsH_Hair cvsH_Hair = __instance;
                 GameObject characterObject = cvsH_Hair.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -451,6 +467,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsH_Hair), nameof(CvsH_Hair.SetDrawSettingByHair))]
             private static void SetDrawSettingByHair(CvsH_Hair __instance)
             {
+                //Debug.Log("SetDrawSettingByHair");
                 GameObject characterObject = __instance.chaCtrl.gameObject;
                 string characterName = characterObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
@@ -476,8 +493,9 @@ namespace IllusionPlugins
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeHair), typeof(int), typeof(int), typeof(bool))]
-            private static void ChangeHair1(ChaControl __instance, int kind, int id)
+            private static void ChangeHair(ChaControl __instance, int kind, int id)
             {
+                //Debug.Log("ChangeHair");
                 string characterName = __instance.gameObject.name;
                 CharacterContent characterContent = CharactersLoaded[characterName];
                 ResetKind(characterContent, TextureDictionaries.hairTextures, kind);
@@ -488,6 +506,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(CvsB_Skin), nameof(CvsB_Skin.Initialize))]
             private static void CvsB_SkinInitialize(CvsB_Skin __instance)
             {
+                //Debug.Log("CvsB_SkinInitialize");
                 CvsB_Skin cvsB_Skin = __instance;
                 GameObject characterObject = cvsB_Skin.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -528,11 +547,12 @@ namespace IllusionPlugins
                 }
             }
 
-            // ================================================== Facial Type  Submenu ==================================================
+            // ================================================== Facial Type Submenu ==================================================
             [HarmonyPrefix]
             [HarmonyPatch(typeof(CvsF_FaceType), nameof(CvsF_FaceType.Initialize))]
             private static void CvsF_FaceType_Initialize(CvsF_FaceType __instance)
             {
+                //Debug.Log("CvsF_FaceType_Initialize");
                 CvsF_FaceType cvsF_FaceType = __instance;
                 GameObject characterObject = cvsF_FaceType.chaCtrl.gameObject;
                 string characterName = characterObject.name;
@@ -571,6 +591,8 @@ namespace IllusionPlugins
                         MakeFaceSkinDropdown(characterContent, kindIndex);
                     }
                 }
+
+                MaterialModMonoBehaviour.ResetFaceSkin(characterContent.chaControl);
             }
 
 
@@ -579,8 +601,8 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(HSceneSpriteCoordinatesCard), nameof(HSceneSpriteCoordinatesCard.Start))]
             private static void HSceneSpriteCoordinatesCard_Start(HSceneSpriteCoordinatesCard __instance)
             {
+                //Debug.Log("HSceneSpriteCoordinatesCard_Start");
                 Manager.HSceneManager hSceneManager = __instance.hSceneManager;
-
 
                 Button selectCoordinate = __instance.DecideCoode;
                 selectCoordinate.onClick.AddListener((UnityAction)onClick);
@@ -595,7 +617,6 @@ namespace IllusionPlugins
                     chaControl.Reload();
                     characterContent.enableLoadCard = true;
                 }
-
 
                 Button originalCoordinate = __instance.BeforeCoode;
                 originalCoordinate.onClick.AddListener((UnityAction)onClick2);
@@ -616,6 +637,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(RG.Scene.Action.UI.ActionUI), nameof(RG.Scene.Action.UI.ActionUI.OpenCoordinateSelectUI))]
             private static void OpenCoordinateSelectUI(RG.Scene.Action.UI.ActionUI __instance)
             {
+                //Debug.Log("OpenCoordinateSelectUI");
                 CharacterContent characterContent = CharactersLoaded[currentCharacter];
                 characterContent.enableLoadCard = false;
             }
@@ -624,6 +646,7 @@ namespace IllusionPlugins
             [HarmonyPatch(typeof(RG.Scene.Action.UI.CharaSelectOption), nameof(RG.Scene.Action.UI.CharaSelectOption.ChangeButtonState))]
             private static void UpdateUI(RG.Scene.Action.UI.CharaSelectOption.ButtonState btnState, RG.Scene.Action.UI.CharaSelectOption __instance)
             {
+                //Debug.Log("UpdateUI");
                 if (__instance.Owner == null) return;
                 if (btnState != RG.Scene.Action.UI.CharaSelectOption.ButtonState.Select) return;
 
