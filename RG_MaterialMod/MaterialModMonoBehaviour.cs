@@ -226,5 +226,180 @@ namespace IllusionPlugins
             RG_MaterialMod.GarbageTextures.Clear();
             garbageBeingCollected = false;
         }
+
+        internal static void LoadFileDelayed(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        {
+            instance.StartCoroutine(instance.LoadFileDelayedCoroutine(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText).WrapToIl2Cpp());
+        }
+        private IEnumerator LoadFileDelayedCoroutine(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        {
+
+
+            // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock
+            FullScreenMode fullScreenMode = Screen.fullScreenMode;
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+            yield return null;
+
+            // Load from file
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowOpenDialog("Open File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = fullScreenMode;
+            yield return null;
+
+            if (files == null) yield break;
+
+            Texture2D texture = new Texture2D(2, 2);
+            byte[] bytes = File.ReadAllBytes(files[0]);
+            texture.LoadImage(bytes);
+            if (texture.width > 4096 || texture.height > 4096)
+            {
+                RG_MaterialMod.Log.LogMessage("MaterialMod: WARNING! Max texture size is 4096 x 4096");
+                RG_MaterialMod.GarbageTextures.Add(texture);
+                MaterialModMonoBehaviour.DestroyGarbage();
+                yield break;
+            }
+
+            int coordinateType = (int)characterContent.currentCoordinate;
+            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
+
+            // Getting the texture dictionary
+            if (texDictionary == RG_MaterialMod.TextureDictionaries.clothesTextures) dicTextures = characterContent.clothesTextures;
+            else if (texDictionary == RG_MaterialMod.TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
+            else if (texDictionary == RG_MaterialMod.TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
+            else if (texDictionary == RG_MaterialMod.TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
+            else if (texDictionary == RG_MaterialMod.TextureDictionaries.faceSkinTextures) dicTextures = characterContent.faceSkinTextures;
+            else yield break;
+
+            // Create each dictionary if doesn't exist.
+            // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
+            if (!dicTextures.ContainsKey(coordinateType)) dicTextures.Add(coordinateType, new Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>());
+            if (!dicTextures[coordinateType].ContainsKey(kindIndex)) dicTextures[coordinateType].Add(kindIndex, new Dictionary<int, Dictionary<string, byte[]>>());
+            if (!dicTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) dicTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, byte[]>());
+            if (!dicTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) dicTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
+
+            // Update Texture dictionary
+            // From normal maps to Illusion pre-processed pink maps
+            if (textureName.Contains("Bump")) texture = TextureTools.NormalToPink(texture);
+            // Weatering mask must have the same dimensions
+            if (textureName.Contains("_Weathering"))
+            {
+                int newWidth = texture.width;
+                int newHeight = texture.height;
+                Texture oldTexture = material.GetTexture(textureName);
+                int oldWidth = oldTexture.width;
+                int oldHeight = oldTexture.height;
+                if (newWidth != oldWidth || newHeight != oldHeight)
+                {
+                    RG_MaterialMod.Log.LogMessage("MaterialMod: ERROR! Texture dimensions must match");
+                    yield break;
+                }
+            }
+            dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
+
+
+            // ======================================= Texture is set here ===========================================
+            // Cleaning old textures. Not for skin, they need further investigation
+            //if (texture != material.GetTexture(textureName) &&
+            //    texDictionary != TextureDictionaries.bodySkinTextures &&
+            //    texDictionary != TextureDictionaries.faceSkinTextures)
+            //{
+            //    GarbageTextures.Add(material.GetTexture(textureName));
+            //}
+
+            material.SetTexture(textureName, texture);
+            RG_MaterialMod.UpdateMiniature(miniature, texture, textureName);
+
+            MaterialModMonoBehaviour.DestroyGarbage();
+
+            RG_MaterialMod.Log.LogMessage("MaterialMod: File Loaded");
+        }
+
+        internal static void ExportFileDelayed(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        {
+            instance.StartCoroutine(instance.ExportFileDelayedCoroutine(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText).WrapToIl2Cpp());
+        }
+        private IEnumerator ExportFileDelayedCoroutine(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        {
+            // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock
+            FullScreenMode fullScreenMode = Screen.fullScreenMode;
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+            yield return null;
+
+            // Save to file
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+            
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = fullScreenMode;
+            yield return null;
+
+            if (files == null) yield break;
+            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
+
+            Texture2D texture = TextureTools.ToTexture2D(material.GetTexture(textureName));
+            // From pink maps to regular normal maps
+            if (textureName.Contains("Bump")) texture = TextureTools.PinkToNormal(texture);
+
+            File.WriteAllBytes(files[0], texture.EncodeToPNG());
+
+            RG_MaterialMod.GarbageTextures.Add(texture);
+            MaterialModMonoBehaviour.DestroyGarbage();
+
+            RG_MaterialMod.Log.LogMessage("MaterialMod: File Saved");
+        }
+
+        internal static void ExportUVDelayed(Renderer renderer, int index)
+        {
+            instance.StartCoroutine(instance.ExportUVDelayedCoroutine(renderer, index).WrapToIl2Cpp());
+        }
+        private IEnumerator ExportUVDelayedCoroutine(Renderer renderer, int index)
+        {
+            // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock
+            FullScreenMode fullScreenMode = Screen.fullScreenMode;
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+            yield return null;
+
+            // Save to file
+            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
+            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
+
+            if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+                Screen.fullScreenMode = fullScreenMode;
+            yield return null;
+
+            if (files == null) yield break;
+            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
+
+
+            // Getting size of main texture
+            int width, height;
+            Texture mainTexture = renderer.material.GetTexture("_MainTex");
+            if (mainTexture != null)
+            {
+                width = mainTexture.width;
+                height = mainTexture.height;
+            }
+            else width = height = 1024;
+
+            List<Texture2D> UVRenderers = new List<Texture2D>();
+            MeshRenderer meshRenderer = renderer.gameObject.GetComponent<MeshRenderer>();
+            if (meshRenderer != null) UVRenderers = UVMap.GetUVMaps(meshRenderer, width, height);
+            SkinnedMeshRenderer skinnedMeshRenderer = renderer.gameObject.GetComponent<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderer != null) UVRenderers.AddRange(UVMap.GetUVMaps(skinnedMeshRenderer, width, height));
+
+            Texture2D UVtexture = UVRenderers[index];
+            File.WriteAllBytes(files[0], UVtexture.EncodeToPNG());
+            RG_MaterialMod.Log.LogMessage("MaterialMod: File Saved");
+
+            // Cleaning textures
+            for (int i = 0; i < UVRenderers.Count; i++)
+                RG_MaterialMod.GarbageTextures.Add(UVRenderers[i]);
+            MaterialModMonoBehaviour.DestroyGarbage();
+        }
     }
 }

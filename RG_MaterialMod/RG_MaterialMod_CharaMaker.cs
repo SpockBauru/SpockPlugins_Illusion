@@ -359,36 +359,7 @@ namespace IllusionPlugins
 
         private static void ExportUVButton(Renderer renderer, int index)
         {
-            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
-            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
-            if (files == null) return;
-            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
-
-
-            // Getting size of main texture
-            int width, height;
-            Texture mainTexture = renderer.material.GetTexture("_MainTex");
-            if (mainTexture != null)
-            {
-                width = mainTexture.width;
-                height = mainTexture.height;
-            }
-            else width = height = 1024;
-
-            List<Texture2D> UVRenderers = new List<Texture2D>();
-            MeshRenderer meshRenderer = renderer.gameObject.GetComponent<MeshRenderer>();
-            if (meshRenderer != null) UVRenderers = UVMap.GetUVMaps(meshRenderer, width, height);
-            SkinnedMeshRenderer skinnedMeshRenderer = renderer.gameObject.GetComponent<SkinnedMeshRenderer>();
-            if (skinnedMeshRenderer != null) UVRenderers.AddRange(UVMap.GetUVMaps(skinnedMeshRenderer, width, height));
-
-            Texture2D UVtexture = UVRenderers[index];
-            File.WriteAllBytes(files[0], UVtexture.EncodeToPNG());
-            Log.LogMessage("MaterialMod: File Saved");
-
-            // Cleaning textures
-            for (int i = 1; i < UVRenderers.Count; i++)
-                GarbageTextures.Add(UVRenderers[i]);
-            MaterialModMonoBehaviour.DestroyGarbage();
+            MaterialModMonoBehaviour.ExportUVDelayed(renderer, index);
         }
 
         private static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
@@ -480,7 +451,7 @@ namespace IllusionPlugins
             Vector2 internalScale = material.GetTextureScale(textureName);
         }
 
-        private static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
+        internal static void UpdateMiniature(Image miniature, Texture2D texture, string textureName)
         {
             Texture2D miniatureTexture;
             // resize textures bigger than miniature
@@ -511,95 +482,16 @@ namespace IllusionPlugins
             LayoutRebuilder.MarkLayoutForRebuild(clothesTabContent.GetComponent<RectTransform>());
         }
 
+        // Just call the delayed funcion. Prevents game get stuck when in fullscreen
         private static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-            // Load from file
-            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
-            string[] files = OpenFileDialog.ShowOpenDialog("Open File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
-            if (files == null) return;
-
-            Texture2D texture = new Texture2D(2, 2);
-            byte[] bytes = File.ReadAllBytes(files[0]);
-            texture.LoadImage(bytes);
-            if (texture.width > 4096 || texture.height > 4096)
-            {
-                Log.LogMessage("MaterialMod: WARNING! Max texture size is 4096 x 4096");
-                GarbageTextures.Add(texture);
-                return;
-            }
-
-            int coordinateType = (int)characterContent.currentCoordinate;
-            Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
-
-            // Getting the texture dictionary
-            if (texDictionary == TextureDictionaries.clothesTextures) dicTextures = characterContent.clothesTextures;
-            else if (texDictionary == TextureDictionaries.accessoryTextures) dicTextures = characterContent.accessoryTextures;
-            else if (texDictionary == TextureDictionaries.hairTextures) dicTextures = characterContent.hairTextures;
-            else if (texDictionary == TextureDictionaries.bodySkinTextures) dicTextures = characterContent.bodySkinTextures;
-            else if (texDictionary == TextureDictionaries.faceSkinTextures) dicTextures = characterContent.faceSkinTextures;
-            else return;
-
-            // Texture = characterContent.clothesTextures[coordinate][kind][renderIndex][TextureName]
-            if (!dicTextures.ContainsKey(coordinateType)) dicTextures.Add(coordinateType, new Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>());
-            if (!dicTextures[coordinateType].ContainsKey(kindIndex)) dicTextures[coordinateType].Add(kindIndex, new Dictionary<int, Dictionary<string, byte[]>>());
-            if (!dicTextures[coordinateType][kindIndex].ContainsKey(renderIndex)) dicTextures[coordinateType][kindIndex].Add(renderIndex, new Dictionary<string, byte[]>());
-            if (!dicTextures[coordinateType][kindIndex][renderIndex].ContainsKey(textureName)) dicTextures[coordinateType][kindIndex][renderIndex].Add(textureName, null);
-
-            // Update Texture dictionary
-            // From normal maps to Illusion pre-processed pink maps
-            if (textureName.Contains("Bump")) texture = TextureTools.NormalToPink(texture);
-            // Weatering mask must have the same dimensions
-            if (textureName.Contains("_Weathering"))
-            {
-                int newWidth = texture.width;
-                int newHeight = texture.height;
-                Texture oldTexture = material.GetTexture(textureName);
-                int oldWidth = oldTexture.width;
-                int oldHeight = oldTexture.height;
-                if (newWidth != oldWidth || newHeight != oldHeight)
-                {
-                    Log.LogMessage("MaterialMod: ERROR! Texture dimensions must match");
-                    return;
-                }
-            }
-            dicTextures[coordinateType][kindIndex][renderIndex][textureName] = texture.EncodeToPNG();
-
-
-            // ======================================= Texture is set here ===========================================
-            // Cleaning old textures. Not for skin, they need further investigation
-            //if (texture != material.GetTexture(textureName) &&
-            //    texDictionary != TextureDictionaries.bodySkinTextures &&
-            //    texDictionary != TextureDictionaries.faceSkinTextures)
-            //{
-            //    GarbageTextures.Add(material.GetTexture(textureName));
-            //}
-
-
-            material.SetTexture(textureName, texture);
-            UpdateMiniature(miniature, texture, textureName);
-
-            MaterialModMonoBehaviour.DestroyGarbage();
-
-            Log.LogMessage("MaterialMod: File Loaded");
+            MaterialModMonoBehaviour.LoadFileDelayed(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText);
         }
+
 
         private static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-            string path = Path.GetFullPath(".") + "\\UserData\\MaterialMod_Textures";
-            string[] files = OpenFileDialog.ShowSaveDialog("Export File", path, "PNG Image (*.png)|*.png", OpenFileDialog.SingleFileFlags, OpenFileDialog.NativeMethods.GetActiveWindow());
-            if (files == null) return;
-            if (!files[0].EndsWith(".png")) files[0] = files[0] + ".png";
-
-            Texture2D texture = TextureTools.ToTexture2D(material.GetTexture(textureName));
-            // From pink maps to regular normal maps
-            if (textureName.Contains("Bump")) texture = TextureTools.PinkToNormal(texture);
-
-            File.WriteAllBytes(files[0], texture.EncodeToPNG());
-
-            GarbageTextures.Add(texture);
-            MaterialModMonoBehaviour.DestroyGarbage();
-
-            Log.LogMessage("MaterialMod: File Saved");
+            MaterialModMonoBehaviour.ExportFileDelayed(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText);
         }
     }
 }
