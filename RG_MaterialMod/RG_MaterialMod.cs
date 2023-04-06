@@ -42,42 +42,12 @@ namespace IllusionPlugins
         // Plugin consts
         public const string GUID = "SpockBauru.MaterialMod";
         public const string PluginName = "MaterialMod";
-        public const string Version = "0.1.3";
-        public const string PluginNameInternal = Constants.Prefix + "_MaterialMod";
-
-        // Maker Objects: Clothes Tab - Initialized in Hooks
-        internal static GameObject clothesSelectMenu;
-        internal static UI_ToggleEx clothesTab;
-        internal static GameObject clothesSettingsGroup;
-        internal static GameObject clothesTabContent;
-        // Maker Objects: Accessory Tab - Initialized in Hooks
-        internal static GameObject accessorySelectMenu;
-        internal static UI_ToggleEx accessoryTab;
-        internal static GameObject accessorySettingsGroup;
-        internal static GameObject accessoryTabContent;
-        // Maker Objects: Hair Tab - Initialized in Hooks
-        internal static GameObject hairSelectMenu;
-        internal static UI_ToggleEx hairTab;
-        internal static GameObject hairSettingsGroup;
-        internal static GameObject hairTabContent;
-        // Maker Objects: Body Skin Tab - Initialized in Hooks
-        internal static GameObject bodySkinSelectMenu;
-        internal static UI_ToggleEx bodySkinTab;
-        internal static GameObject bodySkinSettingsGroup;
-        internal static GameObject bodySkinTabContent;
-        // Maker Objects: Face skin Tab - Initialized in Hooks
-        internal static GameObject faceSkinSelectMenu;
-        internal static UI_ToggleEx faceSkinTab;
-        internal static GameObject faceSkinSettingsGroup;
-        internal static GameObject faceSkinTabContent;
+        public const string Version = "0.1.4";
+        public const string PluginNameInternal = Constants.Prefix + "_MaterialMod";        
 
         // Unity don't destroy textures automatically, need to do manually
         internal static List<Texture> GarbageTextures = new List<Texture>();
-        //internal static List<Image> GarbageImages = new List<Image>();
 
-        // Miniatures
-        internal static int miniatureSize = 180;
-        internal static List<Texture2D> dropdownTextures = new List<Texture2D>();
 
         /// <summary>
         /// Key: Name of Character's GameObject, Value: class CharacterContent
@@ -91,6 +61,9 @@ namespace IllusionPlugins
         {
             Log = base.Log;
             Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+            Harmony.CreateAndPatchAll(typeof(RG_MaterialMod_Maker.Hooks_Maker), GUID);
+            Harmony.CreateAndPatchAll(typeof(RG_MaterialMod_HScenes.Hooks_HScenes), GUID);
+            Harmony.CreateAndPatchAll(typeof(RG_MaterialMod_ActionScene.Hooks_ActionScene), GUID);
 
             // IL2CPP don't automatically inherits MonoBehaviour, so needs to add a component separatelly
             ClassInjector.RegisterTypeInIl2Cpp<MaterialModMonoBehaviour>();

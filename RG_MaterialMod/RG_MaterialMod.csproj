@@ -114,11 +114,14 @@
     <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RG_MaterialMod_ActionScene_Hooks.cs" />
+    <Compile Include="RG_HScenes\RG_MaterialMod_HScenes_Hooks.cs" />
+    <Compile Include="RG_Maker\RG_MaterialMod_Maker_Hooks.cs" />
     <Compile Include="MaterialModMonoBehaviour.cs" />
     <Compile Include="UVMap.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="RG_MaterialMod_CardManager.cs" />
-    <Compile Include="RG_MaterialMod_CharaMaker.cs" />
+    <Compile Include="RG_Maker\RG_MaterialMod_Maker.cs" />
     <Compile Include="TextureTools.cs" />
     <Compile Include="MaterialModResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -146,6 +149,7 @@
     <None Include="resources\dropdownArrow_png" />
     <None Include="resources\dropdownStandard_png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

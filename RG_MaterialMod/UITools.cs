@@ -406,7 +406,6 @@ namespace IllusionPlugins
             }
         }
 
-
         public static void ResetMakerDropdown(GameObject parent)
         {
             GameObject dropDownObject = parent.GetComponentInChildren<Dropdown>().gameObject;

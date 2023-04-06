@@ -30,7 +30,7 @@ using RGExtendedSave;
 using RG;
 using Chara;
 using CharaCustom;
-
+using UnhollowerBaseLib.Attributes;
 
 namespace IllusionPlugins
 {
@@ -63,6 +63,7 @@ namespace IllusionPlugins
             oldCharacter = newCharacter;
             instance.StartCoroutine(instance.MakeBodyVisibleCoroutine(chaControl).WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator MakeBodyVisibleCoroutine(ChaControl chaControl)
         {
             coroutineIsRunning = true;
@@ -106,7 +107,7 @@ namespace IllusionPlugins
         {
             instance.StartCoroutine(instance.ResetFaceSkinCoroutine(chaControl).WrapToIl2Cpp());
         }
-
+        [HideFromIl2Cpp]
         private IEnumerator ResetFaceSkinCoroutine(ChaControl chaControl)
         {
             yield return null;
@@ -138,6 +139,7 @@ namespace IllusionPlugins
         {
             instance.StartCoroutine(instance.SetAllTexturesCoroutine(characterContent).WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator SetAllTexturesCoroutine(RG_MaterialMod.CharacterContent characterContent)
         {
             ChaControl chaControl = characterContent.chaControl;
@@ -213,6 +215,7 @@ namespace IllusionPlugins
         {
             if (!garbageBeingCollected) instance.StartCoroutine(instance.DestroyGarbageCoroutine().WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator DestroyGarbageCoroutine()
         {
             garbageBeingCollected = true;
@@ -231,10 +234,9 @@ namespace IllusionPlugins
         {
             instance.StartCoroutine(instance.LoadFileDelayedCoroutine(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText).WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator LoadFileDelayedCoroutine(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
-
-
             // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock
             FullScreenMode fullScreenMode = Screen.fullScreenMode;
             if (fullScreenMode == FullScreenMode.FullScreenWindow || fullScreenMode == FullScreenMode.ExclusiveFullScreen)
@@ -310,7 +312,7 @@ namespace IllusionPlugins
             //}
 
             material.SetTexture(textureName, texture);
-            RG_MaterialMod.UpdateMiniature(miniature, texture, textureName);
+            RG_MaterialMod_Maker.UpdateMiniature(miniature, texture, textureName);
 
             MaterialModMonoBehaviour.DestroyGarbage();
 
@@ -321,6 +323,7 @@ namespace IllusionPlugins
         {
             instance.StartCoroutine(instance.ExportFileDelayedCoroutine(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText).WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator ExportFileDelayedCoroutine(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock
@@ -356,6 +359,7 @@ namespace IllusionPlugins
         {
             instance.StartCoroutine(instance.ExportUVDelayedCoroutine(renderer, index).WrapToIl2Cpp());
         }
+        [HideFromIl2Cpp]
         private IEnumerator ExportUVDelayedCoroutine(Renderer renderer, int index)
         {
             // Check for Full Screen. Set windowed mod if in FullScreen, otherwise the game can softlock

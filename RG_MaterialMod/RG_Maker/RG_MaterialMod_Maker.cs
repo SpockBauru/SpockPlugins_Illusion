@@ -35,30 +35,59 @@ using UniRx.Triggers;
 
 namespace IllusionPlugins
 {
-    public partial class RG_MaterialMod
+    internal partial class RG_MaterialMod_Maker
     {
+        // Maker Objects: Clothes Tab - Initialized in Hooks
+        internal static GameObject clothesSelectMenu;
+        internal static UI_ToggleEx clothesTab;
+        internal static GameObject clothesSettingsGroup;
+        internal static GameObject clothesTabContent;
+        // Maker Objects: Accessory Tab - Initialized in Hooks
+        internal static GameObject accessorySelectMenu;
+        internal static UI_ToggleEx accessoryTab;
+        internal static GameObject accessorySettingsGroup;
+        internal static GameObject accessoryTabContent;
+        // Maker Objects: Hair Tab - Initialized in Hooks
+        internal static GameObject hairSelectMenu;
+        internal static UI_ToggleEx hairTab;
+        internal static GameObject hairSettingsGroup;
+        internal static GameObject hairTabContent;
+        // Maker Objects: Body Skin Tab - Initialized in Hooks
+        internal static GameObject bodySkinSelectMenu;
+        internal static UI_ToggleEx bodySkinTab;
+        internal static GameObject bodySkinSettingsGroup;
+        internal static GameObject bodySkinTabContent;
+        // Maker Objects: Face skin Tab - Initialized in Hooks
+        internal static GameObject faceSkinSelectMenu;
+        internal static UI_ToggleEx faceSkinTab;
+        internal static GameObject faceSkinSettingsGroup;
+        internal static GameObject faceSkinTabContent;
+
+        // Miniatures
+        internal static int miniatureSize = 180;
+        internal static List<Texture2D> dropdownTextures = new List<Texture2D>();
         private static string faceMaterialName;
         private static string bodyMaterialName;
 
 
-        internal static void MakeClothesDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeClothesDropdown(RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject clothesPiece = chaControl.ObjClothes[kindIndex];
             GameObject settingsGroup = clothesSettingsGroup;
             GameObject tabContent = clothesTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.clothesTextures;
+            RG_MaterialMod.TextureDictionaries texDictionary = RG_MaterialMod.TextureDictionaries.clothesTextures;
 
             MakeDropdown(characterContent, texDictionary, clothesPiece, settingsGroup, tabContent, kindIndex);
         }
 
-        internal static void MakeAccessoryDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeAccessoryDropdown(RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject accessoryPiece = chaControl.ObjAccessory[kindIndex];
             GameObject settingsGroup = accessorySettingsGroup;
             GameObject tabContent = accessoryTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.accessoryTextures;
+            RG_MaterialMod.TextureDictionaries texDictionary = RG_MaterialMod.TextureDictionaries.accessoryTextures;
 
             // if no object is sleected, display error text
             if (accessoryPiece == null)
@@ -82,18 +111,18 @@ namespace IllusionPlugins
             MakeDropdown(characterContent, texDictionary, accessoryPiece, settingsGroup, tabContent, kindIndex);
         }
 
-        internal static void MakeHairDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeHairDropdown(RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject hairPiece = chaControl.ObjHair[kindIndex];
             GameObject settingsGroup = hairSettingsGroup;
             GameObject tabContent = hairTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.hairTextures;
+            RG_MaterialMod.TextureDictionaries texDictionary = RG_MaterialMod.TextureDictionaries.hairTextures;
 
             MakeDropdown(characterContent, texDictionary, hairPiece, settingsGroup, tabContent, kindIndex);
         }
 
-        internal static void MakeBodySkinDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeBodySkinDropdown(RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject body = chaControl.ObjBody;
@@ -114,7 +143,7 @@ namespace IllusionPlugins
 
             GameObject settingsGroup = bodySkinSettingsGroup;
             GameObject tabContent = bodySkinTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.bodySkinTextures;
+            RG_MaterialMod.TextureDictionaries texDictionary = RG_MaterialMod.TextureDictionaries.bodySkinTextures;
 
             // Search for reset button, if doesn't exists find for the skin material and make the button
             Transform buttonParent = GameObject.Find("CharaCustom/CustomControl/CanvasSub/SettingWindow/WinBody/").transform;
@@ -127,7 +156,7 @@ namespace IllusionPlugins
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
-        private static void ResetBodySkinButton(Transform buttonParent, CharacterContent characterContent, int kindIndex)
+        private static void ResetBodySkinButton(Transform buttonParent, RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             Button resetSkin = UITools.CreateButton("Reset MaterialMod on Body", 19, 400, 40);
@@ -140,7 +169,7 @@ namespace IllusionPlugins
             resetSkin.onClick.AddListener((UnityAction)ResetBodySkin);
             void ResetBodySkin()
             {
-                ResetKind(characterContent, TextureDictionaries.bodySkinTextures, kindIndex);
+                RG_MaterialMod.ResetKind(characterContent, RG_MaterialMod.TextureDictionaries.bodySkinTextures, kindIndex);
                 MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
                 chaControl.SetBodyBaseMaterial();
                 MakeBodySkinDropdown(characterContent, kindIndex);
@@ -150,7 +179,7 @@ namespace IllusionPlugins
             }
         }
 
-        internal static void MakeFaceSkinDropdown(CharacterContent characterContent, int kindIndex)
+        internal static void MakeFaceSkinDropdown(RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             GameObject head = chaControl.ObjHead;
@@ -180,11 +209,11 @@ namespace IllusionPlugins
 
             GameObject settingsGroup = faceSkinSettingsGroup;
             GameObject tabContent = faceSkinTabContent;
-            TextureDictionaries texDictionary = TextureDictionaries.faceSkinTextures;
+            RG_MaterialMod.TextureDictionaries texDictionary = RG_MaterialMod.TextureDictionaries.faceSkinTextures;
 
             MakeDropdown(characterContent, texDictionary, skin, settingsGroup, tabContent, kindIndex);
         }
-        private static void ResetFaceSkinButton(Transform buttonParent, CharacterContent characterContent, int kindIndex)
+        private static void ResetFaceSkinButton(Transform buttonParent, RG_MaterialMod.CharacterContent characterContent, int kindIndex)
         {
             ChaControl chaControl = characterContent.chaControl;
             Button resetSkin = UITools.CreateButton("Reset MaterialMod on Face", 19, 400, 40);
@@ -197,7 +226,7 @@ namespace IllusionPlugins
             resetSkin.onClick.AddListener((UnityAction)ResetFaceSkin);
             void ResetFaceSkin()
             {
-                ResetKind(characterContent, TextureDictionaries.faceSkinTextures, kindIndex);
+                RG_MaterialMod.ResetKind(characterContent, RG_MaterialMod.TextureDictionaries.faceSkinTextures, kindIndex);
                 MaterialModMonoBehaviour.SetMaterialAlphas(chaControl);
                 chaControl.SetFaceBaseMaterial();
                 MakeFaceSkinDropdown(characterContent, kindIndex);
@@ -207,7 +236,7 @@ namespace IllusionPlugins
             }
         }
 
-        private static void MakeDropdown(CharacterContent characterContent, TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
+        private static void MakeDropdown(RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, GameObject clothesPiece, GameObject settingsGroup, GameObject tabContent, int kindIndex)
         {
             //Debug.Log("== MakeDropdown: " + texDictionary.ToString());
             // Create one button for each material
@@ -224,11 +253,11 @@ namespace IllusionPlugins
 
             //return;
 
-            if (texDictionary == TextureDictionaries.faceSkinTextures)
+            if (texDictionary == RG_MaterialMod.TextureDictionaries.faceSkinTextures)
             {
                 dropdownOptions.Add(faceMaterialName);
             }
-            else if (texDictionary == TextureDictionaries.bodySkinTextures)
+            else if (texDictionary == RG_MaterialMod.TextureDictionaries.bodySkinTextures)
             {
                 dropdownOptions.Add(bodyMaterialName);
             }
@@ -258,14 +287,14 @@ namespace IllusionPlugins
 
         private static int lastDropdownSetting = -1;
         private static Renderer[] rendererList;
-        private static void DrawTexturesGrid(Dropdown dropdown, GameObject tabContent, Renderer[] rendererList, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex)
+        private static void DrawTexturesGrid(Dropdown dropdown, GameObject tabContent, Renderer[] rendererList, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex)
         {
             // Fixing Unity bug for duplicated calls
             if (dropdown.value == lastDropdownSetting) return;
             lastDropdownSetting = dropdown.value;
 
             // Cleaning old miniatures
-            GarbageTextures.AddRange(dropdownTextures);
+            RG_MaterialMod.GarbageTextures.AddRange(dropdownTextures);
             dropdownTextures.Clear();
 
             // Cleaning UI content
@@ -362,7 +391,7 @@ namespace IllusionPlugins
             MaterialModMonoBehaviour.ExportUVDelayed(renderer, index);
         }
 
-        private static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
+        private static void CreateTextureBlock(Material material, Texture2D miniatureTexture, Vector2 texOriginalSize, GameObject parent, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName)
         {
             // UI group
             GameObject textureGroup = new GameObject("TextureGroup " + textureName);
@@ -483,13 +512,13 @@ namespace IllusionPlugins
         }
 
         // Just call the delayed funcion. Prevents game get stuck when in fullscreen
-        private static void LoadTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        private static void LoadTextureButton(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             MaterialModMonoBehaviour.LoadFileDelayed(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText);
         }
 
 
-        private static void ExportTextureButton(Material material, CharacterContent characterContent, TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
+        private static void ExportTextureButton(Material material, RG_MaterialMod.CharacterContent characterContent, RG_MaterialMod.TextureDictionaries texDictionary, int kindIndex, int renderIndex, string textureName, Image miniature, Text sizeText)
         {
             MaterialModMonoBehaviour.ExportFileDelayed(material, characterContent, texDictionary, kindIndex, renderIndex, textureName, miniature, sizeText);
         }
