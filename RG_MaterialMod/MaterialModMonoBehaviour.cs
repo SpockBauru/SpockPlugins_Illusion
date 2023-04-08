@@ -14,6 +14,7 @@ using BepInEx.IL2CPP.Utils.Collections;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnhollowerRuntimeLib;
+using UnhollowerBaseLib.Attributes;
 
 // Unity
 using UnityEngine;
@@ -30,7 +31,6 @@ using RGExtendedSave;
 using RG;
 using Chara;
 using CharaCustom;
-using UnhollowerBaseLib.Attributes;
 
 namespace IllusionPlugins
 {
