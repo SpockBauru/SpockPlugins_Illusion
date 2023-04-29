@@ -33,6 +33,8 @@ namespace RG_Cheats
         internal static ConfigEntry<bool> EnableConfig;
         internal static ConfigEntry<bool> RefillStanimaConfig;
 
+        private static bool paradiseInstalled = false;
+
         private static Actor character;
         private static UserFile userFile;
         private static StatusUI statusUI;
@@ -76,6 +78,8 @@ namespace RG_Cheats
         private static InputField restaurantInput;
         private static InputField hotelInput;
         private static InputField eventInput;
+        private static InputField onsenInput;
+        private static InputField drunkInput;
 
         private static Button openButton;
         private static Button closeButton;
@@ -111,6 +115,9 @@ namespace RG_Cheats
             [HarmonyPatch(typeof(StatusUI), nameof(StatusUI.Start))]
             private static void StartUI(StatusUI __instance)
             {
+                // Check if Paradise is installed
+                paradiseInstalled = Manager.GameSystem.ActiveAppend;
+
                 oldCharacter = null;
                 currentCharacter = null;
 
@@ -196,6 +203,20 @@ namespace RG_Cheats
                 restaurantInput =   advancedMenu.transform.Find("Restaurant").GetComponent<InputField>();
                 hotelInput =        advancedMenu.transform.Find("Hotel").GetComponent<InputField>();
                 eventInput =        advancedMenu.transform.Find("Event").GetComponent<InputField>();
+
+                // Paradise Expansion
+                if (paradiseInstalled)
+                {
+                    onsenInput = advancedMenu.transform.Find("Onsen").GetComponent<InputField>();
+                    drunkInput = advancedMenu.transform.Find("Drunk").GetComponent<InputField>();
+                }
+                else
+                {
+                    advancedMenu.transform.Find("OnsenText").gameObject.SetActive(false);
+                    advancedMenu.transform.Find("Onsen").gameObject.SetActive(false);
+                    advancedMenu.transform.Find("DrunkText").gameObject.SetActive(false);
+                    advancedMenu.transform.Find("Drunk").gameObject.SetActive(false);
+                }
             }
 
             // Get the selected character
@@ -401,6 +422,20 @@ namespace RG_Cheats
                 parameter = (int)Define.Action.StatusCategory.Event;
                 float.TryParse(eventInput.text, out value);
                 character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                // === Paradise Section ===
+                if (paradiseInstalled)
+                {
+                    // Onsen
+                    parameter = (int)Define.Action.StatusCategory.Onsen;
+                    float.TryParse(onsenInput.text, out value);
+                    character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+
+                    // Drunk
+                    parameter = (int)Define.Action.StatusCategory.Drunk;
+                    float.TryParse(drunkInput.text, out value);
+                    character._status.Parameters[parameter] = Mathf.Clamp(value, 0, 100);
+                }
             }
 
             // Update UI with current status
@@ -504,6 +539,16 @@ namespace RG_Cheats
 
                 parameter = (int)Define.Action.StatusCategory.Event;
                 eventInput.text = character._status.Parameters[parameter].ToString("0");
+
+                // === Paradise Section ===
+                if (paradiseInstalled)
+                {
+                    parameter = (int)Define.Action.StatusCategory.Onsen;
+                    onsenInput.text = character._status.Parameters[parameter].ToString("0");
+
+                    parameter = (int)Define.Action.StatusCategory.Drunk;
+                    drunkInput.text = character._status.Parameters[parameter].ToString("0");
+                }
             }
         }
 
