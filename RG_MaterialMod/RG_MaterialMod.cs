@@ -24,7 +24,7 @@ using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
 // Extended Save
-using RGExtendedSave;
+using ExtensibleSaveFormat;
 
 // Game Specific
 using RG;
@@ -34,7 +34,7 @@ using CharaCustom;
 
 namespace IllusionPlugins
 {
-    [BepInDependency("com.bogus.RGExtendedSave")]
+    [BepInDependency("com.bepis.bepinex.extendedsave")]
     [BepInProcess(Constants.MainGameProcessName)]
     [BepInPlugin(GUID, PluginName, Version)]
     public partial class RG_MaterialMod : BasePlugin
@@ -42,7 +42,7 @@ namespace IllusionPlugins
         // Plugin consts
         public const string GUID = "SpockBauru.MaterialMod";
         public const string PluginName = "MaterialMod";
-        public const string Version = "0.1.4";
+        public const string Version = "0.1.5";
         public const string PluginNameInternal = Constants.Prefix + "_MaterialMod";        
 
         // Unity don't destroy textures automatically, need to do manually

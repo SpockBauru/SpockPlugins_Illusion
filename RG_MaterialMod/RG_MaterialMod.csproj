@@ -61,8 +61,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\RoomGirlLibs\MessagePack.dll</HintPath>
     </Reference>
-    <Reference Include="RG_ExtendedSave">
-      <HintPath>..\RoomGirlLibs\RG_ExtendedSave.dll</HintPath>
+    <Reference Include="RG_ExtensibleSaveFormat">
+      <HintPath>..\RoomGirlLibs\RG_ExtensibleSaveFormat.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -154,7 +154,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
-xcopy "$(TargetPath)" "D:\RG\BepInEx\plugins" /s /i /y
-D:\RG\RoomGirl.exe  /makerGirl</PostBuildEvent>
+xcopy "$(TargetPath)" "D:\RG_dev\BepInEx\plugins" /s /i /y
+D:\RG_dev\RoomGirl.exe  /makerGirl</PostBuildEvent>
   </PropertyGroup>
 </Project>

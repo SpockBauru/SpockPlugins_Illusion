@@ -31,7 +31,7 @@ using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
 // Extended Save
-using RGExtendedSave;
+using ExtensibleSaveFormat;
 
 // Game Specific
 using RG;
