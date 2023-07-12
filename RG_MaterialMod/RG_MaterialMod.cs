@@ -42,7 +42,7 @@ namespace IllusionPlugins
         // Plugin consts
         public const string GUID = "SpockBauru.MaterialMod";
         public const string PluginName = "MaterialMod";
-        public const string Version = "0.1.5";
+        public const string Version = "0.2.0";
         public const string PluginNameInternal = Constants.Prefix + "_MaterialMod";        
 
         // Unity don't destroy textures automatically, need to do manually

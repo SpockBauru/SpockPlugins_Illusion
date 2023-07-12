@@ -118,6 +118,8 @@
     <Compile Include="RG_HScenes\RG_MaterialMod_HScenes_Hooks.cs" />
     <Compile Include="RG_Maker\RG_MaterialMod_Maker_Hooks.cs" />
     <Compile Include="MaterialModMonoBehaviour.cs" />
+    <Compile Include="RG_MaterialMod_Studio.cs" />
+    <Compile Include="RG_MaterialMod_Studio_Hooks.cs" />
     <Compile Include="UVMap.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="RG_MaterialMod_CardManager.cs" />
@@ -155,6 +157,7 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
 xcopy "$(TargetPath)" "D:\RG_dev\BepInEx\plugins" /s /i /y
-D:\RG_dev\RoomGirl.exe  /makerGirl</PostBuildEvent>
+:: D:\RG_dev\RoomGirl.exe  /makerGirl
+D:\RG_dev\Studio\RoomStudio.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>
