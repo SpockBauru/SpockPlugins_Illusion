@@ -28,8 +28,6 @@ Access the MaterialMod by pressing the "Material" button on clothes, hair, skin,
   1) Download `RG_MaterialMod_v0.1_Alpha.zip`, extract the folders `BepInEx` and `UserData` to the game folder (where `RoomGirl.exe` is) and overwrite if asked. <br>
   **V0.2 Final - [Download](https://github.com/SpockBauru/SpockPlugins_Illusion/releases/tag/r10)**
 
-https://github.com/SpockBauru/SpockPlugins_Illusion/assets/67930504/8b141262-f1f7-41d1-b3d7-bcdc6c6ba793
-
 # Room Girl Subtitles
 Show subtitles for girl's voice in Room Girl H-Scenes.
 
