@@ -7,7 +7,7 @@ using static HS2_GirlsEntrance.HS2_GirlsEntrance;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://github.com/SpockBauru/SpockPlugins_Illusion")]
 [assembly: AssemblyProduct("HS2_GirlsEntrance")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

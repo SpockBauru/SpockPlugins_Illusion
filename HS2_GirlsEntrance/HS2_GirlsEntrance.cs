@@ -15,7 +15,7 @@ namespace HS2_GirlsEntrance
     public class HS2_GirlsEntrance : BaseUnityPlugin
     {
         // Set version in BepInEx and in AssemblyInfo
-        public const string Version = "1.1";
+        public const string Version = "1.2";
 
         // User Configurations
         private static ConfigEntry<bool> Enabled;
@@ -67,14 +67,14 @@ namespace HS2_GirlsEntrance
         //===============================================Hooks===============================================
         // Play the animation on girls's select
         [HarmonyPostfix, HarmonyPatch(typeof(LobbyCharaSelectInfoScrollController), "OnValueChange")]
-        private static void LoadOnSelect()
+        private static void LoadOnSelect(LobbyCharaSelectInfoScrollController __instance)
         {
             if (!isPlaying &&
                 !isTutorial &&
                 Enabled.Value &&
                 WherePlay.Value == WherePlayAnimation.GirlSelect)
             {
-                EnterAnimation();
+                EnterAnimation(__instance.EntryNo);
             }
         }
 
@@ -87,7 +87,7 @@ namespace HS2_GirlsEntrance
                 Enabled.Value &&
                 WherePlay.Value == WherePlayAnimation.MapSelect)
             {
-                EnterAnimation();
+                EnterAnimation(0);
             }
         }
 
@@ -131,17 +131,17 @@ namespace HS2_GirlsEntrance
         }
 
         //=========================================Play the Animation========================================
-        private static void EnterAnimation()
+        private static void EnterAnimation(int heroineNumber)
         {
             // Instance of LobbySceneManager
             LobbySceneManager sceneLobby = Singleton<LobbySceneManager>.Instance;
 
             // Exit if the girl is Fur
-            string heroineID = sceneLobby.heroines[0].ChaName;
+            string heroineID = sceneLobby.heroines[heroineNumber].ChaName;
             if (heroineID == "c-1") return;
 
             // Number of times the selected girl had sex
-            int sexTimes = sceneLobby.heroines[0].gameinfo2.hCount;
+            int sexTimes = sceneLobby.heroines[heroineNumber].gameinfo2.hCount;
 
             if (MakeEntrance.Value == EntranceOption.FirstTime && sexTimes == 0 ||
                 MakeEntrance.Value == EntranceOption.EveryTime)
@@ -149,15 +149,15 @@ namespace HS2_GirlsEntrance
                 // Set ADV file to load. There are different files for base game and for expansion DX
                 string bundle;
                 if (GameSystem.isAdd50)
-                    bundle = "adv/scenario/op/50/entrance.unity3d";
+                    bundle = "../../../BepInEx/plugins/HS2_GirlsEntrance/entrance";
                 else
-                    bundle = "adv/scenario/op/30/entrance_noDX.unity3d";
+                    bundle = "../../../BepInEx/plugins/HS2_GirlsEntrance/entrance_noDX";
 
                 // Set Name/PathID inside the file
                 string asset = "0";
 
                 // Set first Girl
-                Heroine heroine = sceneLobby.heroines[0];
+                Heroine heroine = sceneLobby.heroines[heroineNumber];
 
                 // What to do after the animation stop playing
                 Action onEnd = null;

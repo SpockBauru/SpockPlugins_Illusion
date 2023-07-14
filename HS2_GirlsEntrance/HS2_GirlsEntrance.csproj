@@ -84,7 +84,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
+xcopy "$(ProjectDir)\assets\entrance.unity3d" "$(SolutionDir)bin\BepInEx\plugins\HS2_GirlsEntrance\" /s /i /y
+xcopy "$(ProjectDir)\assets\entrance_noDX.unity3d" "$(SolutionDir)bin\BepInEx\plugins\HS2_GirlsEntrance\" /s /i /y
+
+xcopy "$(TargetPath)" "D:\HS2\BepInEx\plugins\" /s /i /y
+xcopy "$(ProjectDir)\assets\entrance.unity3d" "D:\HS2\BepInEx\plugins\HS2_GirlsEntrance\" /s /i /y
+xcopy "$(ProjectDir)\assets\entrance_noDX.unity3d" "D:\HS2\BepInEx\plugins\HS2_GirlsEntrance\" /s /i /y
+
+D:/HS2/HoneySelect2.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>
