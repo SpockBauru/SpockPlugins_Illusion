@@ -156,8 +156,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
-xcopy "$(TargetPath)" "D:\RG_dev\BepInEx\plugins" /s /i /y
-:: D:\RG_dev\RoomGirl.exe  /makerGirl
-D:\RG_dev\Studio\RoomStudio.exe</PostBuildEvent>
+xcopy "$(TargetPath)" "D:\RG_dev\BepInEx\plugins" /s /i /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

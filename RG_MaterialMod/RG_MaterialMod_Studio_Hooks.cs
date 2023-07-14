@@ -29,7 +29,7 @@ namespace IllusionPlugins
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Load))]
         private static void Load(ChaControl __instance)
         {
-            Debug.Log("ChaControl.Load");
+            //Debug.Log("ChaControl.Load");
             // Initialize Character
             ChaControl chaControl = __instance;
             GameObject characterObject = chaControl.gameObject;
@@ -57,8 +57,8 @@ namespace IllusionPlugins
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.OnDestroy))]
         private static void ChaControlOnDestroy(ChaControl __instance)
         {
-            Debug.Log("ChaControl.OnDestroy");
-            Debug.Log(__instance.gameObject.name);
+            //Debug.Log("ChaControl.OnDestroy");
+            //Debug.Log(__instance.gameObject.name);
             for (int i = RG_MaterialMod.CharactersLoaded.Count - 1; i >= 0; i--)
             {
                 RG_MaterialMod.CharacterContent characterContent = RG_MaterialMod.CharactersLoaded.ElementAt(i).Value;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Diagnostics;
 using MessagePack;
+using MessagePack.Resolvers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -78,6 +79,8 @@ namespace IllusionPlugins
             {
                 SaveTextureDictionary(pluginData, chaFile, TextureDictionaries.faceSkinTextures.ToString(), faceSkinTextures);
             }
+
+            ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
         }
 
         private static void SaveTextureDictionary(PluginData pluginData, ChaFile chaFile, string dicName, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures)
@@ -89,12 +92,8 @@ namespace IllusionPlugins
             byte[] outputByte = stream.ToArray();
             stream.Close();
 
-            // Encoding to string
-            string bytesString = Encoding.Latin1.GetString(outputByte);
-
             // Saving
-            pluginData.data.Add(dicName, bytesString);
-            ExtendedSave.SetExtendedDataById(chaFile, GUID, pluginData);
+            pluginData.data.Add(dicName, outputByte);
         }
 
         internal static void LoadCard(CharacterContent characterContent)
@@ -104,7 +103,7 @@ namespace IllusionPlugins
 
             bool hasData;
             object texturesObject;
-            string byteString;
+            byte[] bytes;
             Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> dicTextures;
 
             PluginData pluginData;
@@ -118,8 +117,8 @@ namespace IllusionPlugins
             hasData = pluginData.data.TryGetValue(TextureDictionaries.clothesTextures.ToString(), out texturesObject);
             if (hasData)
             {
-                byteString = (string)texturesObject;
-                dicTextures = LoadTexturesDictionary(byteString);
+                bytes = (byte[])texturesObject;
+                dicTextures = LoadTexturesDictionary(bytes);
                 characterContent.clothesTextures = dicTextures;
             }
 
@@ -127,8 +126,8 @@ namespace IllusionPlugins
             hasData = pluginData.data.TryGetValue(TextureDictionaries.accessoryTextures.ToString(), out texturesObject);
             if (hasData)
             {
-                byteString = (string)texturesObject;
-                dicTextures = LoadTexturesDictionary(byteString);
+                bytes = (byte[])texturesObject;
+                dicTextures = LoadTexturesDictionary(bytes);
                 characterContent.accessoryTextures = dicTextures;
             }
 
@@ -136,8 +135,8 @@ namespace IllusionPlugins
             hasData = pluginData.data.TryGetValue(TextureDictionaries.hairTextures.ToString(), out texturesObject);
             if (hasData)
             {
-                byteString = (string)texturesObject;
-                dicTextures = LoadTexturesDictionary(byteString);
+                bytes = (byte[])texturesObject;
+                dicTextures = LoadTexturesDictionary(bytes);
                 characterContent.hairTextures = dicTextures;
             }
 
@@ -145,8 +144,8 @@ namespace IllusionPlugins
             hasData = pluginData.data.TryGetValue(TextureDictionaries.bodySkinTextures.ToString(), out texturesObject);
             if (hasData)
             {
-                byteString = (string)texturesObject;
-                dicTextures = LoadTexturesDictionary(byteString);
+                bytes = (byte[])texturesObject;
+                dicTextures = LoadTexturesDictionary(bytes);
                 characterContent.bodySkinTextures = dicTextures;
             }
 
@@ -154,18 +153,17 @@ namespace IllusionPlugins
             hasData = pluginData.data.TryGetValue(TextureDictionaries.faceSkinTextures.ToString(), out texturesObject);
             if (hasData)
             {
-                byteString = (string)texturesObject;
-                dicTextures = LoadTexturesDictionary(byteString);
+                bytes = (byte[])texturesObject;
+                dicTextures = LoadTexturesDictionary(bytes);
                 characterContent.faceSkinTextures = dicTextures;
             }
         }
 
-        private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(string byteString)
+        private static Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>> LoadTexturesDictionary(byte[] bytes)
         {
             // Deserializing
-            var outputByte = Encoding.Latin1.GetBytes(byteString);
             BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream stream = new MemoryStream(outputByte);
+            MemoryStream stream = new MemoryStream(bytes);
             stream.Position = 0;
 
             var clothesTexturesByte = (Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, byte[]>>>>)formatter.Deserialize(stream);
