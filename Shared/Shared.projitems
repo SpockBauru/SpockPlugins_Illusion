@@ -9,6 +9,7 @@
     <Import_RootNamespace>Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ResourceUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shared.Constants.cs" />
   </ItemGroup>
 </Project>

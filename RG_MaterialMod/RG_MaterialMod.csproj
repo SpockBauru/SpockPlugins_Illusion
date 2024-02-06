@@ -1,161 +1,125 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D7B27052-28F5-481B-B972-8A05293F79CF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IllusionPlugins</RootNamespace>
-    <AssemblyName>RG_MaterialMod</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;RG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;RG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\RoomGirlLibs\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\RoomGirlLibs\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Core">
-      <HintPath>..\RoomGirlLibs\BepInEx.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.IL2CPP">
-      <HintPath>..\RoomGirlLibs\BepInEx.IL2CPP.dll</HintPath>
-    </Reference>
-    <Reference Include="IL, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\IL.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2Cppmscorlib">
-      <HintPath>..\RoomGirlLibs\Il2Cppmscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppSystem">
-      <HintPath>..\RoomGirlLibs\Il2CppSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppSystem.Memory, Version=4.0.1.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\Il2CppSystem.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="MessagePack, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\MessagePack.dll</HintPath>
-    </Reference>
-    <Reference Include="RG_ExtensibleSaveFormat">
-      <HintPath>..\RoomGirlLibs\RG_ExtensibleSaveFormat.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="UnhollowerBaseLib">
-      <HintPath>..\RoomGirlLibs\UnhollowerBaseLib.dll</HintPath>
-    </Reference>
-    <Reference Include="UnhollowerRuntimeLib">
-      <HintPath>..\RoomGirlLibs\UnhollowerRuntimeLib.dll</HintPath>
-    </Reference>
-    <Reference Include="UniRx, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\UniRx.dll</HintPath>
-    </Reference>
-    <Reference Include="UniTask, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\UniTask.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.HighDefinition.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\Unity.RenderPipelines.HighDefinition.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\RoomGirlLibs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\RoomGirlLibs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\RoomGirlLibs\UnityEngine.InputLegacyModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputModule">
-      <HintPath>..\RoomGirlLibs\UnityEngine.InputModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\RoomGirlLibs\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\RoomGirlLibs\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="RG_MaterialMod_ActionScene_Hooks.cs" />
-    <Compile Include="RG_HScenes\RG_MaterialMod_HScenes_Hooks.cs" />
-    <Compile Include="RG_Maker\RG_MaterialMod_Maker_Hooks.cs" />
-    <Compile Include="MaterialModMonoBehaviour.cs" />
-    <Compile Include="RG_MaterialMod_Studio.cs" />
-    <Compile Include="RG_MaterialMod_Studio_Hooks.cs" />
-    <Compile Include="UVMap.cs" />
-    <Compile Include="FileManager.cs" />
-    <Compile Include="RG_MaterialMod_CardManager.cs" />
-    <Compile Include="RG_Maker\RG_MaterialMod_Maker.cs" />
-    <Compile Include="TextureTools.cs" />
-    <Compile Include="MaterialModResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MaterialModResources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="RG_MaterialMod_Hooks.cs" />
-    <Compile Include="RG_MaterialMod.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UITools.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="MaterialModResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MaterialModResources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\btnNormal_png" />
-    <None Include="resources\checkMark_png" />
-    <None Include="resources\dropdownArrow_png" />
-    <None Include="resources\dropdownStandard_png" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)bin\BepInEx\plugins\" /s /i /y
-xcopy "$(TargetPath)" "D:\RG_dev\BepInEx\plugins" /s /i /y</PostBuildEvent>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<RootNamespace>IllusionPlugins</RootNamespace>
+		
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Nullable>warnings</Nullable>
+		<LangVersion>latest</LangVersion>
+		
+		<OutputPath>..\bin</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		
+		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+
+		<DebugType>embedded</DebugType>
+		<WarningLevel>9999</WarningLevel>
+
+		<DefineConstants>$(DefineConstants);RG;IL2CPP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="resources\btnNormal.png" />
+	  <None Remove="resources\checkMark.png" />
+	  <None Remove="resources\dropdownArrow.png" />
+	  <None Remove="resources\dropdownStandard.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="resources\btnNormal.png" />
+	  <EmbeddedResource Include="resources\checkMark.png" />
+	  <EmbeddedResource Include="resources\dropdownArrow.png" />
+	  <EmbeddedResource Include="resources\dropdownStandard.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="BepInEx.IL2CPP" Version="6.0.0-pre.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Assembly-CSharp">
+	    <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Assembly-CSharp-firstpass">
+	    <HintPath>..\lib\Assembly-CSharp-firstpass.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Cinemachine">
+	    <HintPath>..\lib\Cinemachine.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="IL">
+	    <HintPath>..\lib\IL.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Il2Cppmscorlib">
+	    <HintPath>..\lib\Il2Cppmscorlib.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Ionic.Zip">
+	    <HintPath>..\lib\Ionic.Zip.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="MessagePack">
+	    <HintPath>..\lib\MessagePack.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="MessagePack.Annotations">
+	    <HintPath>..\lib\MessagePack.Annotations.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="RG_ExtensibleSaveFormat">
+	    <HintPath>..\lib\RG_ExtensibleSaveFormat.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UniRx">
+	    <HintPath>..\lib\UniRx.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UniTask">
+	    <HintPath>..\lib\UniTask.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine">
+	    <HintPath>..\lib\UnityEngine.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.AssetBundleModule">
+	    <HintPath>..\lib\UnityEngine.AssetBundleModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.AudioModule">
+	    <HintPath>..\lib\UnityEngine.AudioModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.CoreModule">
+	    <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.ImageConversionModule">
+	    <HintPath>..\lib\UnityEngine.ImageConversionModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.TextRenderingModule">
+	    <HintPath>..\lib\UnityEngine.TextRenderingModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.UI">
+	    <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="UnityEngine.UIModule">
+	    <HintPath>..\lib\UnityEngine.UIModule.dll</HintPath>
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+
+	<Import Project="..\Shared\Shared.projitems" Label="Shared" />
+
 </Project>

@@ -125,7 +125,7 @@ namespace RG_Cheats
                 statusUI = __instance;
                 Canvas canvasStatusUI = statusUI.transform.Find("MoveArea").GetComponent<Canvas>();
 
-                if (bundle == null) bundle = AssetBundle.LoadFromMemory(CheatsResources.cheatcanvas);
+                if (bundle == null) bundle = AssetBundle.LoadFromMemory(IllusionPlugins.ResourceUtils.GetEmbeddedResource("cheatcanvas", typeof(RG_CheatsPlugin).Assembly));
                 cheatUI = RG_CheatsPlugin.InstantiateFromBundle(bundle, "CheatCanvas");
 
                 //=========================== Cheat Canvas 1 - Top =================================

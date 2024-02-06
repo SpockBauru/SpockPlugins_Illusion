@@ -114,7 +114,7 @@ namespace IllusionPlugins
             image.pixelsPerUnitMultiplier = 2f;
 
             // Image content
-            buttonSprite = CreateSprite(MaterialModResources.btnNormal_png, 25);
+            buttonSprite = CreateSprite(ResourceUtils.GetEmbeddedResource("btnNormal.png", typeof(RG_MaterialMod).Assembly), 25);
 
             image.sprite = buttonSprite;
 
@@ -198,13 +198,13 @@ namespace IllusionPlugins
         public static Dropdown CreateDropdown(int width, int height, int fontSize)
         {
             // Standard Sprite
-            standardSprite = CreateSprite(MaterialModResources.dropdownStandard_png, 5);
+            standardSprite = CreateSprite(ResourceUtils.GetEmbeddedResource("dropdownStandard.png", typeof(RG_MaterialMod).Assembly) , 5);
 
             // Arrow Sprite
-            arrowSprite = CreateSprite(MaterialModResources.dropdownArrow_png, 0);
+            arrowSprite = CreateSprite(ResourceUtils.GetEmbeddedResource("dropdownArrow.png", typeof(RG_MaterialMod).Assembly), 0);
 
             // Checkmark
-            checkSprite = CreateSprite(MaterialModResources.checkMark_png, 0);
+            checkSprite = CreateSprite(ResourceUtils.GetEmbeddedResource("checkMark.png", typeof(RG_MaterialMod).Assembly), 0);
 
             DefaultControls.Resources uiResources = new DefaultControls.Resources();
             //Set the Dropdown Background and Handle Image someBgSprite;
