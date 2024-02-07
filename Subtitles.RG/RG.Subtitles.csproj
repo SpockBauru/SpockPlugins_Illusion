@@ -19,6 +19,10 @@
 		<DefineConstants>$(DefineConstants);RG;IL2CPP</DefineConstants>
 	</PropertyGroup>
 
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Delete Files="$(OutputPath)\$(AssemblyName).deps.json" />
+	</Target>
+
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8">
 			<PrivateAssets>all</PrivateAssets>

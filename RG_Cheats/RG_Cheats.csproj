@@ -20,20 +20,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="ConsoleREPL.cs" />
 	  <Compile Remove="ConsoleREPL.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Remove="cheatcanvas.unity3d" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <EmbeddedResource Include="cheatcanvas.unity3d" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Include="ConsoleREPL.cs" />
-	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Delete Files="$(OutputPath)\$(AssemblyName).deps.json" />
+	</Target>
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8">
